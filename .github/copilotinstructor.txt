@@ -1,3 +1,5 @@
+Tôi muốn xây dựng dự án này
+Nghiệp vụ:
 ĐỀ CƯƠNG CHI TIẾT
 KHÓA LUẬN TỐT NGHIỆP NGÀNH CNTT NĂM HỌC 2025 – 2026
 
@@ -909,3 +911,11 @@ Tác nhân: **Lễ tân**
 5.  `ThanhToanDB` "Trả kết quả lưu" (true/false) về cho `ThanhToan`.
 6.  `ThanhToan` "Thông báo kết quả" về cho `MHThanhToan`.
 7.  `MHThanhToan` "Hiển thị 'Thanh toán thành công'" cho **Lễ tân**.
+
+trước hết, làm cho tôi những việc sau:
+    1.  **Khởi tạo Project:** Tạo một giải pháp (Solution) ASP.NET Core Web API.
+    2.  **Cài đặt Gói:** Cài đặt `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.AspNetCore.Authentication.JwtBearer` (cho JWT).
+    3.  **Tạo Models & DbContext:**
+        * **Cách nhanh nhất:** Dùng lệnh `dotnet ef dbcontext scaffold` để tự động tạo Models và DbContext từ CSDL bạn vừa tạo ở Buổi sáng.
+    4.  **Tạo Services (Tầng nghiệp vụ):** Tạo cấu trúc `Services` / `Repositories` (VD: `IAuthService`, `AuthService`).
+(sử dụng thư mục Backend) (dùng NET 8.0)
