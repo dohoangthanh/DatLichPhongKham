@@ -913,9 +913,16 @@ Tác nhân: **Lễ tân**
 7.  `MHThanhToan` "Hiển thị 'Thanh toán thành công'" cho **Lễ tân**.
 
 trước hết, làm cho tôi những việc sau:
-    1.  **Khởi tạo Project:** Tạo một giải pháp (Solution) ASP.NET Core Web API.
-    2.  **Cài đặt Gói:** Cài đặt `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.AspNetCore.Authentication.JwtBearer` (cho JWT).
-    3.  **Tạo Models & DbContext:**
-        * **Cách nhanh nhất:** Dùng lệnh `dotnet ef dbcontext scaffold` để tự động tạo Models và DbContext từ CSDL bạn vừa tạo ở Buổi sáng.
-    4.  **Tạo Services (Tầng nghiệp vụ):** Tạo cấu trúc `Services` / `Repositories` (VD: `IAuthService`, `AuthService`).
+    1.  **Tạo `DoctorsController`:**
+        * `GET /api/doctors`: Lấy danh sách bác sĩ (có thể lọc theo chuyên khoa).
+        * `POST /api/doctors`: Thêm bác sĩ mới (dựa trên sơ đồ `MHThemBacSi`).
+        * `PUT /api/doctors/{id}`: Cập nhật thông tin bác sĩ.
+    2.  **Tạo `ServicesController`:**
+        * `GET /api/services`: Lấy danh sách dịch vụ.
+        * `POST /api/services`: Thêm dịch vụ mới (dựa trên sơ đồ `MHThemDichVu`).
+    3.  **Tạo `ScheduleController`:**
+        * `POST /api/schedule/workshift`: Thêm ca làm việc (`WorkShift`) cho bác sĩ.
+        * `GET /api/schedule/workshift/{doctorId}`: Lấy ca làm việc của 1 bác sĩ.
+    4.  **Bảo vệ Endpoints:** Thêm `[Authorize(Roles = "Admin")]` cho tất cả các endpoints này.
+    5.  **Kiểm thử:** Dùng Postman (gắn Token Admin đã lấy hôm qua) để test CRUD.
 (sử dụng thư mục Backend) (dùng NET 8.0)

@@ -6,7 +6,7 @@ namespace QuanLyKhamBenhAPI.Repositories
 {
     public interface IUserRepository
     {
-        Task<UserAccount> GetByUsernameAsync(string username);
+        Task<UserAccount?> GetByUsernameAsync(string username);
         Task<IEnumerable<UserAccount>> GetAllAsync();
         Task AddAsync(UserAccount user);
         Task UpdateAsync(UserAccount user);

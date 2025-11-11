@@ -19,6 +19,8 @@ public partial class QuanLyKhamBenhContext : DbContext
 
     public virtual DbSet<AppointmentService> AppointmentServices { get; set; }
 
+    public virtual DbSet<AppSetting> AppSettings { get; set; }
+
     public virtual DbSet<Doctor> Doctors { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
@@ -367,6 +369,13 @@ public partial class QuanLyKhamBenhContext : DbContext
             entity.HasOne(d => d.Doctor).WithMany(p => p.WorkShifts)
                 .HasForeignKey(d => d.DoctorId)
                 .HasConstraintName("FK__WorkShift__docto__4316F928");
+
+            modelBuilder.Entity<AppSetting>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Value).IsRequired().HasMaxLength(500);
+            });
         });
 
         OnModelCreatingPartial(modelBuilder);

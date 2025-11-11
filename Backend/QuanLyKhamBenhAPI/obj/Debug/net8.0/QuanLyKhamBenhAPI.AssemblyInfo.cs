@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuanLyKhamBenhAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b28a186473630ed594b3bc7512a1f21bde7ec7da")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+457c3a15726fe7d56d272fb359fc16034c397b47")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuanLyKhamBenhAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuanLyKhamBenhAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

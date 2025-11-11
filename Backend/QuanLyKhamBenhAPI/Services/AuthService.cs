@@ -21,14 +21,14 @@ namespace QuanLyKhamBenhAPI.Services
             _jwtSecret = jwtSecret;
         }
 
-        public async Task<string> AuthenticateAsync(string username, string password)
+        public Task<string?> AuthenticateAsync(string username, string password)
         {
             // Implement authentication logic here
             // For example, check against UserAccount table
             var user = _context.UserAccounts.FirstOrDefault(u => u.Username == username);
             if (user == null || !VerifyPassword(password, user.PasswordHash))
             {
-                return null;
+                return Task.FromResult((string?)null);
             }
 
             // Generate JWT token
@@ -45,7 +45,7 @@ namespace QuanLyKhamBenhAPI.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return Task.FromResult<string?>(tokenHandler.WriteToken(token));
         }
 
         public async Task<bool> RegisterAsync(string username, string password, string name, string phone, string address)
@@ -74,6 +74,28 @@ namespace QuanLyKhamBenhAPI.Services
                 PasswordHash = HashPassword(password),
                 Role = "Patient", // Default role for patients
                 PatientId = patient.PatientId
+            };
+
+            _context.UserAccounts.Add(userAccount);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RegisterUserAsync(string username, string password, string role, int? doctorId = null, int? patientId = null)
+        {
+            // Check if username already exists
+            if (_context.UserAccounts.Any(u => u.Username == username))
+            {
+                return false;
+            }
+
+            var userAccount = new UserAccount
+            {
+                Username = username,
+                PasswordHash = HashPassword(password),
+                Role = role,
+                DoctorId = doctorId,
+                PatientId = patientId
             };
 
             _context.UserAccounts.Add(userAccount);

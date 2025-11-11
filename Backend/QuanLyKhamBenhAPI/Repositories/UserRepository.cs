@@ -15,7 +15,7 @@ namespace QuanLyKhamBenhAPI.Repositories
             _context = context;
         }
 
-        public async Task<UserAccount> GetByUsernameAsync(string username)
+        public async Task<UserAccount?> GetByUsernameAsync(string username)
         {
             return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == username);
         }
