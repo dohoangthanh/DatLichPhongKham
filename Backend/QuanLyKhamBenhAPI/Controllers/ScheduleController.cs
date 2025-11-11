@@ -83,6 +83,63 @@ namespace QuanLyKhamBenhAPI.Controllers
             return Ok(workShifts);
         }
 
+        [HttpPut("workshift/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> PutWorkShift(int id, UpdateWorkShiftDto dto)
+        {
+            var workShift = await _context.WorkShifts.FindAsync(id);
+            if (workShift == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(dto.Date) && DateOnly.TryParse(dto.Date, out var date))
+                workShift.Date = date;
+            if (!string.IsNullOrEmpty(dto.StartTime))
+                workShift.StartTime = TimeOnly.Parse(dto.StartTime);
+            if (!string.IsNullOrEmpty(dto.EndTime))
+                workShift.EndTime = TimeOnly.Parse(dto.EndTime);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!WorkShiftExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("workshift/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteWorkShift(int id)
+        {
+            var workShift = await _context.WorkShifts.FindAsync(id);
+            if (workShift == null)
+            {
+                return NotFound();
+            }
+
+            _context.WorkShifts.Remove(workShift);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool WorkShiftExists(int id)
+        {
+            return _context.WorkShifts.Any(e => e.ShiftId == id);
+        }
+
         private async Task<UserAccount?> GetCurrentUser()
         {
             var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;

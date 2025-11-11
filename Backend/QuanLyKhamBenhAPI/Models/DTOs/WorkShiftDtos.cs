@@ -16,4 +16,11 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string StartTime { get; set; }
         public required string EndTime { get; set; }
     }
+
+    public class UpdateWorkShiftDto
+    {
+        public string? Date { get; set; }
+        public string? StartTime { get; set; }
+        public string? EndTime { get; set; }
+    }
 }

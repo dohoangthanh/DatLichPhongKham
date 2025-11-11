@@ -37,4 +37,11 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public int? RecordId { get; set; }
         // Không include Record để tránh vòng lặp
     }
+
+    public class UpdateMedicalRecordDto
+    {
+        public string? Symptoms { get; set; }
+        public string? Diagnosis { get; set; }
+        public string? Treatment { get; set; }
+    }
 }

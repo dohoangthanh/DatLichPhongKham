@@ -69,5 +69,55 @@ namespace QuanLyKhamBenhAPI.Controllers
 
             return Ok(dto);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutSpecialty(int id, UpdateSpecialtyDto dto)
+        {
+            var specialty = await _context.Specialties.FindAsync(id);
+            if (specialty == null)
+            {
+                return NotFound();
+            }
+
+            specialty.Name = dto.Name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SpecialtyExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSpecialty(int id)
+        {
+            var specialty = await _context.Specialties.FindAsync(id);
+            if (specialty == null)
+            {
+                return NotFound();
+            }
+
+            _context.Specialties.Remove(specialty);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool SpecialtyExists(int id)
+        {
+            return _context.Specialties.Any(e => e.SpecialtyId == id);
+        }
     }
 }

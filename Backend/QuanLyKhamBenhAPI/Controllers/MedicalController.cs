@@ -276,6 +276,74 @@ public class MedicalController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpPut("records/{id}")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> PutMedicalRecord(int id, UpdateMedicalRecordDto dto)
+    {
+        var user = await GetCurrentUser();
+        if (user == null) return Unauthorized();
+
+        var record = await _context.MedicalRecords.FindAsync(id);
+        if (record == null) return NotFound();
+
+        // Only the doctor who created the record can update it
+        var appointment = await _context.Appointments.FindAsync(record.AppointmentId);
+        if (appointment == null || appointment.DoctorId != user.DoctorId)
+        {
+            return Forbid();
+        }
+
+        if (!string.IsNullOrEmpty(dto.Symptoms)) record.Symptoms = dto.Symptoms;
+        if (!string.IsNullOrEmpty(dto.Diagnosis)) record.Diagnosis = dto.Diagnosis;
+        if (!string.IsNullOrEmpty(dto.Treatment)) record.Treatment = dto.Treatment;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!MedicalRecordExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("records/{id}")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> DeleteMedicalRecord(int id)
+    {
+        var user = await GetCurrentUser();
+        if (user == null) return Unauthorized();
+
+        var record = await _context.MedicalRecords.FindAsync(id);
+        if (record == null) return NotFound();
+
+        // Only the doctor who created the record can delete it
+        var appointment = await _context.Appointments.FindAsync(record.AppointmentId);
+        if (appointment == null || appointment.DoctorId != user.DoctorId)
+        {
+            return Forbid();
+        }
+
+        _context.MedicalRecords.Remove(record);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool MedicalRecordExists(int id)
+    {
+        return _context.MedicalRecords.Any(e => e.RecordId == id);
+    }
+
     private async Task<UserAccount?> GetCurrentUser()
     {
         var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
