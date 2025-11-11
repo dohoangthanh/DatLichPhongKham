@@ -32,7 +32,30 @@ export default function LoginPage() {
 
     try {
       await login(formData.username, formData.password)
-      router.push('/')
+      
+      // Small delay to ensure localStorage is updated
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Check user role from localStorage after login
+      const storedUser = localStorage.getItem('user')
+      console.log('After login - Stored user:', storedUser)
+      
+      if (storedUser) {
+        const user = JSON.parse(storedUser)
+        console.log('After login - Parsed user:', user)
+        console.log('User role:', user.role)
+        
+        if (user.role === 'Admin') {
+          console.log('Redirecting to admin dashboard')
+          window.location.href = '/admin/dashboard'
+        } else {
+          console.log('Redirecting to home')
+          window.location.href = '/'
+        }
+      } else {
+        console.log('No stored user, redirecting to home')
+        window.location.href = '/'
+      }
     } catch (err: any) {
       setError(err.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
     } finally {

@@ -913,16 +913,13 @@ Tác nhân: **Lễ tân**
 7.  `MHThanhToan` "Hiển thị 'Thanh toán thành công'" cho **Lễ tân**.
 
 trước hết, làm cho tôi những việc sau:
-    1.  **Tạo `DoctorsController`:**
-        * `GET /api/doctors`: Lấy danh sách bác sĩ (có thể lọc theo chuyên khoa).
-        * `POST /api/doctors`: Thêm bác sĩ mới (dựa trên sơ đồ `MHThemBacSi`).
-        * `PUT /api/doctors/{id}`: Cập nhật thông tin bác sĩ.
-    2.  **Tạo `ServicesController`:**
-        * `GET /api/services`: Lấy danh sách dịch vụ.
-        * `POST /api/services`: Thêm dịch vụ mới (dựa trên sơ đồ `MHThemDichVu`).
-    3.  **Tạo `ScheduleController`:**
-        * `POST /api/schedule/workshift`: Thêm ca làm việc (`WorkShift`) cho bác sĩ.
-        * `GET /api/schedule/workshift/{doctorId}`: Lấy ca làm việc của 1 bác sĩ.
-    4.  **Bảo vệ Endpoints:** Thêm `[Authorize(Roles = "Admin")]` cho tất cả các endpoints này.
-    5.  **Kiểm thử:** Dùng Postman (gắn Token Admin đã lấy hôm qua) để test CRUD.
-(sử dụng thư mục Backend) (dùng NET 8.0)
+Frontend Web (Next.js) - Luồng Admin**
+    1.  **Tạo Private Route:** Tạo một component `AdminLayout` hoặc HOC (`withAuth`) để kiểm tra `user.role === 'Admin'`.
+    2.  **Trang Quản lý Bác sĩ:**
+        * Tạo trang `pages/admin/doctors.js`.
+        * Dùng `useEffect` gọi API `GET /api/doctors` và hiển thị ra bảng.
+        * Tạo 1 Modal/Form (dựa trên `MHThemBacSi`) để gọi API `POST /api/doctors`.
+    3.  **Trang Quản lý Dịch vụ:** Tương tự, tạo `pages/admin/services.js` (dựa trên `MHThemDichVu`).
+    4.  **Trang Quản lý Lịch làm việc:** (Nếu còn thời gian) Tạo form đơn giản để thêm `WorkShift` cho bác sĩ.
+
+chú ý là k đc chèn icon là 1, 2 là logo thì sẽ đồng bộ so với trang chủ, 3 là layout nhập các trường thông tin tham khảo backend api để nhập sao cho hợp lý, 4 là thiết kế sẽ tham khảo như trên ảnh

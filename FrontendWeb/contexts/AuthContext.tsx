@@ -66,10 +66,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Decode JWT token to get user info
       const tokenPayload = JSON.parse(atob(data.token.split('.')[1]))
+      
+      console.log('Token Payload:', tokenPayload)
+      
       const user: User = {
-        username: tokenPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-        role: tokenPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+        username: tokenPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || tokenPayload.name || tokenPayload.unique_name,
+        role: tokenPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || tokenPayload.role,
       }
+      
+      console.log('Parsed User:', user)
       
       setToken(data.token)
       setUser(user)
@@ -77,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(user))
     } catch (error) {
+      console.error('Login error:', error)
       throw error
     }
   }
