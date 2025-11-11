@@ -922,4 +922,4 @@ Frontend Web (Next.js) - Luồng Admin**
     3.  **Trang Quản lý Dịch vụ:** Tương tự, tạo `pages/admin/services.js` (dựa trên `MHThemDichVu`).
     4.  **Trang Quản lý Lịch làm việc:** (Nếu còn thời gian) Tạo form đơn giản để thêm `WorkShift` cho bác sĩ.
 
-chú ý là k đc chèn icon là 1, 2 là logo thì sẽ đồng bộ so với trang chủ, 3 là layout nhập các trường thông tin tham khảo backend api để nhập sao cho hợp lý, 4 là thiết kế sẽ tham khảo như trên ảnh
+chú ý là k đc chèn icon là 1, 2 là logo thì sẽ đồng bộ so với trang chủ, 3 là layout nhập các trường thông tin tham khảo backend api để nhập sao cho hợp lý, 4 là thiết kế sẽ tham khảo như trên ảnh, 5 là không tạo file test, file mô tả

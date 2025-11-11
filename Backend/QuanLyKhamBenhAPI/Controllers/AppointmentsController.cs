@@ -105,6 +105,15 @@ namespace QuanLyKhamBenhAPI.Controllers
                     DoctorId = appointment.Doctor.DoctorId,
                     Name = appointment.Doctor.Name,
                     SpecialtyName = appointment.Doctor.Specialty?.Name ?? "Unknown"
+                } : null,
+                Patient = appointment.Patient != null ? new PatientSummaryDto
+                {
+                    PatientId = appointment.Patient.PatientId,
+                    Name = appointment.Patient.Name,
+                    Phone = appointment.Patient.Phone,
+                    Dob = appointment.Patient.Dob?.ToString("yyyy-MM-dd"),
+                    Gender = appointment.Patient.Gender,
+                    Address = appointment.Patient.Address
                 } : null
             };
 

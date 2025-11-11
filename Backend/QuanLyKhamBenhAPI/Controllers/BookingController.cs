@@ -95,9 +95,20 @@ public class BookingController : ControllerBase
             return BadRequest("Invalid patient account.");
         }
 
+        // Parse date and time
+        if (!DateOnly.TryParse(request.Date, out var parsedDate))
+        {
+            return BadRequest("Invalid date format. Use YYYY-MM-DD.");
+        }
+
+        if (!TimeOnly.TryParse(request.Time, out var parsedTime))
+        {
+            return BadRequest("Invalid time format. Use HH:mm:ss or HH:mm.");
+        }
+
         // Check if slot is available
         var existingAppointment = await _context.Appointments
-            .AnyAsync(a => a.DoctorId == request.DoctorId && a.Date == request.Date && a.Time == request.Time && a.Status != "Cancelled");
+            .AnyAsync(a => a.DoctorId == request.DoctorId && a.Date == parsedDate && a.Time == parsedTime && a.Status != "Cancelled");
 
         if (existingAppointment)
         {
@@ -106,8 +117,8 @@ public class BookingController : ControllerBase
 
         var appointment = new Appointment
         {
-            Date = request.Date,
-            Time = request.Time,
+            Date = parsedDate,
+            Time = parsedTime,
             Status = "Scheduled",
             PatientId = userAccount.PatientId.Value,
             DoctorId = request.DoctorId
@@ -118,11 +129,59 @@ public class BookingController : ControllerBase
 
         return CreatedAtAction(nameof(CreateAppointment), new { id = appointment.AppointmentId }, appointment);
     }
+
+    // GET /api/booking/my-appointments
+    [HttpGet("my-appointments")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyAppointments()
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
+        if (userIdClaim == null)
+        {
+            return Unauthorized();
+        }
+
+        var userAccount = await _context.UserAccounts
+            .FirstOrDefaultAsync(ua => ua.Username == userIdClaim.Value);
+
+        if (userAccount == null || !userAccount.PatientId.HasValue)
+        {
+            return BadRequest("Invalid patient account.");
+        }
+
+        var appointments = await _context.Appointments
+            .Where(a => a.PatientId == userAccount.PatientId.Value)
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d!.Specialty)
+            .OrderByDescending(a => a.Date)
+            .ThenByDescending(a => a.Time)
+            .Select(a => new
+            {
+                a.AppointmentId,
+                a.Date,
+                a.Time,
+                a.Status,
+                Doctor = a.Doctor != null ? new
+                {
+                    a.Doctor.DoctorId,
+                    a.Doctor.Name,
+                    a.Doctor.Phone
+                } : null,
+                Specialty = a.Doctor != null && a.Doctor.Specialty != null ? new
+                {
+                    a.Doctor.Specialty.SpecialtyId,
+                    a.Doctor.Specialty.Name
+                } : null
+            })
+            .ToListAsync();
+
+        return Ok(appointments);
+    }
 }
 
 public class CreateAppointmentRequest
 {
-    public DateOnly Date { get; set; }
-    public TimeOnly Time { get; set; }
-    public int DoctorId { get; set; }
+    public required string Date { get; set; }
+    public required string Time { get; set; }
+    public required int DoctorId { get; set; }
 }

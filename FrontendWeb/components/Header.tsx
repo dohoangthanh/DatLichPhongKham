@@ -1,14 +1,27 @@
-import React from 'react'
+'use client'
 
+import React from 'react'
 import Image from 'next/image'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const Header: React.FC = () => {
+  const { user, logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      logout()
+      router.push('/')
+    }
+  }
+
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(user ? (user.role === 'Patient' ? '/patient' : '/') : '/')}>
             <div className="relative w-12 h-12 flex-shrink-0">
               <Image
                 src="/images/logo.png"
@@ -50,21 +63,36 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Auth Buttons */}
-          <div className="flex gap-3">
-            <a
-              href="/register"
-              className="px-6 py-2 border-2 border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition"
-            >
-              Đăng ký
-            </a>
-            <a
-              href="/login"
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-            >
-              Đăng nhập
-            </a>
-          </div>
+          {/* Auth Buttons or User Info */}
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Xin chào,</p>
+                <p className="font-semibold text-blue-600">{user.username}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/register')}
+                className="px-6 py-2 border-2 border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition"
+              >
+                Đăng ký
+              </button>
+              <button
+                onClick={() => router.push('/login')}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+              >
+                Đăng nhập
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

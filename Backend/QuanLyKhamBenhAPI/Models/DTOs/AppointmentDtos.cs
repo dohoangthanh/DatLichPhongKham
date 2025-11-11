@@ -7,6 +7,17 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string Time { get; set; }
         public required string Status { get; set; }
         public DoctorSummaryDto? Doctor { get; set; }
+        public PatientSummaryDto? Patient { get; set; }
+    }
+
+    public class PatientSummaryDto
+    {
+        public int PatientId { get; set; }
+        public required string Name { get; set; }
+        public string? Phone { get; set; }
+        public string? Dob { get; set; }
+        public string? Gender { get; set; }
+        public string? Address { get; set; }
     }
 
     public class DoctorSummaryDto

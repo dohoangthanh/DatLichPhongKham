@@ -16,8 +16,14 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && user && user.role === 'Admin') {
-      router.replace('/admin/dashboard')
+    if (!loading && user) {
+      if (user.role === 'Admin') {
+        router.replace('/admin/dashboard')
+      } else if (user.role === 'Doctor') {
+        router.replace('/doctor/schedule')
+      } else if (user.role === 'Patient') {
+        router.replace('/patient')
+      }
     }
   }, [user, loading, router])
 
@@ -33,8 +39,8 @@ export default function Home() {
     )
   }
 
-  // Don't render home page for Admin users
-  if (user && user.role === 'Admin') {
+  // Don't render home page for logged-in users
+  if (user) {
     return null
   }
 
