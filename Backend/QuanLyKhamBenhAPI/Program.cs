@@ -68,6 +68,7 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 });
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
