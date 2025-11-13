@@ -2,11 +2,11 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using QuanLyKhamBenhAPI.Models;
+using BCrypt.Net;
 
 namespace QuanLyKhamBenhAPI.Services
 {
@@ -106,19 +106,12 @@ namespace QuanLyKhamBenhAPI.Services
 
         private bool VerifyPassword(string password, string hash)
         {
-            // Simple verification (in production, use proper hashing like BCrypt)
-            return HashPassword(password) == hash;
+            return BCrypt.Net.BCrypt.Verify(password, hash);
         }
 
         private string HashPassword(string password)
         {
-            // Simple hashing (in production, use BCrypt or similar)
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
-            }
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
 }

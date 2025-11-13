@@ -35,10 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (success) {
           Navigator.pushReplacementNamed(context, '/home');
         } else {
+          final errorMessage = authService.loginError ?? 'Invalid username or password';
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid username or password'),
+            SnackBar(
+              content: Text(errorMessage),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
             ),
           );
         }

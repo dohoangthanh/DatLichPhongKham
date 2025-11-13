@@ -21,12 +21,14 @@ namespace QuanLyKhamBenhAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<SpecialtyDto>>> GetSpecialties()
         {
             var specialties = await _context.Specialties.Select(s => new SpecialtyDto
             {
                 SpecialtyId = s.SpecialtyId,
-                Name = s.Name
+                Name = s.Name,
+                Description = s.Description
             }).ToListAsync();
 
             return Ok(specialties);
@@ -37,7 +39,8 @@ namespace QuanLyKhamBenhAPI.Controllers
         {
             var specialty = new Specialty
             {
-                Name = dto.Name
+                Name = dto.Name,
+                Description = dto.Description
             };
 
             _context.Specialties.Add(specialty);
@@ -46,13 +49,15 @@ namespace QuanLyKhamBenhAPI.Controllers
             var createdDto = new SpecialtyDto
             {
                 SpecialtyId = specialty.SpecialtyId,
-                Name = specialty.Name
+                Name = specialty.Name,
+                Description = specialty.Description
             };
 
             return CreatedAtAction("GetSpecialty", new { id = specialty.SpecialtyId }, createdDto);
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<SpecialtyDto>> GetSpecialty(int id)
         {
             var specialty = await _context.Specialties.FindAsync(id);
@@ -64,7 +69,8 @@ namespace QuanLyKhamBenhAPI.Controllers
             var dto = new SpecialtyDto
             {
                 SpecialtyId = specialty.SpecialtyId,
-                Name = specialty.Name
+                Name = specialty.Name,
+                Description = specialty.Description
             };
 
             return Ok(dto);
@@ -80,6 +86,7 @@ namespace QuanLyKhamBenhAPI.Controllers
             }
 
             specialty.Name = dto.Name;
+            specialty.Description = dto.Description;
 
             try
             {
@@ -103,10 +110,19 @@ namespace QuanLyKhamBenhAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSpecialty(int id)
         {
-            var specialty = await _context.Specialties.FindAsync(id);
+            var specialty = await _context.Specialties
+                .Include(s => s.Doctors)
+                .FirstOrDefaultAsync(s => s.SpecialtyId == id);
+            
             if (specialty == null)
             {
                 return NotFound();
+            }
+
+            // Check if specialty has doctors
+            if (specialty.Doctors.Any())
+            {
+                return BadRequest("Không thể xóa chuyên khoa đang có bác sĩ");
             }
 
             _context.Specialties.Remove(specialty);

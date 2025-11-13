@@ -50,6 +50,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
             "Google.Apis.AIPlatform.v1": {
               "target": "Package",
               "version": "[1.68.0.3374, )"

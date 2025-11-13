@@ -179,3 +179,4 @@ C:\Users\minhk\Downloads\QuanLyKhamBenh\Backend\QuanLyKhamBenhAPI\bin\Debug\net8
 C:\Users\minhk\Downloads\QuanLyKhamBenh\Backend\QuanLyKhamBenhAPI\bin\Debug\net8.0\System.Management.dll
 C:\Users\minhk\Downloads\QuanLyKhamBenh\Backend\QuanLyKhamBenhAPI\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll
 C:\Users\minhk\Downloads\QuanLyKhamBenh\Backend\QuanLyKhamBenhAPI\bin\Debug\net8.0\appsettings.template.json
+C:\Users\minhk\Downloads\QuanLyKhamBenh\Backend\QuanLyKhamBenhAPI\bin\Debug\net8.0\BCrypt.Net-Next.dll

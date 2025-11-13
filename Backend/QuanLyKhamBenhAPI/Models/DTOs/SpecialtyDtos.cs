@@ -4,15 +4,18 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
     {
         public int SpecialtyId { get; set; }
         public required string Name { get; set; }
+        public string? Description { get; set; }
     }
 
     public class CreateSpecialtyDto
     {
         public required string Name { get; set; }
+        public string? Description { get; set; }
     }
 
     public class UpdateSpecialtyDto
     {
         public required string Name { get; set; }
+        public string? Description { get; set; }
     }
 }

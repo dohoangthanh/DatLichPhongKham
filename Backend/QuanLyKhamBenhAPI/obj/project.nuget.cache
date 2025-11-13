@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "wOmm2WAJSBg=",
+  "dgSpecHash": "4RuEMinOxgg=",
   "success": true,
   "projectFilePath": "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\minhk\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\minhk\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\minhk\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\minhk\\.nuget\\packages\\google.apis\\1.68.0\\google.apis.1.68.0.nupkg.sha512",
     "C:\\Users\\minhk\\.nuget\\packages\\google.apis.aiplatform.v1\\1.68.0.3374\\google.apis.aiplatform.v1.1.68.0.3374.nupkg.sha512",
     "C:\\Users\\minhk\\.nuget\\packages\\google.apis.auth\\1.68.0\\google.apis.auth.1.68.0.nupkg.sha512",

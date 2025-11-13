@@ -2,12 +2,19 @@
 
 import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/AdminLayout'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+import { userManagementApi, specialtyApi } from '@/services/adminApi'
 
 interface Specialty {
   specialtyId: number
   name: string
+}
+
+interface UserAccount {
+  userId: number
+  username: string
+  role: string
+  doctorId?: number
+  patientId?: number
 }
 
 interface Doctor {
@@ -15,6 +22,7 @@ interface Doctor {
   name: string
   phone: string
   specialty: Specialty | null
+  userAccount: UserAccount | null
 }
 
 const DoctorsPage: React.FC = () => {
@@ -22,16 +30,25 @@ const DoctorsPage: React.FC = () => {
   const [specialties, setSpecialties] = useState<Specialty[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showAccountModal, setShowAccountModal] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null)
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
 
   const itemsPerPage = 10
 
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    specialtyId: 0
+    specialtyId: 0,
+    username: '',
+    password: ''
+  })
+
+  const [accountFormData, setAccountFormData] = useState({
+    username: '',
+    password: ''
   })
 
   useEffect(() => {
@@ -41,18 +58,11 @@ const DoctorsPage: React.FC = () => {
 
   const fetchDoctors = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/doctors`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setDoctors(data)
-      }
+      const data = await userManagementApi.getDoctorsWithAccounts()
+      setDoctors(data)
     } catch (error) {
       console.error('Error fetching doctors:', error)
+      alert('Lỗi khi tải danh sách bác sĩ!')
     } finally {
       setLoading(false)
     }
@@ -60,16 +70,8 @@ const DoctorsPage: React.FC = () => {
 
   const fetchSpecialties = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/specialties`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setSpecialties(data)
-      }
+      const data = await specialtyApi.getAll()
+      setSpecialties(data)
     } catch (error) {
       console.error('Error fetching specialties:', error)
     }
@@ -77,33 +79,45 @@ const DoctorsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      const token = localStorage.getItem('token')
-      const url = editingDoctor 
-        ? `${API_URL}/doctors/${editingDoctor.doctorId}`
-        : `${API_URL}/doctors`
-      
-      const response = await fetch(url, {
-        method: editingDoctor ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      })
+    
+    if (!formData.name || !formData.phone || formData.specialtyId === 0) {
+      alert('Vui lòng điền đầy đủ thông tin!')
+      return
+    }
 
-      if (response.ok) {
-        setShowModal(false)
-        setFormData({ name: '', phone: '', specialtyId: 0 })
-        setEditingDoctor(null)
-        fetchDoctors()
-        alert(editingDoctor ? 'Cập nhật bác sĩ thành công!' : 'Thêm bác sĩ thành công!')
+    try {
+      if (editingDoctor) {
+        // Update existing doctor
+        await userManagementApi.updateDoctor(editingDoctor.doctorId, {
+          name: formData.name,
+          phone: formData.phone,
+          specialtyId: formData.specialtyId
+        })
+        alert('Cập nhật bác sĩ thành công!')
       } else {
-        alert('Có lỗi xảy ra!')
+        // Create new doctor with account
+        if (!formData.username || !formData.password) {
+          alert('Vui lòng nhập username và password!')
+          return
+        }
+        
+        await userManagementApi.createDoctorWithAccount({
+          name: formData.name,
+          phone: formData.phone,
+          specialtyId: formData.specialtyId,
+          username: formData.username,
+          password: formData.password
+        })
+        alert('Thêm bác sĩ thành công!')
       }
-    } catch (error) {
+      
+      setShowModal(false)
+      setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
+      setEditingDoctor(null)
+      fetchDoctors()
+    } catch (error: any) {
       console.error('Error saving doctor:', error)
-      alert('Có lỗi xảy ra!')
+      alert(error.message || 'Có lỗi xảy ra!')
     }
   }
 
@@ -112,31 +126,81 @@ const DoctorsPage: React.FC = () => {
     setFormData({
       name: doctor.name,
       phone: doctor.phone,
-      specialtyId: doctor.specialty?.specialtyId || 0
+      specialtyId: doctor.specialty?.specialtyId || 0,
+      username: '',
+      password: ''
     })
     setShowModal(true)
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa bác sĩ này?')) return
+    if (!confirm('Bạn có chắc chắn muốn xóa bác sĩ này? Tài khoản liên kết cũng sẽ bị xóa.')) return
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/doctors/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.ok) {
-        fetchDoctors()
-        alert('Xóa bác sĩ thành công!')
-      } else {
-        alert('Có lỗi xảy ra!')
-      }
+      await userManagementApi.deleteDoctor(id)
+      fetchDoctors()
+      alert('Xóa bác sĩ thành công!')
     } catch (error) {
       console.error('Error deleting doctor:', error)
+      alert('Có lỗi xảy ra!')
+    }
+  }
+
+  const handleManageAccount = (doctor: Doctor) => {
+    setSelectedDoctor(doctor)
+    if (doctor.userAccount) {
+      setAccountFormData({
+        username: doctor.userAccount.username,
+        password: ''
+      })
+    } else {
+      setAccountFormData({
+        username: '',
+        password: ''
+      })
+    }
+    setShowAccountModal(true)
+  }
+
+  const handleAccountSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedDoctor?.userAccount) {
+      alert('Bác sĩ này chưa có tài khoản!')
+      return
+    }
+
+    if (!accountFormData.username) {
+      alert('Vui lòng nhập username!')
+      return
+    }
+
+    try {
+      await userManagementApi.updateUserAccount(selectedDoctor.userAccount.userId, {
+        username: accountFormData.username,
+        password: accountFormData.password || undefined
+      })
+      
+      alert('Cập nhật tài khoản thành công!')
+      setShowAccountModal(false)
+      setAccountFormData({ username: '', password: '' })
+      setSelectedDoctor(null)
+      fetchDoctors()
+    } catch (error: any) {
+      console.error('Error updating account:', error)
+      alert(error.message || 'Có lỗi xảy ra!')
+    }
+  }
+
+  const handleResetPassword = async (userId: number) => {
+    const newPassword = prompt('Nhập mật khẩu mới:')
+    if (!newPassword) return
+
+    try {
+      await userManagementApi.resetPassword(userId, newPassword)
+      alert('Đặt lại mật khẩu thành công!')
+    } catch (error) {
+      console.error('Error resetting password:', error)
       alert('Có lỗi xảy ra!')
     }
   }
@@ -174,7 +238,7 @@ const DoctorsPage: React.FC = () => {
           <button
             onClick={() => {
               setEditingDoctor(null)
-              setFormData({ name: '', phone: '', specialtyId: 0 })
+              setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
               setShowModal(true)
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -215,6 +279,9 @@ const DoctorsPage: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Số Điện Thoại
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tài Khoản
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hành Động
                 </th>
@@ -235,13 +302,31 @@ const DoctorsPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {doctor.phone}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {doctor.userAccount ? (
+                      <div className="flex flex-col">
+                        <span className="font-medium">{doctor.userAccount.username}</span>
+                        <span className="text-xs text-gray-500">ID: {doctor.userAccount.userId}</span>
+                      </div>
+                    ) : (
+                      <span className="text-red-500">Chưa có tài khoản</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     <button
                       onClick={() => handleEdit(doctor)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      className="text-blue-600 hover:text-blue-900"
                     >
                       Sửa
                     </button>
+                    {doctor.userAccount && (
+                      <button
+                        onClick={() => handleManageAccount(doctor)}
+                        className="text-green-600 hover:text-green-900"
+                      >
+                        Quản lý TK
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(doctor.doctorId)}
                       className="text-red-600 hover:text-red-900"
@@ -292,10 +377,10 @@ const DoctorsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal Add/Edit Doctor */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">
               {editingDoctor ? 'Cập nhật Bác sĩ' : 'Thêm mới Bác sĩ'}
             </h2>
@@ -347,13 +432,49 @@ const DoctorsPage: React.FC = () => {
                 />
               </div>
 
+              {!editingDoctor && (
+                <>
+                  <div className="border-t pt-4 mt-4">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Thông tin tài khoản</h3>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Username <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required={!editingDoctor}
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Nhập username"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required={!editingDoctor}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Nhập password"
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false)
                     setEditingDoctor(null)
-                    setFormData({ name: '', phone: '', specialtyId: 0 })
+                    setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
@@ -364,6 +485,65 @@ const DoctorsPage: React.FC = () => {
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   {editingDoctor ? 'Cập nhật' : 'Thêm mới'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Manage Account */}
+      {showAccountModal && selectedDoctor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">
+              Quản lý Tài khoản - {selectedDoctor.name}
+            </h2>
+            <form onSubmit={handleAccountSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Username <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={accountFormData.username}
+                  onChange={(e) => setAccountFormData({ ...accountFormData, username: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập username"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password (để trống nếu không đổi)
+                </label>
+                <input
+                  type="password"
+                  value={accountFormData.password}
+                  onChange={(e) => setAccountFormData({ ...accountFormData, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập password mới"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAccountModal(false)
+                    setSelectedDoctor(null)
+                    setAccountFormData({ username: '', password: '' })
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Cập nhật
                 </button>
               </div>
             </form>
