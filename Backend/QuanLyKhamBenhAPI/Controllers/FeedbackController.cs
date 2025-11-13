@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhamBenhAPI.Models;
 using System.Threading.Tasks;
 
@@ -43,11 +44,12 @@ namespace QuanLyKhamBenhAPI.Controllers
 
         private async Task<UserAccount?> GetCurrentUser()
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            var usernameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(usernameClaim))
                 return null;
 
-            return await _context.UserAccounts.FindAsync(userId);
+            return await _context.UserAccounts
+                .FirstOrDefaultAsync(u => u.Username == usernameClaim);
         }
     }
 

@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import FeedbackModal from '@/components/FeedbackModal'
+import ChatbotBubble from '@/components/ChatbotBubble'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -32,6 +34,17 @@ export default function HistoryPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filter, setFilter] = useState('all') // all, scheduled, completed, cancelled
+  const [feedbackModal, setFeedbackModal] = useState<{
+    isOpen: boolean
+    appointmentId: number
+    doctorId: number
+    doctorName: string
+  }>({
+    isOpen: false,
+    appointmentId: 0,
+    doctorId: 0,
+    doctorName: ''
+  })
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'Patient')) {
@@ -283,8 +296,12 @@ export default function HistoryPage() {
                       <button
                         className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition-colors"
                         onClick={() => {
-                          // TODO: Implement feedback
-                          alert('Đánh giá dịch vụ')
+                          setFeedbackModal({
+                            isOpen: true,
+                            appointmentId: appointment.appointmentId,
+                            doctorId: appointment.doctor.doctorId,
+                            doctorName: appointment.doctor.name
+                          })
                         }}
                       >
                         Đánh Giá
@@ -299,6 +316,20 @@ export default function HistoryPage() {
       </div>
 
       <Footer />
+      
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+        appointmentId={feedbackModal.appointmentId}
+        doctorId={feedbackModal.doctorId}
+        doctorName={feedbackModal.doctorName}
+        token={token || ''}
+        onSuccess={fetchAppointments}
+      />
+      
+      {/* Chatbot Bubble */}
+      <ChatbotBubble />
     </main>
   )
 }

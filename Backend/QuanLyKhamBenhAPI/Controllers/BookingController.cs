@@ -127,7 +127,23 @@ public class BookingController : ControllerBase
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(CreateAppointment), new { id = appointment.AppointmentId }, appointment);
+        // Create payment record
+        var payment = new Payment
+        {
+            TotalAmount = 300000, // Default consultation fee
+            PaymentMethod = "Pending",
+            Status = "Pending",
+            PaymentDate = DateTime.Now,
+            AppointmentId = appointment.AppointmentId
+        };
+
+        _context.Payments.Add(payment);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { 
+            appointmentId = appointment.AppointmentId, 
+            message = "Appointment created successfully" 
+        });
     }
 
     // GET /api/booking/my-appointments
@@ -176,6 +192,65 @@ public class BookingController : ControllerBase
             .ToListAsync();
 
         return Ok(appointments);
+    }
+
+    // GET /api/booking/appointments/{appointmentId}
+    [HttpGet("appointments/{appointmentId}")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetAppointmentById(int appointmentId)
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
+        if (userIdClaim == null)
+        {
+            return Unauthorized();
+        }
+
+        var userAccount = await _context.UserAccounts
+            .FirstOrDefaultAsync(ua => ua.Username == userIdClaim.Value);
+
+        if (userAccount == null || !userAccount.PatientId.HasValue)
+        {
+            return BadRequest("Invalid patient account.");
+        }
+
+        var appointment = await _context.Appointments
+            .Where(a => a.AppointmentId == appointmentId && a.PatientId == userAccount.PatientId.Value)
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d!.Specialty)
+            .Include(a => a.Payments)
+            .Select(a => new
+            {
+                a.AppointmentId,
+                a.Date,
+                a.Time,
+                a.Status,
+                Doctor = a.Doctor != null ? new
+                {
+                    a.Doctor.DoctorId,
+                    a.Doctor.Name,
+                    a.Doctor.Phone
+                } : null,
+                Specialty = a.Doctor != null && a.Doctor.Specialty != null ? new
+                {
+                    a.Doctor.Specialty.SpecialtyId,
+                    a.Doctor.Specialty.Name
+                } : null,
+                Payment = a.Payments.FirstOrDefault() != null ? new
+                {
+                    PaymentId = a.Payments.First().PaymentId,
+                    TotalAmount = a.Payments.First().TotalAmount,
+                    PaymentMethod = a.Payments.First().PaymentMethod,
+                    Status = a.Payments.First().Status
+                } : null
+            })
+            .FirstOrDefaultAsync();
+
+        if (appointment == null)
+        {
+            return NotFound("Appointment not found");
+        }
+
+        return Ok(appointment);
     }
 }
 

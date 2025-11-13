@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhamBenhAPI.Models;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ namespace QuanLyKhamBenhAPI.Controllers
             var payment = new Payment
             {
                 TotalAmount = dto.TotalAmount,
-                PaymentMethod = dto.PaymentMethod,
+                PaymentMethod = dto.PaymentMethod ?? "Pending",
                 Status = "Pending",
                 PaymentDate = DateTime.Now,
                 AppointmentId = dto.AppointmentId
@@ -50,7 +51,10 @@ namespace QuanLyKhamBenhAPI.Controllers
             var user = await GetCurrentUser();
             if (user == null) return Unauthorized();
 
-            var payment = await _context.Payments.FindAsync(paymentId);
+            var payment = await _context.Payments
+                .Include(p => p.Appointment)
+                .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+                
             if (payment == null) return NotFound("Payment not found");
 
             // Check if payment belongs to user's appointment
@@ -67,11 +71,11 @@ namespace QuanLyKhamBenhAPI.Controllers
 
         private async Task<UserAccount?> GetCurrentUser()
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            var usernameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(usernameClaim))
                 return null;
 
-            return await _context.UserAccounts.FindAsync(userId);
+            return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == usernameClaim);
         }
     }
 

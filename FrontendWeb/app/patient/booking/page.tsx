@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import ChatbotBubble from '@/components/ChatbotBubble'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -146,10 +147,12 @@ export default function BookingPage() {
       })
 
       if (response.ok) {
+        const data = await response.json()
         setSuccess(true)
         setTimeout(() => {
-          router.push('/patient/history')
-        }, 2000)
+          // Chuyển đến trang thanh toán
+          router.push(`/patient/payment/${data.appointmentId}`)
+        }, 1500)
       } else {
         const errorData = await response.json()
         setError(errorData.message || 'Đặt lịch thất bại')
@@ -183,7 +186,7 @@ export default function BookingPage() {
         <div className="text-center bg-white p-8 rounded-lg shadow-lg">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-green-600 mb-2">Đặt Lịch Thành Công!</h2>
-          <p className="text-gray-600">Đang chuyển đến lịch sử khám...</p>
+          <p className="text-gray-600">Đang chuyển đến trang thanh toán...</p>
         </div>
       </div>
     )
@@ -428,6 +431,7 @@ export default function BookingPage() {
       </div>
 
       <Footer />
+      <ChatbotBubble />
     </main>
   )
 }

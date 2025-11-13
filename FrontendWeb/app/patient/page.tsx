@@ -8,6 +8,7 @@ import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
 import DepartmentsSection from '@/components/DepartmentsSection'
 import Footer from '@/components/Footer'
+import ChatbotBubble from '@/components/ChatbotBubble'
 
 export default function PatientHome() {
   const { user, loading } = useAuth()
@@ -88,6 +89,7 @@ export default function PatientHome() {
 
       <DepartmentsSection />
       <Footer />
+      <ChatbotBubble />
     </main>
   )
 }
