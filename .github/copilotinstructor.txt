@@ -590,67 +590,121 @@ Sơ đồ mô tả các mối quan hệ (associations) và bản số (multiplic
     * `1` **Payment** có thể áp dụng `0..1` (một hoặc không) **Promotion**.
     * `1` **Promotion** có thể được dùng cho `0..*` (nhiều) **Payments**.
 
+
 Sơ đồ Mô hình dữ liệu quan hệ:
 ### Mô tả các Bảng (Entities)
-
 Sơ đồ bao gồm các bảng chính sau:
 
-  * **Patient (Bệnh nhân):** Lưu trữ thông tin bệnh nhân.
-      * `patientId` (PK - Khóa chính)
-  * **Doctor (Bác sĩ):** Lưu trữ thông tin bác sĩ.
-      * `doctorId` (PK - Khóa chính)
-      * `specialtyId` (FK - Khóa ngoại): Liên kết đến bảng **Specialty**.
-  * **Specialty (Chuyên khoa):** Lưu trữ danh sách các chuyên khoa.
-      * `specialtyId` (PK)
-  * **WorkShift (Ca làm việc):** Lưu trữ lịch làm việc của bác sĩ.
-      * `shiftId` (PK)
-      * `doctorId` (FK): Liên kết đến bảng **Doctor**.
-  * **Appointment (Lịch hẹn):** Bảng trung tâm lưu trữ thông tin các cuộc hẹn.
-      * `appointmentId` (PK)
-      * `patientId` (FK): Liên kết đến **Patient** (bệnh nhân đặt lịch).
-      * `doctorId` (FK): Liên kết đến **Doctor** (bác sĩ phụ trách).
-  * **Service (Dịch vụ):** Danh mục các dịch vụ (khám, xét nghiệm, v.v.).
-      * `serviceId` (PK)
-  * **AppointmentService (Bảng nối Dịch vụ - Lịch hẹn):** Đây là **bảng nối** (junction table) để thể hiện mối quan hệ nhiều-nhiều.
-      * `id` (PK)
-      * `appointmentId` (FK): Liên kết đến **Appointment**.
-      * `serviceId` (FK): Liên kết đến **Service**.
-      * (Một lịch hẹn có thể có nhiều dịch vụ, và một dịch vụ có thể được dùng trong nhiều lịch hẹn).
-  * **MedicalRecord (Bệnh án):** Lưu trữ thông tin khám bệnh (triệu chứng, chẩn đoán).
-      * `recordId` (PK)
-      * `appointmentId` (FK): Liên kết đến **Appointment** (bệnh án này của cuộc hẹn nào).
-  * **LabResult (Kết quả xét nghiệm):** Lưu kết quả xét nghiệm chi tiết.
-      * `resultId` (PK)
-      * `recordId` (FK): Liên kết đến **MedicalRecord** (kết quả này của bệnh án nào).
-  * **Payment (Thanh toán):** Lưu thông tin thanh toán cho một lịch hẹn.
-      * `paymentId` (PK)
-      * `appointmentId` (FK): Liên kết đến **Appointment**.
-  * **Promotion (Khuyến mãi):** Danh mục các chương trình khuyến mãi.
-      * `promoId` (PK)
-  * **PaymentPromotion (Bảng nối Thanh toán - Khuyến mãi):** Bảng nối thể hiện khuyến mãi nào được áp dụng cho thanh toán nào.
-      * `id` (PK)
-      * `paymentId` (FK): Liên kết đến **Payment**.
-      * `promoId` (FK): Liên kết đến **Promotion**.
-  * **LoyaltyPoints (Điểm thưởng):** Quản lý điểm tích lũy của bệnh nhân.
-      * `pointsId` (PK)
-      * `patientId` (FK): Liên kết đến **Patient**.
-  * **Feedback (Phản hồi):** Lưu trữ đánh giá của bệnh nhân.
-      * `feedbackId` (PK)
-      * `patientId` (FK): Bệnh nhân đưa ra phản hồi.
-      * `doctorId` (FK): Bác sĩ được nhận phản hồi.
+UserAccount (Tài khoản người dùng): Lưu trữ thông tin đăng nhập.
 
------
+userId (PK - Khóa chính)
 
-### Tóm tắt các Mối quan hệ chính
+username, password, role
 
-  * Một **Patient** "books" (đặt) nhiều **Appointments** và "gives" (đưa ra) nhiều **Feedbacks**.
-  * Một **Doctor** "receives" (nhận) và "handles" (xử lý) nhiều **Appointments**, "belongs-to" (thuộc về) một **Specialty**, và "works-in" (làm việc) trong nhiều **WorkShifts**.
-  * Một **Appointment** (cuộc hẹn) là trung tâm, nó:
-      * "creates" (tạo ra) một **MedicalRecord** (bệnh án).
-      * "has" (có) một **Payment** (thanh toán).
-      * "includes" (bao gồm) nhiều **Services** (thông qua bảng nối **AppointmentService**).
-  * Một **MedicalRecord** "has" (có) nhiều **LabResults** (kết quả xét nghiệm).
-  * Một **Payment** (thanh toán) "applies" (áp dụng) nhiều **Promotions** (thông qua bảng nối **PaymentPromotion**).
+patientId (FK): Liên kết đến bảng Patient.
+
+Patient (Bệnh nhân): Lưu trữ thông tin bệnh nhân.
+
+patientId (PK)
+
+LoyaltyPoints (Điểm thưởng): Quản lý điểm tích lũy của bệnh nhân.
+
+pointsId (PK)
+
+patientId (FK): Liên kết đến Patient.
+
+Doctor (Bác sĩ): Lưu trữ thông tin bác sĩ.
+
+doctorId (PK)
+
+specialtyId (FK): Liên kết đến bảng Specialty.
+
+Specialty (Chuyên khoa): Lưu trữ danh sách các chuyên khoa.
+
+specialtyId (PK)
+
+WorkShift (Ca làm việc): Lưu trữ lịch làm việc của bác sĩ.
+
+shiftId (PK)
+
+doctorId (FK): Liên kết đến bảng Doctor.
+
+Feedback (Phản hồi): Lưu trữ đánh giá của bệnh nhân.
+
+feedbackId (PK)
+
+patientId (FK): Bệnh nhân đưa ra phản hồi.
+
+doctorId (FK): Bác sĩ được nhận phản hồi.
+
+Appointment (Lịch hẹn): Bảng trung tâm lưu trữ thông tin các cuộc hẹn.
+
+appointmentId (PK)
+
+patientId (FK): Liên kết đến Patient (bệnh nhân đặt lịch).
+
+doctorId (FK): Liên kết đến Doctor (bác sĩ phụ trách).
+
+Service (Dịch vụ): Danh mục các dịch vụ (khám, xét nghiệm, v.v.).
+
+serviceId (PK)
+
+AppointmentService (Bảng nối Dịch vụ - Lịch hẹn): Bảng nối thể hiện quan hệ nhiều-nhiều.
+
+id (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+serviceId (FK): Liên kết đến Service.
+
+MedicalRecord (Bệnh án): Lưu trữ thông tin khám bệnh.
+
+recordId (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+LabResult (Kết quả xét nghiệm): Lưu kết quả xét nghiệm chi tiết.
+
+resultId (PK)
+
+recordId (FK): Liên kết đến MedicalRecord.
+
+Payment (Thanh toán): Lưu thông tin thanh toán cho một lịch hẹn.
+
+paymentId (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+Promotion (Khuyến mãi): Danh mục các chương trình khuyến mãi.
+
+promoId (PK)
+
+PaymentPromotion (Bảng nối Thanh toán - Khuyến mãi): Bảng nối thể hiện khuyến mãi được áp dụng cho thanh toán.
+
+id (PK)
+
+paymentId (FK): Liên kết đến Payment.
+
+promoId (FK): Liên kết đến Promotion.
+
+Tóm tắt các Mối quan hệ chính
+Một UserAccount "has" (có) một Patient (liên kết tài khoản đăng nhập với hồ sơ bệnh nhân).
+
+Một Patient "books" (đặt) nhiều Appointments, "gives" (đưa ra) nhiều Feedbacks, và "has" (có) nhiều LoyaltyPoints (lịch sử điểm thưởng).
+
+Một Doctor "receives" (nhận) nhiều Feedbacks, "handles" (xử lý) nhiều Appointments, "belongs-to" (thuộc về) một Specialty, và "works-in" (làm việc) trong nhiều WorkShifts.
+
+Một Appointment (cuộc hẹn) là trung tâm, nó:
+
+"creates" (tạo ra) một MedicalRecord (bệnh án).
+
+"results in" (dẫn đến) một Payment (thanh toán).
+
+"includes" (bao gồm) nhiều Services (thông qua bảng nối AppointmentService).
+
+Một MedicalRecord "has" (có) nhiều LabResults (kết quả xét nghiệm).
+
+Một Payment (thanh toán) "applies" (áp dụng) nhiều Promotions (thông qua bảng nối PaymentPromotion).
 
 SƠ ĐỒ LỚP Ở MỨC THIẾT KẾ
 ### Mô tả chi tiết các nhóm Lớp
@@ -743,27 +797,41 @@ Tác nhân: **Admin**
 
 ---
 
-## 2. Chức năng: Thêm Bác Sĩ
+## 2. Chức năng: Thêm Bác Sĩ (Có Tài Khoản)
 Tác nhân: **Admin**
 
 ### Sơ đồ Lớp 3 Tầng (Thiết kế)
-* **UI:** Lớp `MHThemBacSi`
-    * **Thuộc tính:** `txtMaBS` (TextBox), `txtTenBS` (TextBox), `txtChuyenKhoa` (TextBox), `txtSDT` (TextBox), `btnThemBS` (Button).
-    * **Phương thức:** `HienThi()`, `btnThemBS_Click()`.
-* **Business:** Lớp `BacSi`
-    * **Thuộc tính:** `maBS` (String), `tenBS` (String), `chuyenKhoa` (String), `sdt` (String).
-    * **Phương thức:** `ThemBacSi(bs : BacSi) : Integer`.
-* **Data Access:** Lớp `BacSiDB`
-    * **Phương thức:** `static Them(bs : BacSi) : Integer`.
+* **Tầng Giao Diện (UI):** Lớp `MHThemBacSi`
+    * **Thuộc tính:** `txtMaBS` (TextBox), `txtTenBS` (TextBox), `txtChuyenKhoa` (TextBox), `txtSDT` (TextBox), **`txtTenDangNhap` (TextBox), `txtMatKhau` (TextBox)**, `btnThemBS` (Button).
+    * **Phương thức:** `HienThi() : void`, `btnThemBS_Click() : void`.
+
+* **Tầng Nghiệp Vụ (Business):**
+    * Lớp `BacSi`
+        * **Thuộc tính:** `maBS` (String), `tenBS` (String), `chuyenKhoa` (String), `sdt` (String).
+        * **Phương thức:** **`ThemBacSiVaTaiKhoan(bs : BacSi, tk: TaiKhoan) : Boolean`**.
+    * Lớp `TaiKhoan`
+        * **Thuộc tính:** `tenDangNhap` (String), `matKhauHash` (String), **`maBS_FK` (String)**, `role` (String).
+
+* **Tầng Truy Cập Dữ Liệu (Data Access):**
+    * Lớp `BacSiDB`
+        * **Phương thức:** **`static Them(bs : BacSi) : String`** (Trả về mã BS mới).
+    * Lớp `TaiKhoanDB`
+        * **Phương thức:** **`static Them(tk : TaiKhoan) : Boolean`**.
+
+---
 
 ### Sơ đồ Tuần tự (Sequence Diagram)
-1.  **Admin** "Nhập thông tin bác sĩ" vào màn hình `MHThemBacSi`.
-2.  **Admin** nhấn `btnThemBS_Click()`.
-3.  `MHThemBacSi` gọi phương thức `ThemBacSi(bs)` của lớp `BacSi`.
-4.  Lớp `BacSi` gọi phương thức `Them(bs)` của lớp `BacSiDB`.
-5.  `BacSiDB` "Trả kết quả" về cho `BacSi`.
-6.  `BacSi` "Trả kết quả" về cho `MHThemBacSi`.
-7.  `MHThemBacSi` "Hiển thị thông báo" (ví dụ: "Thêm thành công") cho **Admin**.
+1.  **Admin** tương tác với hệ thống, gọi `HienThi()` để mở màn hình `MHThemBacSi`.
+2.  **Admin** "Nhập thông tin (Bác sĩ & Tài khoản)" vào giao diện.
+3.  **Admin** nhấn nút, kích hoạt sự kiện `btnThemBS_Click()`.
+4.  `MHThemBacSi` (tạo đối tượng `bs` và `tk` từ input) gọi phương thức **`ThemBacSiVaTaiKhoan(bs, tk)`** của lớp `BacSi`.
+5.  Lớp `BacSi` gọi phương thức `Them(bs)` của lớp `BacSiDB` để lưu bác sĩ.
+6.  `BacSiDB` "Trả về `maBS_moi`" (mã bác sĩ vừa tạo) cho `BacSi`.
+7.  Lớp `BacSi` thực hiện `tk.setMaBS(maBS_moi)` để gán mã bác sĩ (foreign key) cho đối tượng tài khoản.
+8.  Lớp `BacSi` gọi phương thức `Them(tk)` của lớp `TaiKhoanDB` để lưu tài khoản.
+9.  `TaiKhoanDB` "Trả kết quả (true/false)" về cho `BacSi`.
+10. `BacSi` "Thông báo kết quả" (true/false) về cho `MHThemBacSi`.
+11. `MHThemBacSi` "Hiển thị thông báo" (ví dụ: "Thêm thành công") cho **Admin**.
 
 ---
 
@@ -839,29 +907,41 @@ Tác nhân: **Bác sĩ**
 
 ---
 
-## 6. Chức năng: Thêm Bệnh Nhân
+## 6. Chức năng: Thêm Bệnh Nhân (Có Tài Khoản)
 Tác nhân: **Nhân viên lễ tân**
 
 ### Sơ đồ Lớp 3 Tầng (Thiết kế)
 * **Tầng Giao Diện (UI):** Lớp `MHThemBenhNhan`
-    * **Thuộc tính:** `txtMaBN` (TextBox), `txtTenBN` (TextBox), `txtSDT` (TextBox), `txtDiaChi` (TextBox), `txtNgaySinh` (TextBox), `cboGioiTinh` (ComboBox), `btnThemBN` (Button).
-    * **Phương thức:** `HienThi() : void`, `btnThemBN_Click() : void`.
-* **Tầng Nghiệp Vụ (Business):** Lớp `BenhNhan`
-    * **Thuộc tính:** `maBN` (String), `tenBN` (String), `ngaySinh` (Date), `gioiTinh` (String), `sdt` (String), `diaChi` (String).
-    * **Phương thức:** `ThemBenhNhan(bn : BenhNhan) : Integer`, `KiemTraTonTai(maBN : String) : Boolean`.
-* **Tầng Truy Cập Dữ Liệu (Data Access):** Lớp `BenhNhanDB`
-    * **Phương thức:** `static Them(bn : BenhNhan) : Integer`, `static DocThongTin(maBN : String) : BenhNhan`.
+    * **Thuộc tính:** `txtMaBN` (TextBox), `txtTenBN` (TextBox), `txtSDT` (TextBox), `txtDiaChi` (TextBox), `txtNgaySinh` (TextBox), `cboGioiTinh` (ComboBox), **`txtTenDangNhap` (TextBox), `txtMatKhau` (TextBox)**, `btnThemBN` (Button).
+    * **Phương thức:** `HienThi() : void`, `btnThemBN_Click() : void`.
+
+* **Tầng Nghiệp Vụ (Business):**
+    * Lớp `BenhNhan`
+        * **Thuộc tính:** `maBN` (String), `tenBN` (String), `ngaySinh` (Date), `gioiTinh` (String), `sdt` (String), `diaChi` (String).
+        * **Phương thức:** **`ThemBenhNhanVaTaiKhoan(bn : BenhNhan, tk: TaiKhoan) : Boolean`**, `KiemTraTonTai(maBN : String) : Boolean`.
+    * Lớp `TaiKhoan`
+        * **Thuộc tính:** `tenDangNhap` (String), `matKhauHash` (String), **`maBN_FK` (String)**, `role` (String).
+
+* **Tầng Truy Cập Dữ Liệu (Data Access):**
+    * Lớp `BenhNhanDB`
+        * **Phương thức:** **`static Them(bn : BenhNhan) : String`** (Trả về mã BN mới), `static DocThongTin(maBN : String) : BenhNhan`.
+    * Lớp `TaiKhoanDB`
+        * **Phương thức:** **`static Them(tk : TaiKhoan) : Boolean`**.
+
+---
 
 ### Sơ đồ Tuần tự (Sequence Diagram)
 1.  **Nhân viên lễ tân** tương tác với hệ thống, gọi `HienThi()` để mở màn hình `MHThemBenhNhan`.
-2.  `MHThemBenhNhan` gọi phương thức `KhoiTao()` của lớp `BenhNhan` (để chuẩn bị).
-3.  **Nhân viên lễ tân** "Nhập thông tin bệnh nhân" vào giao diện.
-4.  **Nhân viên lễ tân** nhấn nút, kích hoạt sự kiện `btnThemBN_Click()`.
-5.  `MHThemBenhNhan` gọi phương thức `ThemBenhNhan(bn)` của lớp `BenhNhan`.
-6.  Lớp `BenhNhan` gọi phương thức `Them(bn)` của lớp `BenhNhanDB` để lưu vào CSDL.
-7.  `BenhNhanDB` "Trả kết quả (Integer)" (thành công/thất bại) về cho `BenhNhan`.
-8.  `BenhNhan` "Thông báo kết quả" về cho `MHThemBenhNhan`.
-9.  `MHThemBenhNhan` "Cập nhật thông báo('Thêm thành công')" cho **Nhân viên lễ tân**.
+2.  **Nhân viên lễ tân** "Nhập thông tin (Bệnh nhân & Tài khoản)" vào giao diện.
+3.  **Nhân viên lễ tân** nhấn nút, kích hoạt sự kiện `btnThemBN_Click()`.
+4.  `MHThemBenhNhan` (tạo đối tượng `bn` và `tk` từ input) gọi phương thức **`ThemBenhNhanVaTaiKhoan(bn, tk)`** của lớp `BenhNhan`.
+5.  Lớp `BenhNhan` gọi phương thức `Them(bn)` của lớp `BenhNhanDB` để lưu bệnh nhân.
+6.  `BenhNhanDB` "Trả về `maBN_moi`" (mã bệnh nhân vừa tạo) cho `BenhNhan`.
+7.  Lớp `BenhNhan` thực hiện `tk.setMaBN(maBN_moi)` để gán mã bệnh nhân (foreign key) cho đối tượng tài khoản.
+8.  Lớp `BenhNhan` gọi phương thức `Them(tk)` của lớp `TaiKhoanDB` để lưu tài khoản.
+9.  `TaiKhoanDB` "Trả kết quả (true/false)" về cho `BenhNhan`.
+10. `BenhNhan` "Thông báo kết quả" (true/false) về cho `MHThemBenhNhan`.
+11. `MHThemBenhNhan` "Cập nhật thông báo ('Thêm thành công' hoặc 'Thất bại')" cho **Nhân viên lễ tân**.
 
 ---
 
@@ -913,13 +993,4 @@ Tác nhân: **Lễ tân**
 7.  `MHThanhToan` "Hiển thị 'Thanh toán thành công'" cho **Lễ tân**.
 
 trước hết, làm cho tôi những việc sau:
-Frontend Web (Next.js) - Luồng Admin**
-    1.  **Tạo Private Route:** Tạo một component `AdminLayout` hoặc HOC (`withAuth`) để kiểm tra `user.role === 'Admin'`.
-    2.  **Trang Quản lý Bác sĩ:**
-        * Tạo trang `pages/admin/doctors.js`.
-        * Dùng `useEffect` gọi API `GET /api/doctors` và hiển thị ra bảng.
-        * Tạo 1 Modal/Form (dựa trên `MHThemBacSi`) để gọi API `POST /api/doctors`.
-    3.  **Trang Quản lý Dịch vụ:** Tương tự, tạo `pages/admin/services.js` (dựa trên `MHThemDichVu`).
-    4.  **Trang Quản lý Lịch làm việc:** (Nếu còn thời gian) Tạo form đơn giản để thêm `WorkShift` cho bác sĩ.
-
-chú ý là k đc chèn icon là 1, 2 là logo thì sẽ đồng bộ so với trang chủ, 3 là layout nhập các trường thông tin tham khảo backend api để nhập sao cho hợp lý, 4 là thiết kế sẽ tham khảo như trên ảnh, 5 là không tạo file test, file mô tả
+chỉnh sơ đồ sequence và class cho chức năng Thêm bác sĩ (cập nhật là có cung cấp tài khoản cho bác sĩ)
