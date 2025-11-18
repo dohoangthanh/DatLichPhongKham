@@ -117,6 +117,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <span className="font-medium">Lịch làm việc</span>
             </Link>
             <Link
+              href="/admin/feedback"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+            >
+              <span className="font-medium">Đánh giá</span>
+            </Link>
+            <Link
               href="/admin/reports"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >

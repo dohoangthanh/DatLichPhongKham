@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'specialty_selection_screen.dart';
-import 'appointments_history_screen.dart';
+import 'history_screen.dart';
+import 'chatbot_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -117,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _buildActionCard(
                           context,
                           icon: Icons.calendar_month,
-                          title: 'Book\nAppointment',
+                          title: 'Book',
                           color: const Color(0xFF1E88E5),
                           onTap: () {
                             Navigator.push(
@@ -129,18 +130,35 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _buildActionCard(
                           context,
-                          icon: Icons.history,
-                          title: 'My\nAppointments',
+                          icon: Icons.description,
+                          title: 'History',
                           color: const Color(0xFF43A047),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const AppointmentsHistoryScreen(),
+                                builder: (context) => const HistoryScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.chat_bubble_outline,
+                          title: 'Chat',
+                          color: const Color(0xFFFF6F00),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChatbotScreen(),
                               ),
                             );
                           },
@@ -207,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         height: 140,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
@@ -221,17 +239,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 40),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                height: 1.3,
+            Icon(icon, color: Colors.white, size: 36),
+            const SizedBox(height: 8),
+            Flexible(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
               ),
             ),
           ],

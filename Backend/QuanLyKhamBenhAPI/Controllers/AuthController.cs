@@ -70,6 +70,31 @@ namespace QuanLyKhamBenhAPI.Controllers
             }
             return Ok("User registered successfully");
         }
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var usernameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(usernameClaim))
+                return Unauthorized();
+
+            var user = await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == usernameClaim);
+            if (user == null)
+                return NotFound(new { Message = "Không tìm thấy tài khoản" });
+
+            // Verify old password
+            if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.PasswordHash))
+            {
+                return BadRequest(new { Message = "Mật khẩu cũ không đúng" });
+            }
+
+            // Update password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Đổi mật khẩu thành công" });
+        }
     }
 
     public class LoginRequest
@@ -94,5 +119,11 @@ namespace QuanLyKhamBenhAPI.Controllers
         public required string Role { get; set; }
         public int? DoctorId { get; set; }
         public int? PatientId { get; set; }
+    }
+
+    public class ChangePasswordRequest
+    {
+        public required string OldPassword { get; set; }
+        public required string NewPassword { get; set; }
     }
 }

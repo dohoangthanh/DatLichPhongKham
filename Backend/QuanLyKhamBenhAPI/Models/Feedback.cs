@@ -17,6 +17,10 @@ public partial class Feedback
 
     public int? DoctorId { get; set; }
 
+    public string? ReplyText { get; set; }
+
+    public DateTime? RepliedDate { get; set; }
+
     public virtual Doctor? Doctor { get; set; }
 
     public virtual Patient? Patient { get; set; }

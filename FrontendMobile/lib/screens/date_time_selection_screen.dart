@@ -67,32 +67,6 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 90)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1E88E5),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-      _loadSlots();
-    }
-  }
-
   String _formatDate(DateTime date) {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',

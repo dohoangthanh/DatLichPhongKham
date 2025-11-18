@@ -384,6 +384,27 @@ export const userManagementApi = {
   }
 }
 
+// Feedback API
+export const feedbackApi = {
+  getAll: async (page: number = 1, pageSize: number = 10) => {
+    const response = await fetch(`${API_URL}/feedback?page=${page}&pageSize=${pageSize}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch feedback')
+    return response.json()
+  },
+
+  reply: async (id: number, replyText: string) => {
+    const response = await fetch(`${API_URL}/feedback/reply/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ replyText })
+    })
+    if (!response.ok) throw new Error('Failed to reply to feedback')
+    return response.json()
+  }
+}
+
 export default {
   doctorApi,
   serviceApi,
@@ -391,5 +412,6 @@ export default {
   workShiftApi,
   appointmentApi,
   patientApi,
-  userManagementApi
+  userManagementApi,
+  feedbackApi
 }

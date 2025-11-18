@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyKhamBenhAPI.Models;
 
@@ -11,9 +12,11 @@ using QuanLyKhamBenhAPI.Models;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     [DbContext(typeof(QuanLyKhamBenhContext))]
-    partial class QuanLyKhamBenhContextModelSnapshot : ModelSnapshot
+    [Migration("20251118183159_AddReplyFieldsToFeedback")]
+    partial class AddReplyFieldsToFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

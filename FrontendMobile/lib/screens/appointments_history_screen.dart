@@ -16,7 +16,6 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
   late TabController _tabController;
   final BookingService _bookingService = BookingService();
   
-  List<Appointment> _allAppointments = [];
   List<Appointment> _upcomingAppointments = [];
   List<Appointment> _pastAppointments = [];
   bool _isLoading = true;
@@ -50,7 +49,6 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
       
       if (mounted) {
         setState(() {
-          _allAppointments = appointments;
           _upcomingAppointments = appointments.where((apt) {
             final aptDate = DateTime.tryParse(apt.date);
             return aptDate != null && (aptDate.isAfter(today) || aptDate.isAtSameMomentAs(today));

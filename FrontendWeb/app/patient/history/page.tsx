@@ -8,6 +8,7 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FeedbackModal from '@/components/FeedbackModal'
 import ChatbotBubble from '@/components/ChatbotBubble'
+import { patientMedicalApi } from '@/services/patientApi'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -27,6 +28,31 @@ interface Appointment {
   }
 }
 
+interface LabResult {
+  resultId: number
+  resultDetails: string
+  resultDate: string
+}
+
+interface MedicalRecord {
+  recordId: number
+  symptoms: string
+  diagnosis: string
+  treatment: string
+  createdDate: string
+  appointment: {
+    appointmentId: number
+    date: string
+    time: string
+    doctor: {
+      doctorId: number
+      name: string
+      specialty: string
+    }
+  }
+  labResults: LabResult[]
+}
+
 export default function HistoryPage() {
   const { user, token, loading } = useAuth()
   const router = useRouter()
@@ -44,6 +70,19 @@ export default function HistoryPage() {
     appointmentId: 0,
     doctorId: 0,
     doctorName: ''
+  })
+  const [medicalRecordModal, setMedicalRecordModal] = useState<{
+    isOpen: boolean
+    appointmentId: number
+    record: MedicalRecord | null
+    loading: boolean
+    error: string | null
+  }>({
+    isOpen: false,
+    appointmentId: 0,
+    record: null,
+    loading: false,
+    error: null
   })
 
   useEffect(() => {
@@ -98,6 +137,49 @@ export default function HistoryPage() {
     if (filter === 'all') return true
     return app.status.toLowerCase() === filter.toLowerCase()
   })
+
+  const handleViewMedicalRecord = async (appointmentId: number) => {
+    setMedicalRecordModal({
+      isOpen: true,
+      appointmentId,
+      record: null,
+      loading: true,
+      error: null
+    })
+
+    try {
+      const record = await patientMedicalApi.getMyMedicalRecord(appointmentId)
+      setMedicalRecordModal(prev => ({
+        ...prev,
+        record,
+        loading: false
+      }))
+    } catch (error: any) {
+      setMedicalRecordModal(prev => ({
+        ...prev,
+        loading: false,
+        error: error.message || 'Không thể tải kết quả khám'
+      }))
+    }
+  }
+
+  const closeMedicalRecordModal = () => {
+    setMedicalRecordModal({
+      isOpen: false,
+      appointmentId: 0,
+      record: null,
+      loading: false,
+      error: null
+    })
+  }
+
+  const parseLabResults = (resultDetails: string) => {
+    try {
+      return JSON.parse(resultDetails)
+    } catch {
+      return null
+    }
+  }
 
   if (loading || isLoading) {
     return (
@@ -286,10 +368,7 @@ export default function HistoryPage() {
                     <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
                       <button
                         className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                        onClick={() => {
-                          // TODO: Implement view medical record
-                          alert('Xem kết quả khám')
-                        }}
+                        onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
                       >
                         Xem Kết Quả Khám
                       </button>
@@ -327,6 +406,174 @@ export default function HistoryPage() {
         token={token || ''}
         onSuccess={fetchAppointments}
       />
+
+      {/* Medical Record Modal */}
+      {medicalRecordModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">Kết Quả Khám Bệnh & Xét Nghiệm</h2>
+              <button
+                onClick={closeMedicalRecordModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              {medicalRecordModal.loading && (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Đang tải...</p>
+                </div>
+              )}
+
+              {medicalRecordModal.error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                  <div className="text-4xl mb-3">⚠️</div>
+                  <p className="text-red-800 font-semibold">{medicalRecordModal.error}</p>
+                </div>
+              )}
+
+              {medicalRecordModal.record && (
+                <div className="space-y-6">
+                  {/* Header Info */}
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center">
+                        <span className="text-3xl">👨‍⚕️</span>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">
+                          PHÒNG KHÁM ĐA KHOA
+                        </h3>
+                        <p className="text-sm text-gray-600">Kết Quả Khám Bệnh & Xét Nghiệm</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Ngày khám:</span>
+                        <span className="ml-2 font-semibold">
+                          {new Date(medicalRecordModal.record.appointment.date).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Bác sĩ:</span>
+                        <span className="ml-2 font-semibold">
+                          ThS.BS. {medicalRecordModal.record.appointment.doctor.name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Diagnosis Section */}
+                  <div className="bg-white border border-gray-200 rounded-lg">
+                    <div className="bg-blue-100 px-6 py-3 border-b border-gray-200">
+                      <h3 className="text-lg font-bold text-gray-900">Chẩn Đoán và Kết Luận</h3>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 mb-2">Chẩn đoán:</p>
+                        <p className="text-gray-900">{medicalRecordModal.record.diagnosis || 'Chưa có thông tin'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 mb-2">Lời dặn:</p>
+                        <p className="text-gray-900">{medicalRecordModal.record.treatment || 'Chưa có thông tin'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lab Results Section */}
+                  {medicalRecordModal.record.labResults && medicalRecordModal.record.labResults.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-lg">
+                      <div className="bg-blue-100 px-6 py-3 border-b border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-900">Kết Quả Xét Nghiệm</h3>
+                      </div>
+                      <div className="p-6">
+                        {medicalRecordModal.record.labResults.map((labResult) => {
+                          const parsedResults = parseLabResults(labResult.resultDetails)
+                          
+                          return (
+                            <div key={labResult.resultId} className="mb-6 last:mb-0">
+                              {parsedResults && Array.isArray(parsedResults) ? (
+                                <div className="overflow-x-auto">
+                                  <table className="w-full border-collapse">
+                                    <thead>
+                                      <tr className="bg-gray-50">
+                                        <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                                          TÊN XÉT NGHIỆM
+                                        </th>
+                                        <th className="border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700">
+                                          KẾT QUẢ
+                                        </th>
+                                        <th className="border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700">
+                                          ĐƠN VỊ
+                                        </th>
+                                        <th className="border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700">
+                                          GIÁ TRỊ THAM CHIẾU
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {parsedResults.map((result: any, index: number) => {
+                                        const isAbnormal = result.isAbnormal || false
+                                        return (
+                                          <tr key={index} className={isAbnormal ? 'bg-red-50' : ''}>
+                                            <td className="border border-gray-300 px-4 py-2">
+                                              {result.testName || result.name}
+                                            </td>
+                                            <td className={`border border-gray-300 px-4 py-2 text-center font-semibold ${
+                                              isAbnormal ? 'text-red-600' : 'text-gray-900'
+                                            }`}>
+                                              {result.value || result.result}
+                                            </td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">
+                                              {result.unit || result.units || 'mmol/L'}
+                                            </td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">
+                                              {result.referenceRange || result.reference || '-'}
+                                            </td>
+                                          </tr>
+                                        )
+                                      })}
+                                    </tbody>
+                                  </table>
+                                  <p className="text-xs text-gray-500 mt-2">
+                                    * Các chỉ số bất thường được <span className="text-red-600 font-semibold">tô đậm màu đỏ</span>.
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="bg-gray-50 p-4 rounded">
+                                  <p className="text-gray-700 whitespace-pre-wrap">{labResult.resultDetails}</p>
+                                </div>
+                              )}
+                              <p className="text-xs text-gray-500 mt-2">
+                                Ngày xét nghiệm: {new Date(labResult.resultDate).toLocaleDateString('vi-VN')}
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="flex justify-end pt-4 border-t border-gray-200">
+                    <button
+                      onClick={closeMedicalRecordModal}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                      Đóng
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Chatbot Bubble */}
       <ChatbotBubble />
