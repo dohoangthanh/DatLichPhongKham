@@ -50,14 +50,14 @@ export default function ChatbotBubble() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/chatbot/ask`, {
+      const response = await fetch(`${API_URL}/chatbot/chat`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          question: userMessage.text
+          message: userMessage.text
         })
       })
 
@@ -65,7 +65,7 @@ export default function ChatbotBubble() {
         const data = await response.json()
         const botMessage: Message = {
           id: Date.now() + 1,
-          text: data.answer || 'Xin lỗi, tôi không thể trả lời câu hỏi này.',
+          text: data.message || 'Xin lỗi, tôi không thể trả lời câu hỏi này.',
           isBot: true,
           timestamp: new Date()
         }

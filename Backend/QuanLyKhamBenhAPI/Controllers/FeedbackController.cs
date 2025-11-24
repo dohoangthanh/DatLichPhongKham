@@ -55,7 +55,7 @@ namespace QuanLyKhamBenhAPI.Controllers
             var feedbacks = await _context.Feedbacks
                 .Include(f => f.Patient)
                 .Include(f => f.Doctor)
-                    .ThenInclude(d => d.Specialty)
+                    .ThenInclude(d => d!.Specialty)
                 .OrderByDescending(f => f.CreatedDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

@@ -21,6 +21,9 @@ builder.Services.AddScoped<IAuthService>(provider =>
 });
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// Chatbot Service
+builder.Services.AddScoped<ChatbotService>();
+
 // JWT Configuration
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "YourSecretKeyHere";
 var key = Encoding.ASCII.GetBytes(jwtSecret);
@@ -58,6 +61,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

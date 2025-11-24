@@ -3,29 +3,40 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class ChatbotService {
-  Future<String> askQuestion(String token, String question) async {
+  Future<Map<String, dynamic>> sendMessage(String token, String message) async {
     try {
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/chatbot/ask'),
+        Uri.parse('${ApiConfig.baseUrl}/chatbot/chat'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'question': question,
+          'message': message,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['answer'] ?? 'Không thể trả lời câu hỏi này.';
+        return {
+          'message': data['message'] ?? 'Không thể trả lời câu hỏi này.',
+          'timestamp': data['timestamp'],
+        };
       } else if (response.statusCode == 400) {
-        return 'Xin lỗi, chatbot hiện chưa được cấu hình. Vui lòng thử lại sau.';
+        throw Exception('Yêu cầu không hợp lệ');
+      } else if (response.statusCode == 401) {
+        throw Exception('Vui lòng đăng nhập để sử dụng chatbot');
       } else {
-        throw Exception('Failed to get answer');
+        throw Exception('Không thể kết nối đến server');
       }
     } catch (e) {
-      throw Exception('Error asking question: $e');
+      throw Exception('Lỗi khi gửi tin nhắn: $e');
     }
+  }
+  
+  // Giữ lại method cũ để tương thích
+  Future<String> askQuestion(String token, String question) async {
+    final result = await sendMessage(token, question);
+    return result['message'];
   }
 }

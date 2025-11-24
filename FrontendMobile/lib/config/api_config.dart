@@ -13,4 +13,9 @@ class ApiConfig {
   
   // Booking endpoints
   static const String bookingEndpoint = '$baseUrl/booking';
+  
+  // Forgot Password endpoints
+  static const String checkUsernameEndpoint = '$baseUrl/ForgotPassword/check-username';
+  static const String sendOtpEndpoint = '$baseUrl/ForgotPassword/send-otp';
+  static const String resetPasswordEndpoint = '$baseUrl/ForgotPassword/reset-password';
 }

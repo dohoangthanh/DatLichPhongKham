@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 const Text(
-                  'Username',
+                  'Tên đăng nhập',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -115,10 +115,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: 'Enter your username',
+                    hintText: 'Nhập tên đăng nhập',
                     hintStyle: const TextStyle(color: Colors.black38),
                     filled: true,
                     fillColor: Colors.grey[50],
+                    prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF1E88E5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -138,14 +139,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your username';
+                      return 'Vui lòng nhập tên đăng nhập';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Password',
+                  'Mật khẩu',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -157,10 +158,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
-                    hintText: 'Enter your password',
+                    hintText: 'Nhập mật khẩu',
                     hintStyle: const TextStyle(color: Colors.black38),
                     filled: true,
                     fillColor: Colors.grey[50],
+                    prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1E88E5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -193,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Vui lòng nhập mật khẩu';
                     }
                     return null;
                   },
@@ -203,10 +205,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implement forgot password
+                      Navigator.pushNamed(context, '/forgot-password');
                     },
                     child: const Text(
-                      'Forgot Password?',
+                      'Quên mật khẩu?',
                       style: TextStyle(
                         color: Color(0xFF1E88E5),
                         fontSize: 14,
@@ -239,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : const Text(
-                            'Login',
+                            'Đăng nhập',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -252,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Already have an account? ',
+                      'Chưa có tài khoản? ',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.black54,
@@ -263,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacementNamed(context, '/register');
                       },
                       child: const Text(
-                        'Log in',
+                        'Đăng ký',
                         style: TextStyle(
                           fontSize: 14,
                           color: Color(0xFF1E88E5),

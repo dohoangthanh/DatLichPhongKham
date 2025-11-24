@@ -64,8 +64,122 @@ export const authApi = {
   }
 }
 
+// Loyalty Points API
+export const loyaltyPointsApi = {
+  getMyPoints: async () => {
+    const response = await fetch(`${API_URL}/loyaltypoints/my-points`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch loyalty points')
+    return response.json()
+  }
+}
+
+// Promotion API
+export const promotionApi = {
+  validatePromoCode: async (promoCode: string) => {
+    const response = await fetch(`${API_URL}/promotions/validate/${promoCode}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Invalid promo code')
+    }
+    return response.json()
+  }
+}
+
+// Specialties API
+export const specialtiesApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/specialties`)
+    if (!response.ok) throw new Error('Failed to fetch specialties')
+    return response.json()
+  }
+}
+
+// Doctors API
+export const doctorsApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/doctors`)
+    if (!response.ok) throw new Error('Failed to fetch doctors')
+    return response.json()
+  },
+  getBySpecialty: async (specialtyId: number) => {
+    const response = await fetch(`${API_URL}/doctors/specialty/${specialtyId}`)
+    if (!response.ok) throw new Error('Failed to fetch doctors')
+    return response.json()
+  }
+}
+
+// Services API
+export const servicesApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/services`)
+    if (!response.ok) throw new Error('Failed to fetch services')
+    return response.json()
+  }
+}
+
+// Appointments API
+export const appointmentsApi = {
+  create: async (data: {
+    doctorId: number
+    serviceId: number
+    appointmentDate: string
+    notes?: string
+  }) => {
+    const response = await fetch(`${API_URL}/appointments`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw error
+    }
+    return response.json()
+  }
+}
+
+// Medical Records API
+export const medicalRecordsApi = {
+  getMyRecords: async () => {
+    const response = await fetch(`${API_URL}/medicalrecords/my-records`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch medical records')
+    return response.json()
+  }
+}
+
+// Lab Results API
+export const labResultsApi = {
+  getByRecord: async (recordId: number) => {
+    const response = await fetch(`${API_URL}/labresults/record/${recordId}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch lab results')
+    return response.json()
+  }
+}
+
+export const patientApi = {
+  specialties: specialtiesApi,
+  doctors: doctorsApi,
+  services: servicesApi,
+  appointments: appointmentsApi,
+  medicalRecords: medicalRecordsApi,
+  labResults: labResultsApi,
+  promotions: promotionApi,
+  loyaltyPoints: loyaltyPointsApi
+}
+
 export default {
   patientMedicalApi,
   patientProfileApi,
-  authApi
+  authApi,
+  loyaltyPointsApi,
+  promotionApi,
+  patientApi
 }

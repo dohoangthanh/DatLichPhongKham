@@ -6,6 +6,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
+import AboutSection from '@/components/AboutSection'
+import SearchSection from '@/components/SearchSection'
+import TeamSection from '@/components/TeamSection'
+import GuideSection from '@/components/GuideSection'
 import DepartmentsSection from '@/components/DepartmentsSection'
 import PricingTable from '@/components/PricingTable'
 import CTAButtons from '@/components/CTAButtons'
@@ -49,6 +53,10 @@ export default function Home() {
       <Header />
       <Navigation />
       <HeroSection />
+      <AboutSection />
+      <SearchSection />
+      <TeamSection />
+      <GuideSection />
       <DepartmentsSection />
       <PricingTable />
       <CTAButtons />

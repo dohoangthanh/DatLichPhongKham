@@ -27,10 +27,12 @@ interface WorkShift {
 
 const SchedulesPage: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([])
-  const [workShifts, setWorkShifts] = useState<WorkShift[]>([])
+  const [allWorkShifts, setAllWorkShifts] = useState<WorkShift[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null)
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('')
+  const [selectedDate, setSelectedDate] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
 
   const itemsPerPage = 10
@@ -44,13 +46,12 @@ const SchedulesPage: React.FC = () => {
 
   useEffect(() => {
     fetchDoctors()
+    fetchAllWorkShifts()
   }, [])
 
   useEffect(() => {
-    if (selectedDoctor) {
-      fetchWorkShifts(selectedDoctor)
-    }
-  }, [selectedDoctor])
+    setCurrentPage(1)
+  }, [selectedDoctor, selectedSpecialty, selectedDate])
 
   const fetchDoctors = async () => {
     try {
@@ -74,17 +75,17 @@ const SchedulesPage: React.FC = () => {
     }
   }
 
-  const fetchWorkShifts = async (doctorId: number) => {
+  const fetchAllWorkShifts = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/schedule/workshift/${doctorId}`, {
+      const response = await fetch(`${API_URL}/schedule/workshift`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
       if (response.ok) {
         const data = await response.json()
-        setWorkShifts(data)
+        setAllWorkShifts(data)
       }
     } catch (error) {
       console.error('Error fetching work shifts:', error)
@@ -145,6 +146,24 @@ const SchedulesPage: React.FC = () => {
       alert('Có lỗi xảy ra!')
     }
   }
+
+  // Get unique specialties from doctors
+  const specialties = Array.from(new Set(
+    doctors
+      .filter(d => d.specialty !== null)
+      .map(d => d.specialty!.name)
+  )).sort()
+
+  // Filter workShifts based on selected filters
+  const workShifts = allWorkShifts.filter(shift => {
+    if (selectedDoctor && shift.doctorId !== selectedDoctor) return false
+    if (selectedDate && shift.date !== selectedDate) return false
+    if (selectedSpecialty) {
+      const doctor = doctors.find(d => d.doctorId === shift.doctorId)
+      if (!doctor?.specialty || doctor.specialty.name !== selectedSpecialty) return false
+    }
+    return true
+  })
 
   const totalPages = Math.ceil(workShifts.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -219,13 +238,13 @@ const SchedulesPage: React.FC = () => {
               </label>
               <select
                 value={selectedDoctor || ''}
-                onChange={(e) => setSelectedDoctor(Number(e.target.value))}
+                onChange={(e) => setSelectedDoctor(e.target.value ? Number(e.target.value) : null)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Tất cả bác sĩ</option>
                 {doctors.map((doctor) => (
                   <option key={doctor.doctorId} value={doctor.doctorId}>
-                    {doctor.name} - {doctor.specialty?.name}
+                    {doctor.name} - {doctor.specialty?.name || 'Chưa có chuyên khoa'}
                   </option>
                 ))}
               </select>
@@ -234,8 +253,17 @@ const SchedulesPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Chuyên khoa
               </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select
+                value={selectedSpecialty}
+                onChange={(e) => setSelectedSpecialty(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 <option value="">Tất cả chuyên khoa</option>
+                {specialties.map((specialty, index) => (
+                  <option key={index} value={specialty}>
+                    {specialty}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -244,17 +272,26 @@ const SchedulesPage: React.FC = () => {
               </label>
               <input
                 type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div className="flex gap-3 mt-4">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Áp dụng
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <button
+              onClick={() => {
+                setSelectedDoctor(null)
+                setSelectedSpecialty('')
+                setSelectedDate('')
+              }}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
               Xóa lọc
             </button>
+            <div className="text-sm text-gray-600 flex items-center">
+              Hiển thị {workShifts.length} ca làm việc
+            </div>
           </div>
         </div>
 

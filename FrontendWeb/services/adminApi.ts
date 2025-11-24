@@ -97,6 +97,91 @@ export const serviceApi = {
   }
 }
 
+// Stats API
+export const statsApi = {
+  // Lấy thống kê doanh thu
+  getRevenue: async (from?: string, to?: string) => {
+    const params = new URLSearchParams()
+    if (from) params.append('from', from)
+    if (to) params.append('to', to)
+    
+    const response = await fetch(`${API_URL}/stats/revenue?${params.toString()}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Revenue API error:', response.status, errorText)
+      throw new Error(`Failed to fetch revenue stats: ${response.status} ${errorText}`)
+    }
+    return response.json()
+  },
+
+  // Lấy danh sách bệnh nhân khám nhiều nhất
+  getTopPatients: async (limit: number = 10, from?: string, to?: string) => {
+    const params = new URLSearchParams()
+    params.append('limit', limit.toString())
+    if (from) params.append('from', from)
+    if (to) params.append('to', to)
+    
+    const response = await fetch(`${API_URL}/stats/top-patients?${params.toString()}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Top patients API error:', response.status, errorText)
+      throw new Error(`Failed to fetch top patients: ${response.status} ${errorText}`)
+    }
+    return response.json()
+  },
+
+  // Lấy thống kê tổng quan dashboard
+  getDashboard: async () => {
+    const response = await fetch(`${API_URL}/stats/dashboard`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Dashboard API error:', response.status, errorText)
+      throw new Error(`Failed to fetch dashboard stats: ${response.status} ${errorText}`)
+    }
+    return response.json()
+  },
+
+  // Thống kê lịch hẹn theo trạng thái
+  getAppointmentsByStatus: async (from?: string, to?: string) => {
+    const params = new URLSearchParams()
+    if (from) params.append('from', from)
+    if (to) params.append('to', to)
+    
+    const response = await fetch(`${API_URL}/stats/appointments/by-status?${params.toString()}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Appointments by status API error:', response.status, errorText)
+      throw new Error(`Failed to fetch appointment stats by status: ${response.status} ${errorText}`)
+    }
+    return response.json()
+  },
+
+  // Thống kê theo chuyên khoa
+  getAppointmentsBySpecialty: async (from?: string, to?: string) => {
+    const params = new URLSearchParams()
+    if (from) params.append('from', from)
+    if (to) params.append('to', to)
+    
+    const response = await fetch(`${API_URL}/stats/appointments/by-specialty?${params.toString()}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Appointments by specialty API error:', response.status, errorText)
+      throw new Error(`Failed to fetch appointment stats by specialty: ${response.status} ${errorText}`)
+    }
+    return response.json()
+  }
+}
+
 // Specialty API
 export const specialtyApi = {
   getAll: async () => {
@@ -405,6 +490,93 @@ export const feedbackApi = {
   }
 }
 
+// Promotion API
+export const promotionApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/promotions`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch promotions')
+    return response.json()
+  },
+
+  getActive: async () => {
+    const response = await fetch(`${API_URL}/promotions/active`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch active promotions')
+    return response.json()
+  },
+
+  create: async (data: { description: string; discountPercent: number; startDate: string; endDate: string }) => {
+    const response = await fetch(`${API_URL}/promotions`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    })
+    if (!response.ok) throw new Error('Failed to create promotion')
+    return response.json()
+  },
+
+  update: async (id: number, data: { description?: string; discountPercent?: number; startDate?: string; endDate?: string }) => {
+    const response = await fetch(`${API_URL}/promotions/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    })
+    if (!response.ok) throw new Error('Failed to update promotion')
+    return response.json()
+  },
+
+  delete: async (id: number) => {
+    const response = await fetch(`${API_URL}/promotions/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to delete promotion')
+    return response.ok
+  }
+}
+
+// Loyalty Points API
+export const loyaltyPointsApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/loyaltypoints`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch loyalty points')
+    return response.json()
+  },
+
+  getByPatient: async (patientId: number) => {
+    const response = await fetch(`${API_URL}/loyaltypoints/patient/${patientId}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch patient loyalty points')
+    return response.json()
+  },
+
+  addPoints: async (patientId: number, points: number) => {
+    const response = await fetch(`${API_URL}/loyaltypoints/add`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ patientId, points })
+    })
+    if (!response.ok) throw new Error('Failed to add points')
+    return response.json()
+  },
+
+  updatePoints: async (patientId: number, points: number) => {
+    const response = await fetch(`${API_URL}/loyaltypoints/update/${patientId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ points })
+    })
+    if (!response.ok) throw new Error('Failed to update points')
+    return response.json()
+  }
+}
+
 export default {
   doctorApi,
   serviceApi,
@@ -413,5 +585,7 @@ export default {
   appointmentApi,
   patientApi,
   userManagementApi,
-  feedbackApi
+  feedbackApi,
+  promotionApi,
+  loyaltyPointsApi
 }

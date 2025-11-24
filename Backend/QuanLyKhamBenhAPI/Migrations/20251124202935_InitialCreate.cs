@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initialcreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +23,23 @@ namespace QuanLyKhamBenhAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppSettings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PasswordResetOtps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Otp = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PasswordResetOtps", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -164,7 +181,9 @@ namespace QuanLyKhamBenhAPI.Migrations
                     comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     createdDate = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
                     patientId = table.Column<int>(type: "int", nullable: true),
-                    doctorId = table.Column<int>(type: "int", nullable: true)
+                    doctorId = table.Column<int>(type: "int", nullable: true),
+                    ReplyText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RepliedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -445,6 +464,9 @@ namespace QuanLyKhamBenhAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "LoyaltyPoints");
+
+            migrationBuilder.DropTable(
+                name: "PasswordResetOtps");
 
             migrationBuilder.DropTable(
                 name: "PaymentPromotion");

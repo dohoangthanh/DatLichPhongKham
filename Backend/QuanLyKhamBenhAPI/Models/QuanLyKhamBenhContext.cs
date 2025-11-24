@@ -47,6 +47,8 @@ public partial class QuanLyKhamBenhContext : DbContext
 
     public virtual DbSet<WorkShift> WorkShifts { get; set; }
 
+    public virtual DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Appointment>(entity =>

@@ -300,6 +300,38 @@ namespace QuanLyKhamBenhAPI.Migrations
                     b.ToTable("MedicalRecord", (string)null);
                 });
 
+            modelBuilder.Entity("QuanLyKhamBenhAPI.Models.PasswordResetOtp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Otp")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasswordResetOtps");
+                });
+
             modelBuilder.Entity("QuanLyKhamBenhAPI.Models.Patient", b =>
                 {
                     b.Property<int>("PatientId")

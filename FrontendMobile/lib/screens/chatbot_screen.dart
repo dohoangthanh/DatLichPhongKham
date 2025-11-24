@@ -36,7 +36,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       _messages.add(
         ChatMessage(
           text:
-              'Hello! How can I help you today? You can ask me about booking an appointment, viewing your medical history, or general questions about our clinic.',
+              'Xin chào! Tôi là trợ lý ảo của phòng khám. Tôi có thể giúp gì cho bạn?',
           isUser: false,
           timestamp: DateTime.now(),
         ),
@@ -64,13 +64,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final answer = await _chatbotService.askQuestion(authService.token!, text);
+      final result = await _chatbotService.sendMessage(authService.token!, text);
 
       if (mounted) {
         setState(() {
           _messages.add(
             ChatMessage(
-              text: answer,
+              text: result['message'],
               isUser: false,
               timestamp: DateTime.now(),
             ),
@@ -84,7 +84,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         setState(() {
           _messages.add(
             ChatMessage(
-              text: 'Sorry, I encountered an error. Please try again.',
+              text: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
               isUser: false,
               timestamp: DateTime.now(),
             ),

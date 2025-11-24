@@ -160,4 +160,77 @@ class AuthService extends ChangeNotifier {
       'Authorization': 'Bearer $_token',
     };
   }
+
+  // Forgot Password - Check username
+  Future<Map<String, dynamic>?> checkUsername(String username) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.checkUsernameEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'username': username}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        final error = jsonDecode(response.body);
+        return {'error': error['error'] ?? 'Không tìm thấy tài khoản'};
+      }
+    } catch (e) {
+      debugPrint('Check username error: $e');
+      return {'error': 'Có lỗi xảy ra. Vui lòng thử lại'};
+    }
+  }
+
+  // Forgot Password - Send OTP
+  Future<Map<String, dynamic>?> sendOtp(String username) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.sendOtpEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'contactMethod': 'phone',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': 'Không thể gửi mã xác thực'};
+      }
+    } catch (e) {
+      debugPrint('Send OTP error: $e');
+      return {'error': 'Có lỗi xảy ra. Vui lòng thử lại'};
+    }
+  }
+
+  // Forgot Password - Reset password
+  Future<Map<String, dynamic>?> resetPassword({
+    required String username,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.resetPasswordEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'otp': otp,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        final error = jsonDecode(response.body);
+        return {'error': error['error'] ?? 'Không thể đặt lại mật khẩu'};
+      }
+    } catch (e) {
+      debugPrint('Reset password error: $e');
+      return {'error': 'Có lỗi xảy ra. Vui lòng thử lại'};
+    }
+  }
 }

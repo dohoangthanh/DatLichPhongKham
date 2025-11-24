@@ -37,6 +37,11 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState('VNPAY')
+  const [promoCode, setPromoCode] = useState('')
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false)
+  const [discountPercent, setDiscountPercent] = useState(0)
+  const [promoMessage, setPromoMessage] = useState('')
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0)
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'Patient')) {
@@ -47,8 +52,25 @@ export default function PaymentPage() {
   useEffect(() => {
     if (token && user?.role === 'Patient' && appointmentId) {
       fetchPaymentInfo()
+      fetchLoyaltyPoints()
     }
   }, [token, user, appointmentId])
+
+  const fetchLoyaltyPoints = async () => {
+    try {
+      const response = await fetch(`${API_URL}/loyaltypoints/my-points`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setLoyaltyPoints(data.points || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching loyalty points:', error)
+    }
+  }
 
   const fetchPaymentInfo = async () => {
     try {
@@ -74,6 +96,39 @@ export default function PaymentPage() {
     }
   }
 
+  const handleValidatePromo = async () => {
+    if (!promoCode.trim()) {
+      setPromoMessage('Vui lòng nhập mã khuyến mãi')
+      return
+    }
+
+    try {
+      setIsValidatingPromo(true)
+      setPromoMessage('')
+      const response = await fetch(`${API_URL}/promotions/validate/${promoCode}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setDiscountPercent(data.discountPercent || 0)
+        setPromoMessage(`✓ Áp dụng thành công! Giảm ${data.discountPercent}%`)
+      } else {
+        const error = await response.json()
+        setPromoMessage(`✗ ${error.message || 'Mã khuyến mãi không hợp lệ'}`)
+        setDiscountPercent(0)
+      }
+    } catch (error) {
+      console.error('Error validating promo code:', error)
+      setPromoMessage('✗ Không thể xác thực mã khuyến mãi')
+      setDiscountPercent(0)
+    } finally {
+      setIsValidatingPromo(false)
+    }
+  }
+
   const handlePayment = async () => {
     if (!paymentInfo?.payment?.paymentId) {
       alert('Không tìm thấy thông tin thanh toán')
@@ -91,7 +146,8 @@ export default function PaymentPage() {
       })
       
       if (response.ok) {
-        alert('Thanh toán thành công!')
+        const pointsEarned = Math.floor(getFinalAmount() / 10000)
+        alert(`Thanh toán thành công! Bạn đã nhận được ${pointsEarned} điểm tích lũy.`)
         router.push('/patient/history')
       } else {
         const error = await response.json()
@@ -103,6 +159,13 @@ export default function PaymentPage() {
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  const getFinalAmount = () => {
+    if (!paymentInfo) return 0
+    const originalAmount = paymentInfo.payment.totalAmount
+    const discount = originalAmount * (discountPercent / 100)
+    return originalAmount - discount
   }
 
   if (loading || isLoading) {
@@ -188,6 +251,57 @@ export default function PaymentPage() {
             </div>
           </div>
 
+          {/* Loyalty Points Display */}
+          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-amber-900 font-semibold">Điểm tích lũy của bạn</p>
+                  <p className="text-xs text-amber-700">Nhận 1 điểm cho mỗi 10,000 VNĐ thanh toán</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-amber-600">{loyaltyPoints}</p>
+                <p className="text-xs text-amber-700">điểm</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Promo Code Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+              Mã Khuyến mãi
+            </h2>
+            
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="Nhập mã khuyến mãi"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={handleValidatePromo}
+                disabled={isValidatingPromo || !promoCode.trim()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isValidatingPromo ? 'Đang kiểm tra...' : 'Áp dụng'}
+              </button>
+            </div>
+            
+            {promoMessage && (
+              <p className={`mt-2 text-sm ${promoMessage.startsWith('✓') ? 'text-green-600' : 'text-red-600'}`}>
+                {promoMessage}
+              </p>
+            )}
+          </div>
+
           {/* Payment Summary Card */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
@@ -210,13 +324,27 @@ export default function PaymentPage() {
                 <span className="text-gray-800">{formatCurrency(0)}</span>
               </div>
 
+              {discountPercent > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="font-semibold">Giảm giá ({discountPercent}%)</span>
+                  <span className="font-semibold">
+                    - {formatCurrency(paymentInfo.payment.totalAmount * (discountPercent / 100))}
+                  </span>
+                </div>
+              )}
+
               <div className="border-t pt-3 mt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xl font-bold text-gray-800">Tổng cộng</span>
                   <span className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(paymentInfo.payment.totalAmount)}
+                    {formatCurrency(getFinalAmount())}
                   </span>
                 </div>
+                {discountPercent > 0 && (
+                  <p className="text-right text-sm text-green-600 mt-1">
+                    Tiết kiệm {formatCurrency(paymentInfo.payment.totalAmount * (discountPercent / 100))}
+                  </p>
+                )}
               </div>
             </div>
           </div>

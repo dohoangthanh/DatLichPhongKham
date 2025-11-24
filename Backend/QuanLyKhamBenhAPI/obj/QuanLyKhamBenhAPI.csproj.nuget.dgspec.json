@@ -76,6 +76,14 @@
               "target": "Package",
               "version": "[9.0.10, )"
             },
+            "Microsoft.SemanticKernel": {
+              "target": "Package",
+              "version": "[1.33.0, )"
+            },
+            "Microsoft.SemanticKernel.Connectors.Google": {
+              "target": "Package",
+              "version": "[1.33.0-alpha, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"

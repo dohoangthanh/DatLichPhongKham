@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import DoctorLayout from '@/components/DoctorLayout'
 import { useAuth } from '@/contexts/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const API_URL = 'http://localhost:5164/api'
 
 interface Patient {
   patientId: number
@@ -29,6 +29,15 @@ interface LabResult {
   resultDate: string
 }
 
+interface MedicalRecord {
+  recordId: number
+  symptoms: string
+  diagnosis: string
+  treatment: string
+  appointmentId: number
+  labResults: LabResult[]
+}
+
 export default function UpdateMedicalRecordPage() {
   const params = useParams()
   const router = useRouter()
@@ -36,6 +45,7 @@ export default function UpdateMedicalRecordPage() {
   const appointmentId = params.appointmentId as string
 
   const [appointment, setAppointment] = useState<Appointment | null>(null)
+  const [existingRecord, setExistingRecord] = useState<MedicalRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -52,17 +62,19 @@ export default function UpdateMedicalRecordPage() {
   ])
 
   useEffect(() => {
+    const token = localStorage.getItem('token')
     if (token && appointmentId) {
-      fetchAppointmentDetails()
+      fetchAppointmentDetails(token)
+      fetchExistingRecord(token)
     }
-  }, [token, appointmentId])
+  }, [appointmentId])
 
-  const fetchAppointmentDetails = async () => {
+  const fetchAppointmentDetails = async (authToken: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_URL}/appointments/${appointmentId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken}`
         }
       })
 
@@ -77,6 +89,39 @@ export default function UpdateMedicalRecordPage() {
       setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchExistingRecord = async (authToken: string) => {
+    try {
+      const response = await fetch(`${API_URL}/medical/records`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+
+      if (response.ok) {
+        const records = await response.json()
+        const record = records.find((r: any) => r.appointmentId === parseInt(appointmentId))
+        
+        if (record) {
+          setExistingRecord(record)
+          setFormData({
+            symptoms: record.symptoms || '',
+            diagnosis: record.diagnosis || '',
+            treatment: record.treatment || '',
+          })
+          
+          if (record.labResults && record.labResults.length > 0) {
+            setLabResults(record.labResults.map((lr: any) => ({
+              resultDetails: lr.resultDetails || '',
+              resultDate: lr.resultDate ? new Date(lr.resultDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+            })))
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching existing record:', err)
     }
   }
 
@@ -119,6 +164,11 @@ export default function UpdateMedicalRecordPage() {
       setSubmitting(true)
       setError('')
       
+      const authToken = localStorage.getItem('token')
+      if (!authToken) {
+        throw new Error('Phiên đăng nhập đã hết hạn')
+      }
+
       const filteredLabResults = labResults
         .filter(lab => lab.resultDetails.trim() !== '')
         .map(lab => ({
@@ -126,31 +176,57 @@ export default function UpdateMedicalRecordPage() {
           resultDate: lab.resultDate ? new Date(lab.resultDate).toISOString() : new Date().toISOString()
         }))
 
-      const requestData = {
-        appointmentId: parseInt(appointmentId),
-        symptoms: formData.symptoms,
-        diagnosis: formData.diagnosis,
-        treatment: formData.treatment,
-        labResults: filteredLabResults.length > 0 ? filteredLabResults : null
+      // If existing record, update it
+      if (existingRecord) {
+        const updateData = {
+          symptoms: formData.symptoms,
+          diagnosis: formData.diagnosis,
+          treatment: formData.treatment,
+        }
+
+        const response = await fetch(`${API_URL}/medical/records/${existingRecord.recordId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(updateData)
+        })
+
+        if (!response.ok) {
+          throw new Error('Không thể cập nhật bệnh án')
+        }
+
+        setSuccess('Cập nhật bệnh án thành công!')
+      } else {
+        // Create new record
+        const requestData = {
+          appointmentId: parseInt(appointmentId),
+          symptoms: formData.symptoms,
+          diagnosis: formData.diagnosis,
+          treatment: formData.treatment,
+          labResults: filteredLabResults.length > 0 ? filteredLabResults : null
+        }
+
+        const response = await fetch(`${API_URL}/medical/records`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(requestData)
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.message || 'Không thể lưu bệnh án')
+        }
+
+        setSuccess('Tạo bệnh án thành công!')
       }
 
-      const response = await fetch(`${API_URL}/medical/records`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(requestData)
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Không thể lưu bệnh án')
-      }
-
-      setSuccess('Cập nhật bệnh án thành công!')
       setTimeout(() => {
-        router.push('/doctor/schedule')
+        router.push('/doctor/medical-records')
       }, 1500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
@@ -183,7 +259,9 @@ export default function UpdateMedicalRecordPage() {
             </svg>
             Quay lại
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Cập nhật Bệnh án</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {existingRecord ? 'Cập nhật Bệnh án' : 'Tạo Bệnh án Mới'}
+          </h1>
           <p className="text-gray-600">Nhập thông tin khám bệnh và kết quả xét nghiệm</p>
         </div>
 
@@ -371,7 +449,7 @@ export default function UpdateMedicalRecordPage() {
               disabled={submitting}
               className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? 'Đang lưu...' : 'Lưu bệnh án'}
+              {submitting ? 'Đang lưu...' : (existingRecord ? 'Cập nhật bệnh án' : 'Tạo bệnh án')}
             </button>
           </div>
         </form>

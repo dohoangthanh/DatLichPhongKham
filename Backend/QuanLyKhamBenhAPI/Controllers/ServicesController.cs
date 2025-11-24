@@ -10,7 +10,6 @@ namespace QuanLyKhamBenhAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ServicesController : ControllerBase
     {
         private readonly QuanLyKhamBenhContext _context;
@@ -20,8 +19,9 @@ namespace QuanLyKhamBenhAPI.Controllers
             _context = context;
         }
 
-        // GET: api/services
+        // GET: api/services - Public endpoint for pricing page
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ServiceDto>>> GetServices()
         {
             var services = await _context.Services.Select(s => new ServiceDto

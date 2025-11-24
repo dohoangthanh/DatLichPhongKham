@@ -71,8 +71,8 @@ namespace QuanLyKhamBenhAPI.Controllers
             var medicalRecord = await _context.MedicalRecords
                 .Include(m => m.LabResults)
                 .Include(m => m.Appointment)
-                    .ThenInclude(a => a.Doctor)
-                        .ThenInclude(d => d.Specialty)
+                    .ThenInclude(a => a!.Doctor)
+                        .ThenInclude(d => d!.Specialty)
                 .FirstOrDefaultAsync(m => m.AppointmentId == appointmentId);
 
             if (medicalRecord == null)
@@ -92,8 +92,8 @@ namespace QuanLyKhamBenhAPI.Controllers
                     Time = appointment.Time,
                     Doctor = appointment.Doctor != null ? new
                     {
-                        DoctorId = appointment.Doctor.DoctorId,
-                        Name = appointment.Doctor.Name,
+                        DoctorId = appointment.Doctor!.DoctorId,
+                        Name = appointment.Doctor!.Name,
                         Specialty = appointment.Doctor.Specialty?.Name
                     } : null
                 },

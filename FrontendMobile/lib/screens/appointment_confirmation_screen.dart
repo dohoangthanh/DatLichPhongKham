@@ -64,7 +64,12 @@ class AppointmentConfirmationScreen extends StatelessWidget {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.popUntil(context, (route) => route.isFirst);
+          // Navigate to appointments history instead of home
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/appointments-history',
+            (route) => route.isFirst,
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

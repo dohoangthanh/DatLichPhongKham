@@ -12,8 +12,8 @@ using QuanLyKhamBenhAPI.Models;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     [DbContext(typeof(QuanLyKhamBenhContext))]
-    [Migration("20251113151324_Initialcreate")]
-    partial class Initialcreate
+    [Migration("20251124202935_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -180,6 +180,12 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .HasColumnType("int")
                         .HasColumnName("rating");
 
+                    b.Property<DateTime?>("RepliedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReplyText")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("FeedbackId")
                         .HasName("PK__Feedback__2613FD24E68EE594");
 
@@ -295,6 +301,38 @@ namespace QuanLyKhamBenhAPI.Migrations
                     b.HasIndex("AppointmentId");
 
                     b.ToTable("MedicalRecord", (string)null);
+                });
+
+            modelBuilder.Entity("QuanLyKhamBenhAPI.Models.PasswordResetOtp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Otp")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasswordResetOtps");
                 });
 
             modelBuilder.Entity("QuanLyKhamBenhAPI.Models.Patient", b =>
