@@ -10,7 +10,6 @@ namespace QuanLyKhamBenhAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
     public class DoctorsController : ControllerBase
     {
         private readonly QuanLyKhamBenhContext _context;
@@ -20,7 +19,9 @@ namespace QuanLyKhamBenhAPI.Controllers
             _context = context;
         }
 
+        // GET: api/doctors - Public endpoint for doctors listing page
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors(int? specialtyId = null)
         {
 #pragma warning disable CS8601 // Possible null reference assignment - we check d.Specialty == null before accessing
@@ -47,7 +48,9 @@ namespace QuanLyKhamBenhAPI.Controllers
 #pragma warning restore CS8601
         }
 
+        // GET: api/doctors/{id} - Public endpoint for doctor details
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<DoctorDto>> GetDoctor(int id)
         {
 #pragma warning disable CS8601 // Possible null reference assignment - we check doctor.Specialty == null before accessing
@@ -73,7 +76,9 @@ namespace QuanLyKhamBenhAPI.Controllers
 #pragma warning restore CS8601
         }
 
+        // POST: api/doctors - Admin only
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<DoctorDto>> PostDoctor(CreateDoctorDto dto)
         {
             var doctor = new Doctor
@@ -103,7 +108,9 @@ namespace QuanLyKhamBenhAPI.Controllers
             return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, createdDto);
         }
 
+        // PUT: api/doctors/{id} - Admin only
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutDoctor(int id, UpdateDoctorDto dto)
         {
             var existing = await _context.Doctors.FindAsync(id);
@@ -133,7 +140,9 @@ namespace QuanLyKhamBenhAPI.Controllers
             return NoContent();
         }
 
+        // DELETE: api/doctors/{id} - Admin only
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDoctor(int id)
         {
             var doctor = await _context.Doctors.FindAsync(id);

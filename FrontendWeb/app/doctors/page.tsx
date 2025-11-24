@@ -8,14 +8,11 @@ import { patientApi } from '@/services/patientApi'
 
 interface Doctor {
   doctorId: number
-  fullName: string
+  name: string
   phone: string
-  email?: string
-  specialtyId: number
   specialty?: {
     specialtyId: number
-    specialtyName: string
-    description?: string
+    name: string
   }
 }
 
@@ -43,14 +40,14 @@ export default function DoctorsPage() {
 
   const specialties = [
     { id: 'all', name: 'Tất cả chuyên khoa' },
-    ...Array.from(new Set(doctors.map(d => d.specialty?.specialtyName).filter(Boolean)))
+    ...Array.from(new Set(doctors.map(d => d.specialty?.name).filter(Boolean)))
       .map(name => ({ id: name as string, name: name as string }))
   ]
 
   const filteredDoctors = doctors.filter(doctor => {
-    const matchesSpecialty = selectedSpecialty === 'all' || doctor.specialty?.specialtyName === selectedSpecialty
-    const matchesSearch = doctor.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          doctor.specialty?.specialtyName.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSpecialty = selectedSpecialty === 'all' || doctor.specialty?.name === selectedSpecialty
+    const matchesSearch = doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          doctor.specialty?.name?.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSpecialty && matchesSearch
   })
 
@@ -153,7 +150,7 @@ export default function DoctorsPage() {
                     {/* Doctor Info */}
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        BS. {doctor.fullName}
+                        BS. {doctor.name}
                       </h3>
                       
                       {doctor.specialty && (
@@ -161,7 +158,7 @@ export default function DoctorsPage() {
                           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                           </svg>
-                          <span className="font-medium">{doctor.specialty.specialtyName}</span>
+                          <span className="font-medium">{doctor.specialty.name}</span>
                         </div>
                       )}
 
@@ -172,14 +169,6 @@ export default function DoctorsPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             {doctor.phone}
-                          </div>
-                        )}
-                        {doctor.email && (
-                          <div className="flex items-center text-gray-600 text-sm">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            {doctor.email}
                           </div>
                         )}
                       </div>
