@@ -18,6 +18,28 @@ namespace QuanLyKhamBenhAPI.Controllers
             _context = context;
         }
 
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            if (user.Role != "Patient") return Forbid();
+
+            var patient = await _context.Patients.FindAsync(user.PatientId);
+            if (patient == null)
+                return NotFound(new { Message = "Không tìm thấy thông tin bệnh nhân" });
+
+            return Ok(new {
+                patient.PatientId,
+                patient.Name,
+                Dob = patient.Dob,
+                patient.Gender,
+                patient.Phone,
+                patient.Address
+            });
+        }
+
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdatePatientProfileDto dto)
         {

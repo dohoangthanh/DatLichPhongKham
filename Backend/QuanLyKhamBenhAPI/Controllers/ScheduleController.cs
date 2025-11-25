@@ -54,6 +54,25 @@ namespace QuanLyKhamBenhAPI.Controllers
             return CreatedAtAction(nameof(GetWorkShifts), new { doctorId = workShift.DoctorId }, createdDto);
         }
 
+        // GET: api/schedule/workshift (Get all work shifts - Admin only)
+        [HttpGet("workshift")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<WorkShiftDto>>> GetAllWorkShifts()
+        {
+            var workShifts = await _context.WorkShifts
+                .Select(w => new WorkShiftDto
+                {
+                    ShiftId = w.ShiftId,
+                    DoctorId = w.DoctorId!.Value,
+                    Date = w.Date.ToString("yyyy-MM-dd"),
+                    StartTime = w.StartTime.ToString(@"hh\:mm"),
+                    EndTime = w.EndTime.ToString(@"hh\:mm")
+                })
+                .ToListAsync();
+
+            return Ok(workShifts);
+        }
+
         // GET: api/schedule/workshift/{doctorId}
         [HttpGet("workshift/{doctorId}")]
         public async Task<ActionResult<IEnumerable<WorkShiftDto>>> GetWorkShifts(int doctorId)

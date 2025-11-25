@@ -8,15 +8,9 @@ import { patientApi } from '@/services/patientApi'
 
 interface Service {
   serviceId: number
-  serviceName: string
-  description: string
+  name: string
   price: number
-  duration: number
-  specialtyId?: number
-  specialty?: {
-    specialtyId: number
-    specialtyName: string
-  }
+  type?: string
 }
 
 export default function ServicesPage() {
@@ -51,7 +45,7 @@ export default function ServicesPage() {
   const filteredServices = selectedCategory === 'all' 
     ? services 
     : services.filter(s => {
-        const name = s.serviceName.toLowerCase()
+        const name = s.name.toLowerCase()
         if (selectedCategory === 'kham') return name.includes('khám')
         if (selectedCategory === 'xetnghiem') return name.includes('xét nghiệm')
         if (selectedCategory === 'chandoan') return name.includes('chẩn đoán') || name.includes('x-quang') || name.includes('siêu âm')
@@ -133,33 +127,19 @@ export default function ServicesPage() {
                   </div>
                   
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {service.serviceName}
+                    {service.name}
                   </h3>
                   
-                  {service.description && (
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {service.description}
+                  {service.type && (
+                    <p className="text-gray-600 mb-4">
+                      <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+                        {service.type}
+                      </span>
                     </p>
                   )}
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    {service.duration && (
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {service.duration} phút
-                      </div>
-                    )}
-                    {service.specialty && (
-                      <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
-                        {service.specialty.specialtyName}
-                      </span>
-                    )}
-                  </div>
-                  
                   <a 
-                    href="/booking" 
+                    href="/patient/booking" 
                     className="block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
                     Đặt lịch ngay

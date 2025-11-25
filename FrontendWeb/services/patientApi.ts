@@ -28,6 +28,16 @@ export const patientMedicalApi = {
 
 // Patient Profile API
 export const patientProfileApi = {
+  getProfile: async () => {
+    const response = await fetch(`${API_URL}/patient/profile`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch profile')
+    }
+    return response.json()
+  },
+  
   updateProfile: async (data: {
     name?: string
     dob?: string

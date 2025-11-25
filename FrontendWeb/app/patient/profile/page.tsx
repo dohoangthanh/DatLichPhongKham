@@ -36,40 +36,38 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!loading && (!user || user.role !== 'Patient')) {
       router.replace('/login')
+      return
     }
   }, [user, loading, router])
+
+  const fetchPatientProfile = async () => {
+    try {
+      setIsLoadingProfile(true)
+      console.log('Fetching profile for user:', user)
+      const data = await patientProfileApi.getProfile()
+      console.log('Profile data received:', data)
+      setProfileData({
+        name: data.name || '',
+        dob: data.dob ? data.dob.split('T')[0] : '',
+        gender: data.gender || 'Nam',
+        phone: data.phone || '',
+        address: data.address || ''
+      })
+    } catch (error: any) {
+      console.error('Error fetching profile:', error)
+      console.error('Error details:', error.message, error.status)
+      alert('Không thể tải thông tin. Vui lòng thử lại.')
+    } finally {
+      setIsLoadingProfile(false)
+    }
+  }
 
   useEffect(() => {
     if (token && user?.role === 'Patient' && user.patientId) {
       fetchPatientProfile()
     }
-  }, [token, user])
-
-  const fetchPatientProfile = async () => {
-    try {
-      setIsLoadingProfile(true)
-      const response = await fetch(`${API_URL}/patients/${user?.patientId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setProfileData({
-          name: data.name || '',
-          dob: data.dob ? data.dob.split('T')[0] : '',
-          gender: data.gender || 'Nam',
-          phone: data.phone || '',
-          address: data.address || ''
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error)
-    } finally {
-      setIsLoadingProfile(false)
-    }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, user?.patientId])
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

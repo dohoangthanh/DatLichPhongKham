@@ -30,6 +30,7 @@ const SchedulesPage: React.FC = () => {
   const [allWorkShifts, setAllWorkShifts] = useState<WorkShift[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editingShift, setEditingShift] = useState<WorkShift | null>(null)
   const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<string>('')
@@ -64,9 +65,7 @@ const SchedulesPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json()
         setDoctors(data)
-        if (data.length > 0) {
-          setSelectedDoctor(data[0].doctorId)
-        }
+        // Don't auto-select first doctor - show all by default
       }
     } catch (error) {
       console.error('Error fetching doctors:', error)
@@ -96,8 +95,12 @@ const SchedulesPage: React.FC = () => {
     e.preventDefault()
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/schedule/workshift`, {
-        method: 'POST',
+      const url = editingShift 
+        ? `${API_URL}/schedule/workshift/${editingShift.shiftId}`
+        : `${API_URL}/schedule/workshift`
+      
+      const response = await fetch(url, {
+        method: editingShift ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -107,18 +110,30 @@ const SchedulesPage: React.FC = () => {
 
       if (response.ok) {
         setShowModal(false)
+        setEditingShift(null)
         setFormData({ doctorId: 0, date: '', startTime: '08:00', endTime: '12:00' })
-        if (selectedDoctor) {
-          fetchWorkShifts(selectedDoctor)
-        }
-        alert('Thêm ca làm việc thành công!')
+        await fetchAllWorkShifts()
+        alert(editingShift ? 'Cập nhật ca làm việc thành công!' : 'Thêm ca làm việc thành công!')
       } else {
-        alert('Có lỗi xảy ra!')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Server error:', response.status, errorData)
+        alert(`Có lỗi xảy ra! ${errorData.message || ''}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving work shift:', error)
-      alert('Có lỗi xảy ra!')
+      alert(`Có lỗi xảy ra! ${error.message || ''}`)
     }
+  }
+
+  const handleEdit = (shift: WorkShift) => {
+    setEditingShift(shift)
+    setFormData({
+      doctorId: shift.doctorId,
+      date: shift.date,
+      startTime: shift.startTime,
+      endTime: shift.endTime
+    })
+    setShowModal(true)
   }
 
   const handleDelete = async (shiftId: number) => {
@@ -134,9 +149,7 @@ const SchedulesPage: React.FC = () => {
       })
 
       if (response.ok) {
-        if (selectedDoctor) {
-          fetchWorkShifts(selectedDoctor)
-        }
+        await fetchAllWorkShifts()
         alert('Xóa ca làm việc thành công!')
       } else {
         alert('Có lỗi xảy ra!')
@@ -170,34 +183,6 @@ const SchedulesPage: React.FC = () => {
   const endIndex = startIndex + itemsPerPage
   const currentShifts = workShifts.slice(startIndex, endIndex)
 
-  const getStatusColor = (date: string) => {
-    const shiftDate = new Date(date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    if (shiftDate < today) {
-      return 'bg-gray-100 text-gray-800' // Đã kết thúc
-    } else if (shiftDate.toDateString() === today.toDateString()) {
-      return 'bg-green-100 text-green-800' // Hoạt động
-    } else {
-      return 'bg-blue-100 text-blue-800' // Đã kết thúc
-    }
-  }
-
-  const getStatusText = (date: string) => {
-    const shiftDate = new Date(date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    if (shiftDate < today) {
-      return 'Đã kết thúc'
-    } else if (shiftDate.toDateString() === today.toDateString()) {
-      return 'Hoạt động'
-    } else {
-      return 'Đã kết thúc'
-    }
-  }
-
   if (loading) {
     return (
       <AdminLayout>
@@ -219,6 +204,7 @@ const SchedulesPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Lịch làm việc Bác sĩ</h1>
           <button
             onClick={() => {
+              setEditingShift(null)
               setFormData({ doctorId: 0, date: '', startTime: '08:00', endTime: '12:00' })
               setShowModal(true)
             }}
@@ -315,9 +301,6 @@ const SchedulesPage: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Giờ Kết Thúc
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Trạng Thái
-                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hành Động
                 </th>
@@ -343,12 +326,13 @@ const SchedulesPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {shift.endTime}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(shift.date)}`}>
-                        {getStatusText(shift.date)}
-                      </span>
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(shift)}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        ✏️
+                      </button>
                       <button
                         onClick={() => handleDelete(shift.shiftId)}
                         className="text-red-600 hover:text-red-900"
@@ -404,7 +388,7 @@ const SchedulesPage: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Thêm Ca làm việc</h2>
+            <h2 className="text-xl font-bold mb-4">{editingShift ? 'Chỉnh sửa Ca làm việc' : 'Thêm Ca làm việc'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

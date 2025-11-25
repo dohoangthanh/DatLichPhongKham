@@ -72,6 +72,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user: User = {
         username: tokenPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || tokenPayload.name || tokenPayload.unique_name,
         role: tokenPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || tokenPayload.role,
+        patientId: tokenPayload.patientId ? parseInt(tokenPayload.patientId) : undefined,
+        doctorId: tokenPayload.doctorId ? parseInt(tokenPayload.doctorId) : undefined,
       }
       
       console.log('Parsed User:', user)

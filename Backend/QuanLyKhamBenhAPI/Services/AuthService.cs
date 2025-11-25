@@ -34,14 +34,23 @@ namespace QuanLyKhamBenhAPI.Services
             // Generate JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSecret);
+            
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("userId", user.UserId.ToString())
+            };
+            
+            if (user.PatientId.HasValue)
+                claims.Add(new Claim("patientId", user.PatientId.Value.ToString()));
+            
+            if (user.DoctorId.HasValue)
+                claims.Add(new Claim("doctorId", user.DoctorId.Value.ToString()));
+            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role),
-                    new Claim("userId", user.UserId.ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
