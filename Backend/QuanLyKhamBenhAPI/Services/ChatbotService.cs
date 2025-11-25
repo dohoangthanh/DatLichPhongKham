@@ -23,13 +23,25 @@ public class ChatbotService
         var geminiApiKey = configuration["Gemini:ApiKey"] 
             ?? throw new ArgumentException("Gemini API Key is not configured");
 
+        _logger.LogInformation("Initializing Gemini with API Key: {Key}", 
+            geminiApiKey.Substring(0, Math.Min(10, geminiApiKey.Length)) + "...");
+
         // Khởi tạo Semantic Kernel với Gemini và Plugin
         var builder = Kernel.CreateBuilder();
         
 #pragma warning disable SKEXP0070
-        builder.AddGoogleAIGeminiChatCompletion(
-            modelId: "gemini-2.0-pro",
-            apiKey: geminiApiKey);
+        try
+        {
+            builder.AddGoogleAIGeminiChatCompletion(
+                modelId: "gemini-2.0-flash-exp",
+                apiKey: geminiApiKey);
+            _logger.LogInformation("Successfully configured Gemini model: gemini-2.0-flash-exp");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to configure Gemini connector");
+            throw;
+        }
 #pragma warning restore SKEXP0070
         
         // Thêm plugin để AI có thể gọi các hàm nghiệp vụ
@@ -75,9 +87,19 @@ public class ChatbotService
 
             return response.Content ?? "Xin lỗi, tôi không thể trả lời câu hỏi này.";
         }
+        catch (Microsoft.SemanticKernel.HttpOperationException httpEx)
+        {
+            _logger.LogError(httpEx, 
+                "HTTP Error calling Gemini - StatusCode: {StatusCode}, Message: {Message}, RequestUri: {RequestUri}", 
+                httpEx.StatusCode, 
+                httpEx.Message,
+                httpEx.InnerException?.Message ?? "N/A");
+            return "Xin lỗi, dịch vụ tư vấn tạm thời không khả dụng. Vui lòng thử lại sau.";
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting chat response from Gemini");
+            _logger.LogError(ex, "Error getting chat response from Gemini: {ExceptionType} - {Message}", 
+                ex.GetType().Name, ex.Message);
             return "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.";
         }
     }
