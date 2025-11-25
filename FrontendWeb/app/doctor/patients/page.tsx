@@ -46,7 +46,8 @@ export default function DoctorPatientsPage() {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5164/api/medical/appointments?period=all', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+      const response = await fetch(`${API_URL}/medical/appointments?period=all`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -88,6 +89,23 @@ export default function DoctorPatientsPage() {
     }
   }
 
+  const calculateAge = (dob: string) => {
+    if (!dob) return 'N/A'
+    const birthDate = new Date(dob)
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    return age
+  }
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Chưa có'
+    return new Date(dateString).toLocaleDateString('vi-VN')
+  }
+
   const filterPatients = () => {
     let filtered = patients
 
@@ -106,24 +124,6 @@ export default function DoctorPatientsPage() {
     }
 
     setFilteredPatients(filtered)
-  }
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('vi-VN')
-  }
-
-  const calculateAge = (dobString: string) => {
-    if (!dobString) return 'N/A'
-    const dob = new Date(dobString)
-    const today = new Date()
-    let age = today.getFullYear() - dob.getFullYear()
-    const monthDiff = today.getMonth() - dob.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--
-    }
-    return age
   }
 
   if (loading || !user || isLoading) {

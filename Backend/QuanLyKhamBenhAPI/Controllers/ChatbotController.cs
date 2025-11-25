@@ -91,14 +91,13 @@ public class ChatbotController : ControllerBase
             return new PatientContextData();
         }
 
-        // Lấy 5 lịch sử khám gần nhất
+        // Lấy TẤT CẢ lịch sử khám của bệnh nhân
         var lichSuKham = await _context.MedicalRecords
             .Include(mr => mr.Appointment)
                 .ThenInclude(a => a!.Doctor)
                     .ThenInclude(d => d!.Specialty)
             .Where(mr => mr.Appointment!.PatientId == patientId)
             .OrderByDescending(mr => mr.CreatedDate)
-            .Take(5)
             .Select(mr => new LichSuKhamItem
             {
                 Ngay = mr.Appointment!.Date.ToString("dd/MM/yyyy"),

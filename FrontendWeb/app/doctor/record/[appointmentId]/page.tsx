@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import DoctorLayout from '@/components/DoctorLayout'
 import { useAuth } from '@/contexts/AuthContext'
 
-const API_URL = 'http://localhost:5164/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
 interface Patient {
   patientId: number

@@ -66,7 +66,8 @@ export default function DoctorMedicalRecordsPage() {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5164/api/medical/records', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+      const response = await fetch(`${API_URL}/medical/records`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

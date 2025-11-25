@@ -64,7 +64,14 @@ public class MedicalController : ControllerBase
                 a.Date,
                 a.Time,
                 a.Status,
-                Patient = new { a.Patient.PatientId, a.Patient.Name, a.Patient.Phone },
+                Patient = new { 
+                    a.Patient.PatientId, 
+                    a.Patient.Name, 
+                    a.Patient.Phone,
+                    a.Patient.Dob,
+                    a.Patient.Gender,
+                    a.Patient.Address
+                },
                 HasMedicalRecord = a.MedicalRecords.Any()
             })
 #pragma warning restore CS8602
