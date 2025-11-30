@@ -47,7 +47,7 @@ class AppointmentConfirmationScreen extends StatelessWidget {
       final day = date.day.toString().padLeft(2, '0');
       final dateString = '$year-$month-$day';
 
-      final success = await bookingService.createAppointment(
+      final appointmentId = await bookingService.createAppointment(
         token: authService.token!,
         doctorId: doctor.doctorId,
         date: dateString,
@@ -57,18 +57,13 @@ class AppointmentConfirmationScreen extends StatelessWidget {
       if (context.mounted) {
         Navigator.pop(context);
 
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Appointment booked successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Navigate to appointments history instead of home
+        if (appointmentId != null) {
+          // Navigate to appointment detail screen
           Navigator.pushNamedAndRemoveUntil(
             context,
-            '/appointments-history',
-            (route) => route.isFirst,
+            '/appointment-detail',
+            (route) => route.settings.name == '/home',
+            arguments: appointmentId,
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

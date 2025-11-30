@@ -85,7 +85,7 @@ namespace QuanLyKhamBenhAPI.Controllers
         }
 
         [HttpPut("confirm/{paymentId}")]
-        public async Task<IActionResult> ConfirmPayment(int paymentId)
+        public async Task<IActionResult> ConfirmPayment(int paymentId, [FromBody] ConfirmPaymentDto? dto)
         {
             var user = await GetCurrentUser();
             if (user == null) return Unauthorized();
@@ -102,9 +102,21 @@ namespace QuanLyKhamBenhAPI.Controllers
                 if (user.Role == "Patient" && payment.Appointment.PatientId != user.PatientId) return Forbid();
             }
 
+            // Update total amount if discount is provided
+            if (dto != null && dto.FinalAmount.HasValue && dto.FinalAmount.Value > 0)
+            {
+                payment.TotalAmount = dto.FinalAmount.Value;
+            }
+
             payment.Status = "Paid";
 
-            // Add loyalty points (1 point per 10,000 VND)
+            // Update appointment status to completed if payment is confirmed
+            if (payment.Appointment != null)
+            {
+                payment.Appointment.Status = "Completed";
+            }
+
+            // Add loyalty points (1 point per 10,000 VND) based on final amount
             if (payment.Appointment != null && payment.Appointment.PatientId.HasValue)
             {
                 int pointsToAdd = (int)(payment.TotalAmount / 10000);
@@ -134,6 +146,70 @@ namespace QuanLyKhamBenhAPI.Controllers
             return Ok(new { Message = "Payment confirmed successfully" });
         }
 
+        [HttpGet("invoice/{appointmentId}")]
+        public async Task<IActionResult> GetInvoice(int appointmentId)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            var payment = await _context.Payments
+                .Include(p => p.Appointment)
+                    .ThenInclude(a => a!.Patient)
+                .Include(p => p.Appointment)
+                    .ThenInclude(a => a!.Doctor)
+                        .ThenInclude(d => d!.Specialty)
+                .FirstOrDefaultAsync(p => p.AppointmentId == appointmentId);
+
+            if (payment == null) return NotFound("Payment not found");
+
+            // Check if payment belongs to user's appointment
+            if (payment.Appointment != null)
+            {
+                if (user.Role == "Patient" && payment.Appointment.PatientId != user.PatientId) return Forbid();
+            }
+
+            // Get loyalty points earned and current balance
+            int loyaltyPointsEarned = (int)(payment.TotalAmount / 10000);
+            int currentPoints = 0;
+            if (payment.Appointment?.PatientId != null)
+            {
+                var currentLoyaltyPoints = await _context.LoyaltyPoints
+                    .FirstOrDefaultAsync(lp => lp.PatientId == payment.Appointment.PatientId);
+                currentPoints = currentLoyaltyPoints?.Points ?? 0;
+            }
+
+            // Create invoice data
+            var invoice = new
+            {
+                InvoiceId = $"INV-{DateTime.Now.Year}-{payment.PaymentId:D6}",
+                AppointmentId = appointmentId,
+                Date = payment.PaymentDate?.ToString("yyyy-MM-dd"),
+                PatientName = payment.Appointment?.Patient?.Name ?? "Unknown",
+                PatientUsername = user.Username,
+                DoctorName = payment.Appointment?.Doctor?.Name ?? "Unknown",
+                Specialty = payment.Appointment?.Doctor?.Specialty?.Name ?? "Unknown",
+                AppointmentDate = payment.Appointment != null ? payment.Appointment.Date.ToString("yyyy-MM-dd") : "Unknown",
+                AppointmentTime = payment.Appointment != null ? payment.Appointment.Time.ToString(@"hh\:mm\:ss") : "Unknown",
+                AppointmentDayOfWeek = payment.Appointment != null ? payment.Appointment.Date.ToString("dddd", new System.Globalization.CultureInfo("vi-VN")) : "Unknown",
+                Items = new[]
+                {
+                    new { Name = "Phí khám ban đầu", Quantity = 1, Price = 270000 },
+                    new { Name = "Xét nghiệm máu tổng quát", Quantity = 1, Price = 0 },
+                    new { Name = "Phí dịch vụ", Quantity = 1, Price = 0 }
+                },
+                Subtotal = 270000,
+                Tax = 0, // No tax in sample
+                Total = payment.TotalAmount,
+                PaymentMethod = payment.PaymentMethod ?? "Unknown",
+                PaymentDate = payment.PaymentDate?.ToString("yyyy-MM-dd HH:mm:ss"),
+                Status = payment.Status == "Paid" ? "Đã thanh toán" : "Chưa thanh toán",
+                LoyaltyPointsEarned = loyaltyPointsEarned,
+                CurrentLoyaltyPoints = currentPoints
+            };
+
+            return Ok(invoice);
+        }
+
         private async Task<UserAccount?> GetCurrentUser()
         {
             var usernameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
@@ -142,6 +218,11 @@ namespace QuanLyKhamBenhAPI.Controllers
 
             return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == usernameClaim);
         }
+    }
+
+    public class ConfirmPaymentDto
+    {
+        public decimal? FinalAmount { get; set; }
     }
 
     public class CreatePaymentDto

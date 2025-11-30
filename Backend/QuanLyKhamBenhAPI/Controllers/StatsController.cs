@@ -28,8 +28,11 @@ public class StatsController : ControllerBase
     {
         try
         {
-            var fromDate = from ?? DateTime.Now.AddMonths(-1);
+            var fromDate = from ?? DateTime.Now.AddMonths(-3);
             var toDate = to ?? DateTime.Now;
+
+            // Ensure toDate includes the entire day
+            toDate = toDate.Date.AddDays(1).AddSeconds(-1);
 
             var payments = await _context.Payments
                 .Include(p => p.Appointment)
@@ -38,6 +41,9 @@ public class StatsController : ControllerBase
                             p.PaymentDate.Value >= fromDate && 
                             p.PaymentDate.Value <= toDate)
                 .ToListAsync();
+
+            Console.WriteLine($"[Revenue Stats] Date range: {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}");
+            Console.WriteLine($"[Revenue Stats] Found {payments.Count} paid payments");
 
             var totalRevenue = payments.Sum(p => p.TotalAmount);
             var totalPayments = payments.Count;
@@ -97,15 +103,23 @@ public class StatsController : ControllerBase
     {
         try
         {
-            var fromDate = from ?? DateTime.Now.AddYears(-1);
+            var fromDate = from ?? DateTime.Now.AddMonths(-3);
             var toDate = to ?? DateTime.Now;
+            
+            // Ensure toDate includes the entire day
+            toDate = toDate.Date.AddDays(1).AddSeconds(-1);
 
-            var topPatients = await _context.Appointments
+            // Fetch all completed appointments first, then process in memory
+            var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Include(a => a.Payments)
                 .Where(a => a.Status == "Completed" &&
+                            a.PatientId != null &&
                             a.Date >= DateOnly.FromDateTime(fromDate) &&
                             a.Date <= DateOnly.FromDateTime(toDate))
+                .ToListAsync();
+
+            var topPatients = appointments
                 .GroupBy(a => new { a.PatientId, a.Patient!.Name, a.Patient.Phone })
                 .Select(g => new TopPatientDto
                 {
@@ -120,7 +134,7 @@ public class StatsController : ControllerBase
                 })
                 .OrderByDescending(p => p.AppointmentCount)
                 .Take(limit)
-                .ToListAsync();
+                .ToList();
 
             return Ok(topPatients);
         }
@@ -195,8 +209,11 @@ public class StatsController : ControllerBase
     {
         try
         {
-            var fromDate = from ?? DateTime.Now.AddMonths(-1);
+            var fromDate = from ?? DateTime.Now.AddMonths(-3);
             var toDate = to ?? DateTime.Now;
+            
+            // Ensure toDate includes the entire day
+            toDate = toDate.Date.AddDays(1).AddSeconds(-1);
 
             var totalAppointments = await _context.Appointments
                 .Where(a => a.Date >= DateOnly.FromDateTime(fromDate) &&
@@ -239,8 +256,11 @@ public class StatsController : ControllerBase
     {
         try
         {
-            var fromDate = from ?? DateTime.Now.AddMonths(-1);
+            var fromDate = from ?? DateTime.Now.AddMonths(-3);
             var toDate = to ?? DateTime.Now;
+            
+            // Ensure toDate includes the entire day
+            toDate = toDate.Date.AddDays(1).AddSeconds(-1);
 
             var stats = await _context.Appointments
                 .Include(a => a.Doctor)
@@ -267,6 +287,44 @@ public class StatsController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Lỗi khi lấy thống kê chuyên khoa", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Debug endpoint: Lấy thông tin về payments để kiểm tra
+    /// </summary>
+    [HttpGet("debug/payments")]
+    public async Task<ActionResult> GetPaymentsDebug()
+    {
+        try
+        {
+            var totalPayments = await _context.Payments.CountAsync();
+            var paidPayments = await _context.Payments.CountAsync(p => p.Status == "Paid");
+            var paymentsWithDate = await _context.Payments.CountAsync(p => p.PaymentDate.HasValue);
+            
+            var recentPayments = await _context.Payments
+                .OrderByDescending(p => p.PaymentId)
+                .Take(5)
+                .Select(p => new {
+                    p.PaymentId,
+                    p.Status,
+                    p.TotalAmount,
+                    p.PaymentDate,
+                    p.AppointmentId
+                })
+                .ToListAsync();
+
+            return Ok(new {
+                totalPayments,
+                paidPayments,
+                paymentsWithDate,
+                recentPayments,
+                message = $"Tổng: {totalPayments}, Paid: {paidPayments}, Có ngày: {paymentsWithDate}"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi", error = ex.Message });
         }
     }
 }

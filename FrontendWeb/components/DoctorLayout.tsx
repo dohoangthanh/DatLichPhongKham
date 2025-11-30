@@ -75,21 +75,31 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
         <aside className="w-64 bg-white border-r min-h-[calc(100vh-73px)] p-4">
           <nav className="space-y-2">
             <Link
+              href="/doctor/calendar"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+            >
+              <span className="text-xl">📅</span>
+              <span className="font-medium">Lịch khám</span>
+            </Link>
+            <Link
               href="/doctor/schedule"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
-              <span className="font-medium">Lịch khám</span>
+              <span className="text-xl">🕐</span>
+              <span className="font-medium">Lịch hẹn hôm nay</span>
             </Link>
             <Link
               href="/doctor/patients"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
+              <span className="text-xl">👥</span>
               <span className="font-medium">Bệnh nhân</span>
             </Link>
             <Link
               href="/doctor/medical-records"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
+              <span className="text-xl">📋</span>
               <span className="font-medium">Bệnh án</span>
             </Link>
           </nav>

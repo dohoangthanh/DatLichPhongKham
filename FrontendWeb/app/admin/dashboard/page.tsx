@@ -59,8 +59,9 @@ const DashboardPage: React.FC = () => {
   const [appointmentsByStatus, setAppointmentsByStatus] = useState<AppointmentByStatus[]>([])
   const [appointmentsBySpecialty, setAppointmentsBySpecialty] = useState<AppointmentBySpecialty[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState({
-    from: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
+    from: new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0],
     to: new Date().toISOString().split('T')[0]
   })
 
@@ -71,6 +72,7 @@ const DashboardPage: React.FC = () => {
   const loadAllStats = async () => {
     try {
       setLoading(true)
+      setError(null)
       
       // Load dashboard stats first
       try {
@@ -79,6 +81,7 @@ const DashboardPage: React.FC = () => {
         setDashboardStats(dashboard)
       } catch (err) {
         console.error('Error loading dashboard:', err)
+        setError('Không thể tải thống kê tổng quan')
       }
 
       // Load other stats
@@ -96,15 +99,18 @@ const DashboardPage: React.FC = () => {
         console.log('By specialty:', bySpecialty)
         
         setRevenueStats(revenue)
-        setTopPatients(patients)
-        setAppointmentsByStatus(byStatus)
-        setAppointmentsBySpecialty(bySpecialty)
+        setTopPatients(patients || [])
+        setAppointmentsByStatus(byStatus || [])
+        setAppointmentsBySpecialty(bySpecialty || [])
       } catch (err) {
         console.error('Error loading other stats:', err)
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        setError('Không thể tải một số thống kê: ' + errorMsg)
       }
     } catch (error) {
       console.error('Error loading stats:', error)
-      alert('Lỗi khi tải thống kê: ' + (error as Error).message)
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      setError('Lỗi khi tải thống kê: ' + errorMsg)
     } finally {
       setLoading(false)
     }
@@ -142,11 +148,16 @@ const DashboardPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Thống kê & Báo cáo</h1>
             <p className="text-gray-600 mt-1">Xem tổng quan về hoạt động của phòng khám</p>
+            {error && (
+              <div className="mt-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+                ⚠️ {error}
+              </div>
+            )}
           </div>
           
           {/* Date Range Filter */}
           <div className="flex gap-4 items-center">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="date"
                 value={dateRange.from}
@@ -160,6 +171,12 @@ const DashboardPage: React.FC = () => {
                 onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg"
               />
+              <button
+                onClick={() => loadAllStats()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                🔄 Làm mới
+              </button>
             </div>
           </div>
         </div>
@@ -246,8 +263,9 @@ const DashboardPage: React.FC = () => {
           <div className="mb-6">
             <h3 className="text-md font-semibold text-gray-700 mb-3">Doanh thu theo tháng</h3>
             <div className="overflow-x-auto">
+              {revenueStats?.monthlyRevenue && revenueStats.monthlyRevenue.length > 0 ? (
               <div className="flex items-end gap-2 h-64 px-4">
-                {revenueStats?.monthlyRevenue.map((item, index) => {
+                {revenueStats.monthlyRevenue.map((item, index) => {
                   const maxRevenue = Math.max(...(revenueStats.monthlyRevenue.map(m => m.revenue) || [0]))
                   const height = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0
                   
@@ -263,8 +281,13 @@ const DashboardPage: React.FC = () => {
                       <p className="text-xs mt-2 text-gray-600">T{item.month}/{item.year}</p>
                     </div>
                   )
-                })}
+                })}  
               </div>
+              ) : (
+                <div className="flex items-center justify-center h-64 bg-gray-50 rounded">
+                  <p className="text-gray-500">📊 Chưa có dữ liệu doanh thu trong khoảng thời gian này</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -272,6 +295,7 @@ const DashboardPage: React.FC = () => {
           <div>
             <h3 className="text-md font-semibold text-gray-700 mb-3">Doanh thu theo ngày (10 ngày gần nhất)</h3>
             <div className="overflow-x-auto">
+              {revenueStats?.dailyRevenue && revenueStats.dailyRevenue.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
@@ -281,7 +305,7 @@ const DashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {revenueStats?.dailyRevenue.slice(-10).reverse().map((item, index) => (
+                  {revenueStats.dailyRevenue.slice(-10).reverse().map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm">{formatDate(item.date)}</td>
                       <td className="px-4 py-3 text-sm text-right font-medium">{formatCurrency(item.revenue)}</td>
@@ -290,6 +314,11 @@ const DashboardPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+              ) : (
+                <div className="flex items-center justify-center py-8 bg-gray-50 rounded">
+                  <p className="text-gray-500">📅 Chưa có giao dịch nào trong khoảng thời gian này</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -309,7 +338,7 @@ const DashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {topPatients.map((patient, index) => (
+                  {topPatients.length > 0 ? topPatients.map((patient, index) => (
                     <tr key={patient.patientId} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -331,7 +360,13 @@ const DashboardPage: React.FC = () => {
                         {formatCurrency(patient.totalSpent)}
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                        👥 Chưa có dữ liệu bệnh nhân trong khoảng thời gian này
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -342,6 +377,7 @@ const DashboardPage: React.FC = () => {
             {/* By Status */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Lịch hẹn theo trạng thái</h2>
+              {appointmentsByStatus.length > 0 ? (
               <div className="space-y-3">
                 {appointmentsByStatus.map((item) => (
                   <div key={item.status}>
@@ -358,11 +394,17 @@ const DashboardPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+              ) : (
+                <div className="flex items-center justify-center py-8 bg-gray-50 rounded">
+                  <p className="text-gray-500">📊 Chưa có lịch hẹn trong khoảng thời gian này</p>
+                </div>
+              )}
             </div>
 
             {/* By Specialty */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Theo chuyên khoa</h2>
+              {appointmentsBySpecialty.length > 0 ? (
               <div className="space-y-3">
                 {appointmentsBySpecialty.slice(0, 5).map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
@@ -374,6 +416,11 @@ const DashboardPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+              ) : (
+                <div className="flex items-center justify-center py-8 bg-gray-50 rounded">
+                  <p className="text-gray-500">🏥 Chưa có dữ liệu chuyên khoa trong khoảng thời gian này</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

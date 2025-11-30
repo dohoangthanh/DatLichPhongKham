@@ -351,12 +351,106 @@ public class MedicalController : ControllerBase
         return _context.MedicalRecords.Any(e => e.RecordId == id);
     }
 
+    // POST /api/medical/appointments/{id}/services - Bác sĩ chỉ định dịch vụ
+    [HttpPost("appointments/{appointmentId}/services")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> AddServicesToAppointment(int appointmentId, [FromBody] AddServicesRequest request)
+    {
+        var user = await GetCurrentUser();
+        if (user == null || !user.DoctorId.HasValue) return Unauthorized();
+
+        var appointment = await _context.Appointments
+            .Include(a => a.AppointmentServices)
+            .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId && a.DoctorId == user.DoctorId.Value);
+
+        if (appointment == null)
+        {
+            return NotFound("Appointment not found or not authorized.");
+        }
+
+        if (request.ServiceIds == null || !request.ServiceIds.Any())
+        {
+            return BadRequest("No services provided.");
+        }
+
+        // Xóa các dịch vụ cũ (nếu có)
+        var existingServices = appointment.AppointmentServices.ToList();
+        _context.AppointmentServices.RemoveRange(existingServices);
+
+        // Thêm dịch vụ mới
+        foreach (var serviceId in request.ServiceIds)
+        {
+            var service = await _context.Services.FindAsync(serviceId);
+            if (service != null)
+            {
+                var appointmentService = new AppointmentService
+                {
+                    AppointmentId = appointmentId,
+                    ServiceId = serviceId
+                };
+                _context.AppointmentServices.Add(appointmentService);
+            }
+        }
+
+        // Cập nhật trạng thái appointment thành "Awaiting Payment" nếu hoàn tất khám
+        if (request.CompleteExamination)
+        {
+            appointment.Status = "Completed";
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Tính tổng tiền
+        var totalAmount = await _context.AppointmentServices
+            .Where(apts => apts.AppointmentId == appointmentId)
+            .Include(apts => apts.Service)
+            .SumAsync(apts => apts.Service!.Price);
+
+        return Ok(new { 
+            message = "Services added successfully", 
+            totalAmount = totalAmount,
+            serviceCount = request.ServiceIds.Count
+        });
+    }
+
+    // GET /api/medical/appointments/{id}/services - Xem dịch vụ đã chỉ định
+    [HttpGet("appointments/{appointmentId}/services")]
+    [Authorize]
+    public async Task<IActionResult> GetAppointmentServices(int appointmentId)
+    {
+        var services = await _context.AppointmentServices
+            .Where(apts => apts.AppointmentId == appointmentId)
+            .Include(apts => apts.Service)
+            .Select(apts => new
+            {
+                apts.Service!.ServiceId,
+                apts.Service.Name,
+                apts.Service.Price,
+                apts.Service.Type
+            })
+            .ToListAsync();
+
+        var totalAmount = services.Sum(s => s.Price);
+
+        return Ok(new
+        {
+            services = services,
+            totalAmount = totalAmount
+        });
+    }
+
     private async Task<UserAccount?> GetCurrentUser()
     {
         var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
         if (username == null) return null;
         return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == username);
     }
+}
+
+public class AddServicesRequest
+{
+    public List<int> ServiceIds { get; set; } = new List<int>();
+    public bool CompleteExamination { get; set; } = true;
 }
 
 public class CreateMedicalRecordRequest

@@ -143,6 +143,8 @@ public class PatientContextData
     public List<LichSuKhamItem>? LichSuKham { get; set; }
     public LichHenSapToiItem? LichHenSapToi { get; set; }
     public List<string>? ChuyenKhoaCuaPhongKham { get; set; }
+    public List<KetQuaXetNghiemItem>? KetQuaXetNghiem { get; set; }
+    public List<LichSuThanhToanItem>? LichSuThanhToan { get; set; }
 }
 
 public class LichSuKhamItem
@@ -160,4 +162,18 @@ public class LichHenSapToiItem
     public string? Gio { get; set; }
     public string? BacSi { get; set; }
     public string? ChuyenKhoa { get; set; }
+}
+
+public class KetQuaXetNghiemItem
+{
+    public string? Ngay { get; set; }
+    public string? ChiTiet { get; set; }
+}
+
+public class LichSuThanhToanItem
+{
+    public string? Ngay { get; set; }
+    public decimal SoTien { get; set; }
+    public string? PhuongThuc { get; set; }
+    public string? TrangThai { get; set; }
 }

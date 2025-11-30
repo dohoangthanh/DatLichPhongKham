@@ -23,12 +23,34 @@ namespace QuanLyKhamBenhAPI.Controllers
 
         // POST: api/schedule/workshift
         [HttpPost("workshift")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Doctor")]
         public async Task<ActionResult<WorkShiftDto>> PostWorkShift(CreateWorkShiftDto dto)
         {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            // Doctors can only create shifts for themselves
+            if (user.Role == "Doctor" && dto.DoctorId != user.DoctorId)
+            {
+                return Forbid();
+            }
+
             if (!DateOnly.TryParse(dto.Date, out var shiftDate))
             {
                 return BadRequest("Invalid shift date format. Use yyyy-MM-dd");
+            }
+
+            // Check for overlapping shifts
+            var hasOverlap = await _context.WorkShifts
+                .AnyAsync(w => w.DoctorId == dto.DoctorId 
+                            && w.Date == shiftDate
+                            && ((TimeOnly.Parse(dto.StartTime) >= w.StartTime && TimeOnly.Parse(dto.StartTime) < w.EndTime)
+                                || (TimeOnly.Parse(dto.EndTime) > w.StartTime && TimeOnly.Parse(dto.EndTime) <= w.EndTime)
+                                || (TimeOnly.Parse(dto.StartTime) <= w.StartTime && TimeOnly.Parse(dto.EndTime) >= w.EndTime)));
+
+            if (hasOverlap)
+            {
+                return BadRequest(new { message = "Ca làm việc bị trùng với ca đã đăng ký trước đó. Vui lòng chọn thời gian khác." });
             }
 
             var workShift = new WorkShift
@@ -146,6 +168,19 @@ namespace QuanLyKhamBenhAPI.Controllers
             if (workShift == null)
             {
                 return NotFound();
+            }
+
+            // Check if there are appointments scheduled during this work shift
+            var hasAppointments = await _context.Appointments
+                .AnyAsync(a => a.DoctorId == workShift.DoctorId 
+                            && a.Date == workShift.Date 
+                            && a.Time >= workShift.StartTime 
+                            && a.Time <= workShift.EndTime
+                            && a.Status != "Cancelled");
+
+            if (hasAppointments)
+            {
+                return BadRequest(new { message = "Không thể xóa ca làm việc này vì đã có lịch hẹn được đặt. Vui lòng hủy các lịch hẹn trước khi xóa ca làm việc." });
             }
 
             _context.WorkShifts.Remove(workShift);

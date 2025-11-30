@@ -137,12 +137,14 @@ export default function PaymentPage() {
 
     try {
       setIsProcessing(true)
+      const finalAmount = getFinalAmount()
       const response = await fetch(`${API_URL}/payment/confirm/${paymentInfo.payment.paymentId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ finalAmount })
       })
       
       if (response.ok) {
@@ -208,15 +210,35 @@ export default function PaymentPage() {
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+              paymentInfo.payment.status === 'Paid' ? 'bg-green-100' : 'bg-blue-100'
+            }`}>
+              {paymentInfo.payment.status === 'Paid' ? (
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Xác nhận và Thanh toán
+              {paymentInfo.payment.status === 'Paid' ? 'Hóa đơn Thanh toán' : 'Xác nhận và Thanh toán'}
             </h1>
-            <p className="text-gray-600">Vui lòng kiểm tra thông tin trước khi thanh toán</p>
+            <p className="text-gray-600">
+              {paymentInfo.payment.status === 'Paid' 
+                ? 'Thanh toán đã hoàn tất. Dưới đây là chi tiết hóa đơn của bạn.' 
+                : 'Vui lòng kiểm tra thông tin trước khi thanh toán'}
+            </p>
+            {paymentInfo.payment.status === 'Paid' && (
+              <div className="mt-4 inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
+                <p className="text-green-800 font-semibold">✓ Đã thanh toán thành công</p>
+                <p className="text-green-700 text-sm mt-1">
+                  Bạn đã nhận {Math.floor(getFinalAmount() / 10000)} điểm tích lũy
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Appointment Info Card */}
@@ -273,34 +295,36 @@ export default function PaymentPage() {
           </div>
 
           {/* Promo Code Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
-              Mã Khuyến mãi
-            </h2>
-            
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="Nhập mã khuyến mãi"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={handleValidatePromo}
-                disabled={isValidatingPromo || !promoCode.trim()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isValidatingPromo ? 'Đang kiểm tra...' : 'Áp dụng'}
-              </button>
+          {paymentInfo.payment.status !== 'Paid' && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                Mã Khuyến mãi
+              </h2>
+              
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder="Nhập mã khuyến mãi"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={handleValidatePromo}
+                  disabled={isValidatingPromo || !promoCode.trim()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isValidatingPromo ? 'Đang kiểm tra...' : 'Áp dụng'}
+                </button>
+              </div>
+              
+              {promoMessage && (
+                <p className={`mt-2 text-sm ${promoMessage.startsWith('✓') ? 'text-green-600' : 'text-red-600'}`}>
+                  {promoMessage}
+                </p>
+              )}
             </div>
-            
-            {promoMessage && (
-              <p className={`mt-2 text-sm ${promoMessage.startsWith('✓') ? 'text-green-600' : 'text-red-600'}`}>
-                {promoMessage}
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Payment Summary Card */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -350,12 +374,13 @@ export default function PaymentPage() {
           </div>
 
           {/* Payment Method Selection */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
-              Chọn Phương thức Thanh toán
-            </h2>
-            
-            <div className="space-y-3">
+          {paymentInfo.payment.status !== 'Paid' && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                Chọn Phương thức Thanh toán
+              </h2>
+              
+              <div className="space-y-3">
               {/* VNPAY Option */}
               <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 selectedMethod === 'VNPAY' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
@@ -419,9 +444,11 @@ export default function PaymentPage() {
               </label>
             </div>
           </div>
+          )}
 
           {/* Security Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          {paymentInfo.payment.status !== 'Paid' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
             <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
@@ -432,32 +459,40 @@ export default function PaymentPage() {
               </p>
             </div>
           </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-4">
             <button
-              onClick={() => router.back()}
+              onClick={() => router.push('/patient/history')}
               disabled={isProcessing}
               className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Hủy
+              {paymentInfo.payment.status === 'Paid' ? 'Quay lại' : 'Hủy'}
             </button>
-            <button
-              onClick={handlePayment}
-              disabled={isProcessing || paymentInfo.payment.status === 'Paid'}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isProcessing ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Đang xử lý...
-                </span>
-              ) : paymentInfo.payment.status === 'Paid' ? (
-                'Đã thanh toán'
-              ) : (
-                'Xác nhận Thanh toán'
-              )}
-            </button>
+            {paymentInfo.payment.status === 'Paid' ? (
+              <button
+                onClick={() => window.print()}
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              >
+                In Hóa đơn
+              </button>
+            ) : (
+              <button
+                onClick={handlePayment}
+                disabled={isProcessing}
+                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Đang xử lý...
+                  </span>
+                ) : (
+                  'Xác nhận Thanh toán'
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

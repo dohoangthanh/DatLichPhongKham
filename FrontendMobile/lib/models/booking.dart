@@ -38,6 +38,26 @@ class BookingDoctor {
   }
 }
 
+class Payment {
+  final int paymentId;
+  final String status;
+  final double totalAmount;
+
+  Payment({
+    required this.paymentId,
+    required this.status,
+    required this.totalAmount,
+  });
+
+  factory Payment.fromJson(Map<String, dynamic> json) {
+    return Payment(
+      paymentId: json['paymentId'] ?? 0,
+      status: json['status'] ?? '',
+      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+    );
+  }
+}
+
 class Appointment {
   final int appointmentId;
   final String date;
@@ -47,6 +67,8 @@ class Appointment {
   final int doctorId;
   final BookingDoctor? doctor;
   final Specialty? specialty;
+  final Payment? payment;
+  final bool? hasFeedback;
 
   Appointment({
     required this.appointmentId,
@@ -57,6 +79,8 @@ class Appointment {
     required this.doctorId,
     this.doctor,
     this.specialty,
+    this.payment,
+    this.hasFeedback,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -73,6 +97,10 @@ class Appointment {
       specialty: json['specialty'] != null 
           ? Specialty.fromJson(json['specialty'])
           : null,
+      payment: json['payment'] != null 
+          ? Payment.fromJson(json['payment'])
+          : null,
+      hasFeedback: json['hasFeedback'] as bool?,
     );
   }
 }

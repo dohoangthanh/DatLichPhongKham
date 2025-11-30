@@ -148,10 +148,11 @@ export default function BookingPage() {
 
       if (response.ok) {
         const data = await response.json()
+        const appointmentId = data.appointmentId || data
         setSuccess(true)
         setTimeout(() => {
-          // Chuyển đến trang thanh toán
-          router.push(`/patient/payment/${data.appointmentId}`)
+          // Chuyển đến trang chi tiết lịch khám
+          router.push(`/patient/appointments/${appointmentId}`)
         }, 1500)
       } else {
         const errorData = await response.json()

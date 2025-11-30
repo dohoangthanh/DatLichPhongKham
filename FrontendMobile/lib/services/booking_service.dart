@@ -58,7 +58,7 @@ class BookingService {
     }
   }
 
-  Future<bool> createAppointment({
+  Future<int?> createAppointment({
     required String token,
     required int doctorId,
     required String date,
@@ -78,7 +78,11 @@ class BookingService {
         }),
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['appointmentId'] as int;
+      }
+      return null;
     } catch (e) {
       throw Exception('Error creating appointment: $e');
     }
@@ -102,6 +106,22 @@ class BookingService {
       }
     } catch (e) {
       throw Exception('Error fetching appointments: $e');
+    }
+  }
+
+  Future<bool> cancelAppointment(String token, int appointmentId) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/appointments/$appointmentId/cancel'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error cancelling appointment: $e');
     }
   }
 }
