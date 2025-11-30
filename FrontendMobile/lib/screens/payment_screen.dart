@@ -27,7 +27,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   // Promo code states
   String _promoCode = '';
   bool _isValidatingPromo = false;
-  int _discountPercent = 0;
+  double _discountPercent = 0.0;
   String _promoMessage = '';
   int _loyaltyPoints = 0;
 
@@ -98,13 +98,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
       );
 
       setState(() {
-        _discountPercent = result['discountPercent'] ?? 0;
-        _promoMessage = '✓ Áp dụng thành công! Giảm $_discountPercent%';
+        _discountPercent = result['discountPercent'] ?? 0.0;
+        _promoMessage = '✓ Áp dụng thành công! Giảm ${_discountPercent.toInt()}%';
       });
     } catch (e) {
       setState(() {
         _promoMessage = '✗ ${e.toString().replaceAll('Exception: ', '')}';
-        _discountPercent = 0;
+        _discountPercent = 0.0;
       });
     } finally {
       setState(() => _isValidatingPromo = false);
@@ -572,7 +572,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           _buildAmountRow('Phí khám ban đầu', originalAmount, false),
           if (_discountPercent > 0) ...[
             const SizedBox(height: 8),
-            _buildAmountRow('Giảm giá ($_discountPercent%)', -discountAmount, false),
+            _buildAmountRow('Giảm giá (${_discountPercent.toInt()}%)', -discountAmount, false),
             const SizedBox(height: 12),
             Container(
               height: 1,

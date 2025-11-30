@@ -400,11 +400,22 @@ public class MedicalController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        // Tính tổng tiền
+        // Tính tổng tiền từ services
         var totalAmount = await _context.AppointmentServices
             .Where(apts => apts.AppointmentId == appointmentId)
             .Include(apts => apts.Service)
             .SumAsync(apts => apts.Service!.Price);
+
+        // Cập nhật payment amount
+        var payment = await _context.Payments
+            .FirstOrDefaultAsync(p => p.AppointmentId == appointmentId);
+
+        if (payment != null)
+        {
+            payment.TotalAmount = totalAmount;
+            payment.Status = "Pending"; // Reset status để chờ thanh toán
+            await _context.SaveChangesAsync();
+        }
 
         return Ok(new { 
             message = "Services added successfully", 
