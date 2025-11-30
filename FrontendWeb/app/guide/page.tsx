@@ -87,7 +87,7 @@ export default function GuidePage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16">
+      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-4">

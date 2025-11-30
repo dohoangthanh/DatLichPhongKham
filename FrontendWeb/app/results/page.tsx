@@ -125,8 +125,9 @@ export default function ResultsPage() {
       </section>
 
       {/* Search Bar */}
-      <section className="py-6 bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-10 bg-white relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/20 via-transparent to-indigo-50/20 pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="relative max-w-md">
             <input
               type="text"

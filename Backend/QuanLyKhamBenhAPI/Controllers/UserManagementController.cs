@@ -35,6 +35,7 @@ namespace QuanLyKhamBenhAPI.Controllers
                     DoctorId = d.DoctorId,
                     Name = d.Name,
                     Phone = d.Phone ?? "",
+                    ImageUrl = d.ImageUrl,
                     Specialty = d.Specialty == null ? null : new SpecialtyDto
                     {
                         SpecialtyId = d.Specialty.SpecialtyId,
@@ -73,6 +74,7 @@ namespace QuanLyKhamBenhAPI.Controllers
                 DoctorId = doctor.DoctorId,
                 Name = doctor.Name,
                 Phone = doctor.Phone ?? "",
+                ImageUrl = doctor.ImageUrl,
                 Specialty = doctor.Specialty == null ? null : new SpecialtyDto
                 {
                     SpecialtyId = doctor.Specialty.SpecialtyId,
@@ -108,7 +110,8 @@ namespace QuanLyKhamBenhAPI.Controllers
             {
                 Name = dto.Name,
                 SpecialtyId = dto.SpecialtyId,
-                Phone = dto.Phone
+                Phone = dto.Phone,
+                ImageUrl = dto.ImageUrl
             };
 
             _context.Doctors.Add(doctor);
@@ -137,6 +140,7 @@ namespace QuanLyKhamBenhAPI.Controllers
                 DoctorId = createdDoctor!.DoctorId,
                 Name = createdDoctor.Name,
                 Phone = createdDoctor.Phone ?? "",
+                ImageUrl = createdDoctor.ImageUrl,
                 Specialty = createdDoctor.Specialty == null ? null : new SpecialtyDto
                 {
                     SpecialtyId = createdDoctor.Specialty.SpecialtyId,
@@ -169,6 +173,7 @@ namespace QuanLyKhamBenhAPI.Controllers
             if (!string.IsNullOrEmpty(dto.Name)) doctor.Name = dto.Name;
             if (dto.SpecialtyId > 0) doctor.SpecialtyId = dto.SpecialtyId;
             if (!string.IsNullOrEmpty(dto.Phone)) doctor.Phone = dto.Phone;
+            if (dto.ImageUrl != null) doctor.ImageUrl = dto.ImageUrl;
 
             await _context.SaveChangesAsync();
 

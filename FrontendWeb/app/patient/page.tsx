@@ -6,7 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
-import DepartmentsSection from '@/components/DepartmentsSection'
+import AboutSection from '@/components/AboutSection'
+import ServicesSection from '@/components/ServicesSection'
+import TeamSection from '@/components/TeamSection'
 import Footer from '@/components/Footer'
 import ChatbotBubble from '@/components/ChatbotBubble'
 
@@ -43,7 +45,7 @@ export default function PatientHome() {
       
       {/* Quick Actions for Patient */}
       <section className="py-8 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="max-w-screen-xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <button
               onClick={() => router.push('/patient/booking')}
@@ -87,7 +89,9 @@ export default function PatientHome() {
         </div>
       </section>
 
-      <DepartmentsSection />
+      <AboutSection />
+      <ServicesSection />
+      <TeamSection />
       <Footer />
       <ChatbotBubble />
     </main>

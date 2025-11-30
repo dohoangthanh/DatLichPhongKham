@@ -21,6 +21,7 @@ interface Doctor {
   doctorId: number
   name: string
   phone: string
+  imageUrl?: string
   specialty: Specialty | null
   userAccount: UserAccount | null
 }
@@ -43,8 +44,12 @@ const DoctorsPage: React.FC = () => {
     phone: '',
     specialtyId: 0,
     username: '',
-    password: ''
+    password: '',
+    imageUrl: ''
   })
+
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
 
   const [accountFormData, setAccountFormData] = useState({
     username: '',
@@ -59,6 +64,7 @@ const DoctorsPage: React.FC = () => {
   const fetchDoctors = async () => {
     try {
       const data = await userManagementApi.getDoctorsWithAccounts()
+      console.log('Doctors data:', data)
       setDoctors(data)
     } catch (error) {
       console.error('Error fetching doctors:', error)
@@ -86,12 +92,25 @@ const DoctorsPage: React.FC = () => {
     }
 
     try {
+      let imageUrl = formData.imageUrl
+
+      // Upload image if selected
+      if (imageFile) {
+        console.log('Uploading image...')
+        const uploadResult = await userManagementApi.uploadDoctorImage(imageFile)
+        console.log('Upload result:', uploadResult)
+        imageUrl = uploadResult.imageUrl
+      }
+
+      console.log('Image URL to save:', imageUrl)
+
       if (editingDoctor) {
         // Update existing doctor
         await userManagementApi.updateDoctor(editingDoctor.doctorId, {
           name: formData.name,
           phone: formData.phone,
-          specialtyId: formData.specialtyId
+          specialtyId: formData.specialtyId,
+          imageUrl: imageUrl
         })
         alert('Cập nhật bác sĩ thành công!')
       } else {
@@ -106,13 +125,16 @@ const DoctorsPage: React.FC = () => {
           phone: formData.phone,
           specialtyId: formData.specialtyId,
           username: formData.username,
-          password: formData.password
+          password: formData.password,
+          imageUrl: imageUrl
         })
         alert('Thêm bác sĩ thành công!')
       }
       
       setShowModal(false)
-      setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
+      setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '', imageUrl: '' })
+      setImageFile(null)
+      setImagePreview('')
       setEditingDoctor(null)
       fetchDoctors()
     } catch (error: any) {
@@ -128,8 +150,19 @@ const DoctorsPage: React.FC = () => {
       phone: doctor.phone,
       specialtyId: doctor.specialty?.specialtyId || 0,
       username: '',
-      password: ''
+      password: '',
+      imageUrl: doctor.imageUrl || ''
     })
+    // Set image preview with full URL for existing image
+    if (doctor.imageUrl) {
+      const fullImageUrl = doctor.imageUrl.startsWith('http') 
+        ? doctor.imageUrl 
+        : `http://localhost:5129${doctor.imageUrl}`
+      setImagePreview(fullImageUrl)
+    } else {
+      setImagePreview('')
+    }
+    setImageFile(null)
     setShowModal(true)
   }
 
@@ -238,7 +271,9 @@ const DoctorsPage: React.FC = () => {
           <button
             onClick={() => {
               setEditingDoctor(null)
-              setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
+              setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '', imageUrl: '' })
+              setImageFile(null)
+              setImagePreview('')
               setShowModal(true)
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -271,6 +306,9 @@ const DoctorsPage: React.FC = () => {
                   Mã Bác Sĩ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ảnh
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Họ và Tên
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -292,6 +330,25 @@ const DoctorsPage: React.FC = () => {
                 <tr key={doctor.doctorId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     BS{String(doctor.doctorId).padStart(3, '0')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+                      {doctor.imageUrl ? (
+                        <img 
+                          src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                          alt={doctor.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement!.innerHTML = '<svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+                          }}
+                        />
+                      ) : (
+                        <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {doctor.name}
@@ -401,6 +458,40 @@ const DoctorsPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ảnh đại diện
+                </label>
+                <div className="space-y-3">
+                  {imagePreview && (
+                    <div className="flex justify-center">
+                      <img 
+                        src={imagePreview}
+                        alt="Preview" 
+                        className="w-32 h-32 object-cover rounded-full border-2 border-gray-300"
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setImageFile(file)
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                          setImagePreview(reader.result as string)
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500">Chọn ảnh JPG, PNG hoặc GIF (tối đa 5MB)</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Chuyên Khoa <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -474,7 +565,9 @@ const DoctorsPage: React.FC = () => {
                   onClick={() => {
                     setShowModal(false)
                     setEditingDoctor(null)
-                    setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '' })
+                    setFormData({ name: '', phone: '', specialtyId: 0, username: '', password: '', imageUrl: '' })
+                    setImageFile(null)
+                    setImagePreview('')
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >

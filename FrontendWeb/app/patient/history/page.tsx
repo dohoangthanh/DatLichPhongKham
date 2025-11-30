@@ -21,6 +21,7 @@ interface Appointment {
     doctorId: number
     name: string
     phone: string
+    imageUrl?: string
   }
   specialty: {
     specialtyId: number
@@ -48,6 +49,7 @@ interface MedicalRecord {
       doctorId: number
       name: string
       specialty: string
+      imageUrl?: string
     }
   }
   labResults: LabResult[]
@@ -119,9 +121,9 @@ export default function HistoryPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-      'Scheduled': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Đã đặt lịch' },
-      'Completed': { bg: 'bg-green-100', text: 'text-green-800', label: 'Đã hoàn thành' },
-      'Cancelled': { bg: 'bg-red-100', text: 'text-red-800', label: 'Đã hủy' }
+      'Scheduled': { bg: 'bg-gradient-to-r from-cyan-100 to-blue-100', text: 'text-blue-800', label: 'Đã đặt lịch' },
+      'Completed': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', label: 'Đã hoàn thành' },
+      'Cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', label: 'Đã hủy' }
     }
     
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status }
@@ -201,15 +203,15 @@ export default function HistoryPage() {
       <Header />
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Lịch Sử Khám Bệnh
             </h1>
             <button
               onClick={() => router.push('/patient/booking')}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30"
             >
               + Đặt Lịch Mới
             </button>
@@ -220,9 +222,9 @@ export default function HistoryPage() {
             <div className="flex gap-4">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                   filter === 'all'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -230,9 +232,9 @@ export default function HistoryPage() {
               </button>
               <button
                 onClick={() => setFilter('scheduled')}
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                   filter === 'scheduled'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -240,9 +242,9 @@ export default function HistoryPage() {
               </button>
               <button
                 onClick={() => setFilter('completed')}
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                   filter === 'completed'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -250,9 +252,9 @@ export default function HistoryPage() {
               </button>
               <button
                 onClick={() => setFilter('cancelled')}
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                   filter === 'cancelled'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -273,7 +275,7 @@ export default function HistoryPage() {
               </p>
               <button
                 onClick={() => router.push('/patient/booking')}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30"
               >
                 Đặt Lịch Ngay
               </button>
@@ -288,8 +290,20 @@ export default function HistoryPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-4 mb-3">
-                        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
-                          👨‍⚕️
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center overflow-hidden border-4 border-gradient-to-r from-cyan-200 to-blue-300">
+                          {appointment.doctor.imageUrl ? (
+                            <img 
+                              src={appointment.doctor.imageUrl.startsWith('http') ? appointment.doctor.imageUrl : `http://localhost:5129${appointment.doctor.imageUrl}`}
+                              alt={appointment.doctor.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.parentElement!.innerHTML = '<span class="text-3xl">👨‍⚕️</span>';
+                              }}
+                            />
+                          ) : (
+                            <span className="text-3xl">👨‍⚕️</span>
+                          )}
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-gray-800">
@@ -340,9 +354,9 @@ export default function HistoryPage() {
                   </div>
 
                   {appointment.status === 'Scheduled' && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
+                    <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent flex gap-3">
                       <button
-                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
                         onClick={() => {
                           // TODO: Implement view details
                           alert('Xem chi tiết')
@@ -365,15 +379,15 @@ export default function HistoryPage() {
                   )}
 
                   {appointment.status === 'Completed' && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
+                    <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent flex gap-3">
                       <button
-                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
                         onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
                       >
                         Xem Kết Quả Khám
                       </button>
                       <button
-                        className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition-colors"
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
                         onClick={() => {
                           setFeedbackModal({
                             isOpen: true,
@@ -411,8 +425,8 @@ export default function HistoryPage() {
       {medicalRecordModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Kết Quả Khám Bệnh & Xét Nghiệm</h2>
+            <div className="sticky top-0 bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-5 flex items-center justify-between shadow-sm">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">Kết Quả Khám Bệnh & Xét Nghiệm</h2>
               <button
                 onClick={closeMedicalRecordModal}
                 className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
@@ -439,10 +453,22 @@ export default function HistoryPage() {
               {medicalRecordModal.record && (
                 <div className="space-y-6">
                   {/* Header Info */}
-                  <div className="bg-blue-50 rounded-lg p-6">
+                  <div className="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 rounded-lg p-6">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center">
-                        <span className="text-3xl">👨‍⚕️</span>
+                      <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-gradient-to-r from-cyan-400 to-blue-600 shadow-lg">
+                        {medicalRecordModal.record.appointment.doctor.imageUrl ? (
+                          <img 
+                            src={medicalRecordModal.record.appointment.doctor.imageUrl.startsWith('http') ? medicalRecordModal.record.appointment.doctor.imageUrl : `http://localhost:5129${medicalRecordModal.record.appointment.doctor.imageUrl}`}
+                            alt={medicalRecordModal.record.appointment.doctor.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<span class="text-3xl text-blue-600">👨‍⚕️</span>';
+                            }}
+                          />
+                        ) : (
+                          <span className="text-3xl text-blue-600">👨‍⚕️</span>
+                        )}
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
@@ -469,9 +495,9 @@ export default function HistoryPage() {
                   </div>
 
                   {/* Diagnosis Section */}
-                  <div className="bg-white border border-gray-200 rounded-lg">
-                    <div className="bg-blue-100 px-6 py-3 border-b border-gray-200">
-                      <h3 className="text-lg font-bold text-gray-900">Chẩn Đoán và Kết Luận</h3>
+                  <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-cyan-100 to-blue-100 px-6 py-4 shadow-sm">
+                      <h3 className="text-lg font-bold bg-gradient-to-r from-cyan-700 to-blue-700 bg-clip-text text-transparent">Chẩn Đoán và Kết Luận</h3>
                     </div>
                     <div className="p-6 space-y-4">
                       <div>
@@ -487,9 +513,9 @@ export default function HistoryPage() {
 
                   {/* Lab Results Section */}
                   {medicalRecordModal.record.labResults && medicalRecordModal.record.labResults.length > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-lg">
-                      <div className="bg-blue-100 px-6 py-3 border-b border-gray-200">
-                        <h3 className="text-lg font-bold text-gray-900">Kết Quả Xét Nghiệm</h3>
+                    <div className="bg-white shadow-lg rounded-xl overflow-hidden mt-6">
+                      <div className="bg-gradient-to-r from-cyan-100 to-blue-100 px-6 py-4 shadow-sm">
+                        <h3 className="text-lg font-bold bg-gradient-to-r from-cyan-700 to-blue-700 bg-clip-text text-transparent">Kết Quả Xét Nghiệm</h3>
                       </div>
                       <div className="p-6">
                         {medicalRecordModal.record.labResults.map((labResult) => {
@@ -563,7 +589,7 @@ export default function HistoryPage() {
                   <div className="flex justify-end pt-4 border-t border-gray-200">
                     <button
                       onClick={closeMedicalRecordModal}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
                     >
                       Đóng
                     </button>

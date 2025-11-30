@@ -2,12 +2,14 @@ class Doctor {
   final int doctorId;
   final String name;
   final String phone;
+  final String? imageUrl;
   final Specialty? specialty;
 
   Doctor({
     required this.doctorId,
     required this.name,
     required this.phone,
+    this.imageUrl,
     this.specialty,
   });
 
@@ -16,8 +18,9 @@ class Doctor {
       doctorId: json['doctorId'] ?? 0,
       name: json['name'] ?? '',
       phone: json['phone'] ?? '',
-      specialty: json['specialty'] != null 
-          ? Specialty.fromJson(json['specialty']) 
+      imageUrl: json['imageUrl'],
+      specialty: json['specialty'] != null
+          ? Specialty.fromJson(json['specialty'])
           : null,
     );
   }

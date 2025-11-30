@@ -22,11 +22,13 @@ class BookingDoctor {
   final int doctorId;
   final String name;
   final String phone;
+  final String? imageUrl;
 
   BookingDoctor({
     required this.doctorId,
     required this.name,
     required this.phone,
+    this.imageUrl,
   });
 
   factory BookingDoctor.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class BookingDoctor {
       doctorId: json['doctorId'] ?? 0,
       name: json['name'] ?? '',
       phone: json['phone'] ?? '',
+      imageUrl: json['imageUrl'],
     );
   }
 }
@@ -66,11 +69,12 @@ class Appointment {
       time: json['time'] ?? '',
       status: json['status'] ?? '',
       patientId: json['patientId'] ?? 0,
-      doctorId: json['doctorId'] ?? (json['doctor'] != null ? json['doctor']['doctorId'] : 0),
-      doctor: json['doctor'] != null 
+      doctorId: json['doctorId'] ??
+          (json['doctor'] != null ? json['doctor']['doctorId'] : 0),
+      doctor: json['doctor'] != null
           ? BookingDoctor.fromJson(json['doctor'])
           : null,
-      specialty: json['specialty'] != null 
+      specialty: json['specialty'] != null
           ? Specialty.fromJson(json['specialty'])
           : null,
     );

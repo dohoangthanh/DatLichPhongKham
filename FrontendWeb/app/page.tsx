@@ -7,12 +7,8 @@ import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
 import AboutSection from '@/components/AboutSection'
-import SearchSection from '@/components/SearchSection'
+import ServicesSection from '@/components/ServicesSection'
 import TeamSection from '@/components/TeamSection'
-import GuideSection from '@/components/GuideSection'
-import DepartmentsSection from '@/components/DepartmentsSection'
-import PricingTable from '@/components/PricingTable'
-import CTAButtons from '@/components/CTAButtons'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -49,18 +45,15 @@ export default function Home() {
   }
 
   return (
-    <main>
+    <main className="bg-white">
       <Header />
       <Navigation />
       <HeroSection />
       <AboutSection />
-      <SearchSection />
+      <ServicesSection />
       <TeamSection />
-      <GuideSection />
-      <DepartmentsSection />
-      <PricingTable />
-      <CTAButtons />
       <Footer />
     </main>
   )
 }
+

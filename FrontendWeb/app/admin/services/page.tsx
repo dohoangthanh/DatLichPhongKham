@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/AdminLayout'
+import { serviceApi } from '@/services/adminApi'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -10,6 +11,7 @@ interface Service {
   name: string
   price: number
   type: string
+  imageUrl?: string
 }
 
 const ServicesPage: React.FC = () => {
@@ -25,8 +27,11 @@ const ServicesPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: 0,
-    type: ''
+    type: '',
+    imageUrl: ''
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
 
   const serviceTypes = [
     'Khám tổng quát',
@@ -51,6 +56,7 @@ const ServicesPage: React.FC = () => {
       })
       if (response.ok) {
         const data = await response.json()
+        console.log('Services data:', data)
         setServices(data)
       }
     } catch (error) {
@@ -63,29 +69,39 @@ const ServicesPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
-      const url = editingService 
-        ? `${API_URL}/services/${editingService.serviceId}`
-        : `${API_URL}/services`
-      
-      const response = await fetch(url, {
-        method: editingService ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      })
+      let imageUrl = formData.imageUrl
 
-      if (response.ok) {
-        setShowModal(false)
-        setFormData({ name: '', price: 0, type: '' })
-        setEditingService(null)
-        fetchServices()
-        alert(editingService ? 'Cập nhật dịch vụ thành công!' : 'Thêm dịch vụ thành công!')
-      } else {
-        alert('Có lỗi xảy ra!')
+      // Upload image if a new file is selected
+      if (imageFile) {
+        console.log('Uploading service image...')
+        const uploadResult = await serviceApi.uploadImage(imageFile)
+        console.log('Service upload result:', uploadResult)
+        imageUrl = uploadResult.imageUrl
       }
+
+      const serviceData = {
+        name: formData.name,
+        price: formData.price,
+        type: formData.type,
+        imageUrl: imageUrl
+      }
+
+      console.log('Service data to save:', serviceData)
+
+      if (editingService) {
+        await serviceApi.update(editingService.serviceId, serviceData)
+        alert('Cập nhật dịch vụ thành công!')
+      } else {
+        await serviceApi.create(serviceData)
+        alert('Thêm dịch vụ thành công!')
+      }
+
+      setShowModal(false)
+      setFormData({ name: '', price: 0, type: '', imageUrl: '' })
+      setImageFile(null)
+      setImagePreview('')
+      setEditingService(null)
+      fetchServices()
     } catch (error) {
       console.error('Error saving service:', error)
       alert('Có lỗi xảy ra!')
@@ -97,8 +113,10 @@ const ServicesPage: React.FC = () => {
     setFormData({
       name: service.name,
       price: service.price,
-      type: service.type
+      type: service.type,
+      imageUrl: service.imageUrl || ''
     })
+    setImagePreview(service.imageUrl || '')
     setShowModal(true)
   }
 
@@ -170,7 +188,9 @@ const ServicesPage: React.FC = () => {
           <button
             onClick={() => {
               setEditingService(null)
-              setFormData({ name: '', price: 0, type: '' })
+              setFormData({ name: '', price: 0, type: '', imageUrl: '' })
+              setImageFile(null)
+              setImagePreview('')
               setShowModal(true)
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -200,6 +220,9 @@ const ServicesPage: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ảnh
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Mã DV
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -219,6 +242,23 @@ const ServicesPage: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentServices.map((service) => (
                 <tr key={service.serviceId} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+                      {service.imageUrl ? (
+                        <img 
+                          src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement!.innerHTML = '<span class="text-2xl">🔌</span>';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-2xl">🔌</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {service.type === 'Khám tổng quát' ? 'KBS' : service.type === 'Xét nghiệm' ? 'XN' : 'CDHA'}-{String(service.serviceId).padStart(3, '0')}
                   </td>
@@ -314,6 +354,39 @@ const ServicesPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ảnh Dịch Vụ
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setImageFile(file)
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                          setImagePreview(reader.result as string)
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {imagePreview && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-blue-200">
+                      <img 
+                        src={imagePreview.startsWith('http') || imagePreview.startsWith('data:') ? imagePreview : `http://localhost:5129${imagePreview}`}
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Loại Dịch Vụ <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -353,7 +426,9 @@ const ServicesPage: React.FC = () => {
                   onClick={() => {
                     setShowModal(false)
                     setEditingService(null)
-                    setFormData({ name: '', price: 0, type: '' })
+                    setFormData({ name: '', price: 0, type: '', imageUrl: '' })
+                    setImageFile(null)
+                    setImagePreview('')
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >

@@ -13,5 +13,7 @@ public partial class Service
 
     public string? Type { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public virtual ICollection<AppointmentService> AppointmentServices { get; set; } = new List<AppointmentService>();
 }

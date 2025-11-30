@@ -28,8 +28,8 @@ const Navigation: React.FC = () => {
   const menuItems = user?.role === 'Patient' ? patientMenuItems : guestMenuItems
 
   return (
-    <nav className="bg-white border-b border-gray-200">
-      <div className="container mx-auto px-4">
+    <nav className="bg-white relative">
+      <div className="max-w-screen-2xl mx-auto px-6">
         <ul className="flex items-center justify-center gap-8 py-4">
           {menuItems.map((item, index) => (
             <li key={index}>

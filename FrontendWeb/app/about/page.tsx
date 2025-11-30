@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -67,7 +68,7 @@ export default function AboutPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16">
+      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-4">
@@ -81,19 +82,105 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Qualities Section */}
+      {/* Mission Section with Image */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            {qualities.map((quality, index) => (
-              <div key={index} className="text-center p-6 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors">
-                <div className="text-blue-600 flex justify-center mb-4">
-                  {quality.icon}
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{quality.title}</h3>
-                <p className="text-gray-600">{quality.description}</p>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div>
+              <div className="inline-block px-4 py-2 bg-white border border-gray-200 rounded-full text-gray-600 text-sm font-medium mb-6">
+                SỨ MỆNH & GIÁ TRỊ
               </div>
-            ))}
+
+              <h2 className="text-3xl lg:text-4xl font-bold text-blue-500 mb-6 uppercase">
+                CAM KẾT CHĂM SÓC CHẤT LƯỢNG
+              </h2>
+
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Bằng cách kết hợp sự hiểu biết sâu sắc về nhu cầu của cộng đồng với kiến thức chuyên môn về các dịch vụ y tế và chăm sóc sức khỏe, giải pháp điều trị ở nước ngoài và hệ thống pháp luật địa phương, chúng tôi có thể hợp tác với các phòng khám và bệnh viện chuyên khoa cả trong nước và quốc tế để cung cấp phản hồi kịp thời và hiệu quả cho các tình huống y tế đa dạng.
+              </p>
+
+              <p className="text-gray-600 leading-relaxed mb-6">
+                <span className="font-bold text-gray-900">Phòng Khám Đa Khoa</span> cam kết thực hiện các giá trị cốt lõi và sứ mệnh cung cấp các dịch vụ chăm sóc sức khỏe và thể chất chất lượng cao, tiêu chuẩn quốc tế với chi phí hợp lý cho người dân Việt Nam, khách du lịch quốc tế, người nước ngoài và các tổ chức toàn cầu tại Việt Nam.
+              </p>
+            </div>
+
+            {/* Right Image */}
+            <div className="relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                <div className="relative h-[500px]">
+                  <Image
+                    src="/images/components/Medical-900x650-1-900x615.jpg"
+                    alt="Đội ngũ y tế chuyên nghiệp"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services & Partners Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Image */}
+            <div className="relative order-2 lg:order-1">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                <div className="relative h-[500px]">
+                  <Image
+                    src="/images/components/laboratory-720x720-1-720x615.jpg"
+                    alt="Dịch vụ y tế chất lượng"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="order-1 lg:order-2">
+              <div className="inline-block px-4 py-2 bg-white border border-gray-200 rounded-full text-gray-600 text-sm font-medium mb-6">
+                DỊCH VỤ & ĐỐI TÁC
+              </div>
+
+              <h2 className="text-3xl lg:text-4xl font-bold text-blue-500 mb-6 uppercase">
+                DỊCH VỤ Y TẾ VÀ ĐỐI TÁC
+              </h2>
+
+              <p className="text-gray-600 leading-relaxed mb-6">
+                Chúng tôi cung cấp nhiều dịch vụ chăm sóc sức khỏe tiêu chuẩn quốc tế, bao gồm:
+              </p>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span className="text-gray-600"><span className="font-bold text-gray-900">Dịch vụ bác sĩ gia đình:</span> Dành cho tất cả mọi người từ trẻ em đến người lớn.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span className="text-gray-600"><span className="font-bold text-gray-900">Bác sĩ thăm khám tại nhà:</span> Đáp ứng nhu cầu chăm sóc sức khỏe tại nhà.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span className="text-gray-600"><span className="font-bold text-gray-900">Điều trị y tế ở nước ngoài:</span> Cung cấp bác sĩ riêng đi cùng.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span className="text-gray-600"><span className="font-bold text-gray-900">Chăm sóc sức khỏe chủ động:</span> Khám sức khỏe định kỳ, tư vấn dinh dưỡng.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span className="text-gray-600"><span className="font-bold text-gray-900">Dịch vụ xét nghiệm:</span> Thực hiện tại phòng khám hoặc tại nhà.</span>
+                </li>
+              </ul>
+
+              <p className="text-gray-600 leading-relaxed text-sm">
+                Ngoài ra, chúng tôi hợp tác với hầu hết các công ty bảo hiểm y tế trong nước và quốc tế để hỗ trợ khách hàng một cách thuận tiện.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -173,7 +260,7 @@ export default function AboutPage() {
             Đặt lịch khám ngay hôm nay để được tư vấn và khám bệnh bởi đội ngũ bác sĩ chuyên nghiệp
           </p>
           <a 
-            href="/booking" 
+            href="/patient/booking" 
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
           >
             Đặt Lịch Khám Ngay

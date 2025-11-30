@@ -6,6 +6,7 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string Name { get; set; }
         public decimal Price { get; set; }
         public required string Type { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class CreateServiceDto
@@ -13,6 +14,7 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string Name { get; set; }
         public decimal Price { get; set; }
         public required string Type { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class UpdateServiceDto
@@ -20,5 +22,6 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string Name { get; set; }
         public decimal Price { get; set; }
         public required string Type { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

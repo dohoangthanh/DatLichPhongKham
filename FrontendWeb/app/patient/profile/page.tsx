@@ -32,6 +32,8 @@ export default function ProfilePage() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(true)
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'Patient')) {
@@ -132,147 +134,194 @@ export default function ProfilePage() {
       <Header />
       <Navigation />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">
             Quản lý tài khoản cá nhân
           </h1>
+          <p className="text-gray-600 mb-8">Cập nhật thông tin và quản lý tài khoản của bạn</p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Personal Information Card */}
-            <div className="bg-white rounded-lg shadow-md">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">Thông tin cá nhân</h2>
-              </div>
-              <form onSubmit={handleProfileSubmit} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Họ và tên
-                  </label>
-                  <input
-                    type="text"
-                    value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+          <div className="space-y-4">
+            {/* Personal Information Dropdown */}
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="w-full p-5 flex items-center justify-between bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl hover:from-blue-50 hover:to-blue-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <h2 className="text-lg font-semibold text-gray-800">Thông tin cá nhân</h2>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ngày sinh
-                  </label>
-                  <input
-                    type="date"
-                    value={profileData.dob}
-                    onChange={(e) => setProfileData({ ...profileData, dob: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Giới tính
-                  </label>
-                  <select
-                    value={profileData.gender}
-                    onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Địa chỉ
-                  </label>
-                  <input
-                    type="text"
-                    value={profileData.address}
-                    onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Số điện thoại
-                  </label>
-                  <input
-                    type="tel"
-                    value={profileData.phone}
-                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSavingProfile}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {isSavingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
-                </button>
-              </form>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isProfileOpen && (
+                <form onSubmit={handleProfileSubmit} className="p-5 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Họ và tên
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.name}
+                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Ngày sinh
+                      </label>
+                      <input
+                        type="date"
+                        value={profileData.dob}
+                        onChange={(e) => setProfileData({ ...profileData, dob: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Giới tính
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={profileData.gender}
+                          onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white cursor-pointer pr-8"
+                        >
+                          <option value="Nam">Nam</option>
+                          <option value="Nữ">Nữ</option>
+                        </select>
+                        <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Số điện thoại
+                      </label>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Địa chỉ
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.address}
+                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSavingProfile}
+                    className="w-full px-4 py-2.5 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSavingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
+                  </button>
+                </form>
+              )}
             </div>
 
-            {/* Change Password Card */}
-            <div className="bg-white rounded-lg shadow-md">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">Thay đổi mật khẩu</h2>
-              </div>
-              <form onSubmit={handlePasswordSubmit} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mật khẩu cũ
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordData.oldPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
+            {/* Change Password Dropdown */}
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsPasswordOpen(!isPasswordOpen)}
+                className="w-full p-5 flex items-center justify-between bg-gradient-to-r from-gray-50 to-purple-50 rounded-t-xl hover:from-purple-50 hover:to-purple-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <h2 className="text-lg font-semibold text-gray-800">Thay đổi mật khẩu</h2>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mật khẩu mới
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                    minLength={6}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Xác nhận mật khẩu mới
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                    minLength={6}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isChangingPassword}
-                  className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isPasswordOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {isChangingPassword ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
-                </button>
-              </form>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isPasswordOpen && (
+                <form onSubmit={handlePasswordSubmit} className="p-5 space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Mật khẩu cũ
+                    </label>
+                    <input
+                      type="password"
+                      value={passwordData.oldPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Mật khẩu mới
+                      </label>
+                      <input
+                        type="password"
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Xác nhận mật khẩu
+                      </label>
+                      <input
+                        type="password"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="w-full px-4 py-2.5 bg-purple-600 text-white text-sm rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isChangingPassword ? 'Đang thay đổi...' : 'Thay đổi mật khẩu'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

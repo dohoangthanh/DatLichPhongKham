@@ -27,8 +27,9 @@ const DepartmentsSection: React.FC = () => {
   ]
 
   return (
-    <section className="bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
+    <section className="bg-white relative py-10">
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/30 via-transparent to-cyan-50/30 pointer-events-none"></div>
+      <div className="max-w-screen-2xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {departments.map((dept, index) => (
             <div

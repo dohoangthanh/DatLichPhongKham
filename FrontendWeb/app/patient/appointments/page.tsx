@@ -131,7 +131,7 @@ export default function AppointmentsPage() {
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-12">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-xl mx-auto px-6">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-blue-900 mb-4">
               Lịch Khám Của Tôi
@@ -145,7 +145,7 @@ export default function AppointmentsPage() {
 
       {/* Filter Tabs */}
       <section className="py-6 bg-white border-b sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-xl mx-auto px-6">
           <div className="flex gap-2 overflow-x-auto">
             {[
               { key: 'all', label: 'Tất cả' },
@@ -172,7 +172,7 @@ export default function AppointmentsPage() {
 
       {/* Appointments List */}
       <section className="py-12 bg-gray-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-xl mx-auto px-6">
           {loadingData ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -186,7 +186,7 @@ export default function AppointmentsPage() {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có lịch khám nào</h3>
               <p className="text-gray-600 mb-6">Bạn chưa có lịch khám nào trong danh sách</p>
               <a
-                href="/booking"
+                href="/patient/booking"
                 className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Đặt lịch khám ngay

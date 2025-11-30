@@ -30,6 +30,7 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public int DoctorId { get; set; }
         public required string Name { get; set; }
         public required string Phone { get; set; }
+        public string? ImageUrl { get; set; }
         public SpecialtyDto? Specialty { get; set; }
         public UserAccountDto? UserAccount { get; set; }
     }
@@ -51,6 +52,7 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public required string Name { get; set; }
         public int SpecialtyId { get; set; }
         public required string Phone { get; set; }
+        public string? ImageUrl { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
     }

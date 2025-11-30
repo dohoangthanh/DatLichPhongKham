@@ -30,7 +30,8 @@ namespace QuanLyKhamBenhAPI.Controllers
             if (patient == null)
                 return NotFound(new { Message = "Không tìm thấy thông tin bệnh nhân" });
 
-            return Ok(new {
+            return Ok(new
+            {
                 patient.PatientId,
                 patient.Name,
                 Dob = patient.Dob,
@@ -62,14 +63,19 @@ namespace QuanLyKhamBenhAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Cập nhật thông tin thành công", Patient = new {
-                patient.PatientId,
-                patient.Name,
-                patient.Dob,
-                patient.Gender,
-                patient.Phone,
-                patient.Address
-            }});
+            return Ok(new
+            {
+                Message = "Cập nhật thông tin thành công",
+                Patient = new
+                {
+                    patient.PatientId,
+                    patient.Name,
+                    patient.Dob,
+                    patient.Gender,
+                    patient.Phone,
+                    patient.Address
+                }
+            });
         }
 
         [HttpGet("my-records/{appointmentId}")]
@@ -116,6 +122,7 @@ namespace QuanLyKhamBenhAPI.Controllers
                     {
                         DoctorId = appointment.Doctor!.DoctorId,
                         Name = appointment.Doctor!.Name,
+                        ImageUrl = appointment.Doctor!.ImageUrl,
                         Specialty = appointment.Doctor.Specialty?.Name
                     } : null
                 },

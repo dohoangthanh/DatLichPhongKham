@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/booking.dart';
 import '../services/booking_service.dart';
+import '../config/api_config.dart';
 import 'date_time_selection_screen.dart';
 
 class DoctorSelectionScreen extends StatefulWidget {
@@ -31,8 +32,9 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     });
 
     try {
-      final doctors = await _bookingService.getDoctorsBySpecialty(widget.specialty.specialtyId);
-      
+      final doctors = await _bookingService
+          .getDoctorsBySpecialty(widget.specialty.specialtyId);
+
       if (mounted) {
         setState(() {
           _doctors = doctors;
@@ -81,7 +83,8 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        const Icon(Icons.error_outline,
+                            size: 64, color: Colors.red),
                         const SizedBox(height: 16),
                         Text('Error: $_error', textAlign: TextAlign.center),
                         const SizedBox(height: 24),
@@ -117,24 +120,45 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: const Color(0xFF1E88E5).withValues(alpha: 0.1),
-                                    child: Text(
-                                      doctor.name.isNotEmpty 
-                                          ? doctor.name[0].toUpperCase() 
-                                          : 'D',
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF1E88E5),
-                                      ),
-                                    ),
-                                  ),
+                                  doctor.imageUrl != null &&
+                                          doctor.imageUrl!.isNotEmpty
+                                      ? CircleAvatar(
+                                          radius: 32,
+                                          backgroundColor:
+                                              const Color(0xFF1E88E5)
+                                                  .withValues(alpha: 0.1),
+                                          backgroundImage: NetworkImage(
+                                            doctor.imageUrl!.startsWith('http')
+                                                ? doctor.imageUrl!
+                                                : '${ApiConfig.baseUrl.replaceAll('/api', '')}${doctor.imageUrl}',
+                                          ),
+                                          onBackgroundImageError:
+                                              (exception, stackTrace) {
+                                            print(
+                                                'Error loading image: $exception');
+                                          },
+                                        )
+                                      : CircleAvatar(
+                                          radius: 32,
+                                          backgroundColor:
+                                              const Color(0xFF1E88E5)
+                                                  .withValues(alpha: 0.1),
+                                          child: Text(
+                                            doctor.name.isNotEmpty
+                                                ? doctor.name[0].toUpperCase()
+                                                : 'D',
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF1E88E5),
+                                            ),
+                                          ),
+                                        ),
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Dr. ${doctor.name}',
@@ -175,7 +199,8 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DateTimeSelectionScreen(
+                                        builder: (context) =>
+                                            DateTimeSelectionScreen(
                                           doctor: doctor,
                                           specialty: widget.specialty,
                                         ),

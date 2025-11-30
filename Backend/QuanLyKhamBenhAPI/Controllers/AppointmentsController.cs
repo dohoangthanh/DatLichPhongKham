@@ -56,6 +56,8 @@ namespace QuanLyKhamBenhAPI.Controllers
                 {
                     DoctorId = a.Doctor.DoctorId,
                     Name = a.Doctor.Name,
+                    Phone = a.Doctor.Phone,
+                    ImageUrl = a.Doctor.ImageUrl,
                     SpecialtyName = a.Doctor.Specialty != null ? a.Doctor.Specialty.Name : "Unknown"
                 } : null
             }).ToListAsync();
@@ -104,6 +106,8 @@ namespace QuanLyKhamBenhAPI.Controllers
                 {
                     DoctorId = appointment.Doctor.DoctorId,
                     Name = appointment.Doctor.Name,
+                    Phone = appointment.Doctor.Phone,
+                    ImageUrl = appointment.Doctor.ImageUrl,
                     SpecialtyName = appointment.Doctor.Specialty?.Name ?? "Unknown"
                 } : null,
                 Patient = appointment.Patient != null ? new PatientSummaryDto

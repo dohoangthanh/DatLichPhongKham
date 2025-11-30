@@ -25,6 +25,8 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
         public int DoctorId { get; set; }
         public required string Name { get; set; }
         public required string SpecialtyName { get; set; }
+        public string? Phone { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class CreateAppointmentDto

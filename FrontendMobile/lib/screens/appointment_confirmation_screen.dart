@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/booking.dart';
 import '../services/booking_service.dart';
 import '../services/auth_service.dart';
+import '../config/api_config.dart';
 
 class AppointmentConfirmationScreen extends StatelessWidget {
   final BookingDoctor doctor;
@@ -19,10 +20,28 @@ class AppointmentConfirmationScreen extends StatelessWidget {
   });
 
   String _formatFullDate(DateTime date) {
-    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const weekdays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     final weekday = weekdays[(date.weekday - 1) % 7];
     final month = months[date.month - 1];
@@ -123,20 +142,35 @@ class AppointmentConfirmationScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor: const Color(0xFF1E88E5).withValues(alpha: 0.1),
-                        child: Text(
-                          doctor.name.isNotEmpty 
-                              ? doctor.name[0].toUpperCase() 
-                              : 'D',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E88E5),
-                          ),
-                        ),
-                      ),
+                      doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty
+                          ? CircleAvatar(
+                              radius: 36,
+                              backgroundColor: const Color(0xFF1E88E5)
+                                  .withValues(alpha: 0.1),
+                              backgroundImage: NetworkImage(
+                                doctor.imageUrl!.startsWith('http')
+                                    ? doctor.imageUrl!
+                                    : '${ApiConfig.baseUrl.replaceAll('/api', '')}${doctor.imageUrl}',
+                              ),
+                              onBackgroundImageError: (exception, stackTrace) {
+                                print('Error loading image: $exception');
+                              },
+                            )
+                          : CircleAvatar(
+                              radius: 36,
+                              backgroundColor: const Color(0xFF1E88E5)
+                                  .withValues(alpha: 0.1),
+                              child: Text(
+                                doctor.name.isNotEmpty
+                                    ? doctor.name[0].toUpperCase()
+                                    : 'D',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E88E5),
+                                ),
+                              ),
+                            ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -168,7 +202,8 @@ class AppointmentConfirmationScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   _buildInfoRow('Date', _formatFullDate(date)),
                   const SizedBox(height: 20),
-                  _buildInfoRow('Time', time.length > 5 ? time.substring(0, 5) : time),
+                  _buildInfoRow(
+                      'Time', time.length > 5 ? time.substring(0, 5) : time),
                   const SizedBox(height: 20),
                   _buildInfoRow('Location', 'Evergreen Health Clinic'),
                 ],

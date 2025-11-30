@@ -1,148 +1,230 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 interface Doctor {
-  id: number
+  doctorId: number
   name: string
-  specialty: string
-  experience: string
-  education: string
-  description: string
+  specialty: {
+    specialtyId: number
+    name: string
+  } | null
+  phone: string
+  imageUrl?: string
 }
 
 const TeamSection: React.FC = () => {
-  const doctors: Doctor[] = [
-    {
-      id: 1,
-      name: 'BS. Nguyễn Văn An',
-      specialty: 'Tim mạch',
-      experience: '20 năm kinh nghiệm',
-      education: 'Bác sĩ chuyên khoa II - ĐH Y Hà Nội',
-      description: 'Chuyên điều trị các bệnh lý tim mạch, tăng huyết áp, nhồi máu cơ tim'
-    },
-    {
-      id: 2,
-      name: 'BS. Trần Thị Bình',
-      specialty: 'Nhi khoa',
-      experience: '15 năm kinh nghiệm',
-      education: 'Thạc sĩ Y học - ĐH Y Dược TP.HCM',
-      description: 'Chuyên khám và điều trị các bệnh lý về trẻ em, tiêm chủng'
-    },
-    {
-      id: 3,
-      name: 'BS. Lê Minh Châu',
-      specialty: 'Da liễu',
-      experience: '12 năm kinh nghiệm',
-      education: 'Bác sĩ chuyên khoa I - ĐH Y Huế',
-      description: 'Chuyên điều trị mụn, nám, sẹo, các bệnh lý về da'
-    },
-    {
-      id: 4,
-      name: 'BS. Phạm Hoàng Dũng',
-      specialty: 'Tiêu hóa',
-      experience: '18 năm kinh nghiệm',
-      education: 'Tiến sĩ Y học - ĐH Y Hà Nội',
-      description: 'Chuyên điều trị viêm gan, viêm dạ dày, hội chứng ruột kích thích'
-    },
-    {
-      id: 5,
-      name: 'BS. Võ Thị Em',
-      specialty: 'Sản phụ khoa',
-      experience: '16 năm kinh nghiệm',
-      education: 'Bác sĩ chuyên khoa II - ĐH Y Dược TP.HCM',
-      description: 'Chuyên khám thai, siêu âm 4D, điều trị vô sinh hiếm muộn'
-    },
-    {
-      id: 6,
-      name: 'BS. Đỗ Văn Phúc',
-      specialty: 'Tai mũi họng',
-      experience: '14 năm kinh nghiệm',
-      education: 'Thạc sĩ Y học - ĐH Y Hà Nội',
-      description: 'Chuyên điều trị viêm tai, viêm xoang, polyp mũi'
+  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [loading, setLoading] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [isPaused, setIsPaused] = useState(false)
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+        const response = await fetch(`${API_URL}/doctors`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Doctors data:', data) // Debug log
+          // Lấy 8 bác sĩ trực tiếp
+          setDoctors(data.slice(0, 8))
+        }
+      } catch (error) {
+        console.error('Error fetching doctors:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+
+    fetchDoctors()
+  }, [])
+
+  // Auto-scroll effect
+  useEffect(() => {
+    if (!scrollRef.current || isPaused || doctors.length === 0) return
+
+    const scrollInterval = setInterval(() => {
+      if (scrollRef.current) {
+        const container = scrollRef.current
+        const maxScroll = container.scrollWidth - container.clientWidth
+        
+        if (container.scrollLeft >= maxScroll - 10) {
+          // Quay lại đầu khi đến cuối
+          container.scrollTo({ left: 0, behavior: 'smooth' })
+        } else {
+          // Scroll sang trái
+          container.scrollBy({ left: 300, behavior: 'smooth' })
+        }
+      }
+    }, 3000) // Mỗi 3 giây
+
+    return () => clearInterval(scrollInterval)
+  }, [doctors, isPaused])
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 350
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Đang tải thông tin bác sĩ...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Đội Ngũ Chuyên Gia
-          </h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Đội ngũ bác sĩ giàu kinh nghiệm, tận tâm với nghề, luôn cập nhật kiến thức y học mới nhất để phục vụ bệnh nhân tốt nhất.
-          </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">
+              Đội Ngũ Bác Sĩ
+            </h2>
+            <p className="text-gray-600">
+              Đội ngũ bác sĩ giàu kinh nghiệm, tận tâm với nghề
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scroll('left')}
+              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+              aria-label="Scroll left"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => scroll('right')}
+              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+              aria-label="Scroll right"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+        {/* Doctors Horizontal Scroll */}
+        <div 
+          ref={scrollRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {doctors.map((doctor) => (
             <div 
-              key={doctor.id}
-              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              key={doctor.doctorId}
+              className="flex-none w-72 bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow group"
             >
-              <div className="bg-gradient-to-br from-blue-500 to-blue-700 h-48 flex items-center justify-center">
-                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center">
-                  <svg className="w-20 h-20 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
+              {/* Doctor Image */}
+              <div className="relative h-80 bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+                {doctor.imageUrl ? (
+                  <Image
+                    src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                    alt={doctor.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center">
+                      <svg className="w-20 h-20 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
               
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{doctor.name}</h3>
+              {/* Doctor Info */}
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{doctor.name}</h3>
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    <span className="font-semibold">{doctor.specialty}</span>
+                    <span className="font-medium text-sm bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">{doctor.specialty?.name || 'Đa khoa'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <span className="text-sm">{doctor.experience}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                    </svg>
-                    <span className="text-sm">{doctor.education}</span>
+                    <span className="text-sm">{doctor.phone}</span>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm mb-4">{doctor.description}</p>
-                <button className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <Link
+                  href="/register"
+                  className="block w-full text-center py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all font-medium"
+                >
                   Đặt lịch khám
-                </button>
+                </Link>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mt-12">
-          <div className="grid md:grid-cols-4 gap-6 text-center">
+        {/* Stats */}
+        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-8 mt-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <p className="text-4xl font-bold text-blue-600 mb-2">50+</p>
-              <p className="text-gray-600">Bác sĩ giỏi</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">50+</p>
+              <p className="text-gray-700 font-medium">Bác sĩ chuyên khoa</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-blue-600 mb-2">30+</p>
-              <p className="text-gray-600">Chuyên khoa</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">30+</p>
+              <p className="text-gray-700 font-medium">Chuyên khoa</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-blue-600 mb-2">98%</p>
-              <p className="text-gray-600">Hài lòng</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">98%</p>
+              <p className="text-gray-700 font-medium">Hài lòng</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-blue-600 mb-2">24/7</p>
-              <p className="text-gray-600">Hỗ trợ</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">24/7</p>
+              <p className="text-gray-700 font-medium">Hỗ trợ</p>
             </div>
           </div>
         </div>
+
+        {/* View All Button */}
+        <div className="text-center mt-8">
+          <Link
+            href="/doctors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg font-medium hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+          >
+            Xem tất cả bác sĩ
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   )
 }

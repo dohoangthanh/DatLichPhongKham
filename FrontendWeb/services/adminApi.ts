@@ -27,7 +27,7 @@ export const doctorApi = {
     return response.json()
   },
 
-  create: async (data: { name: string; specialtyId: number; phone: string }) => {
+  create: async (data: { name: string; specialtyId: number; phone: string; imageUrl?: string }) => {
     const response = await fetch(`${API_URL}/doctors`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -37,13 +37,29 @@ export const doctorApi = {
     return response.json()
   },
 
-  update: async (id: number, data: { name: string; specialtyId: number; phone: string }) => {
+  update: async (id: number, data: { name: string; specialtyId: number; phone: string; imageUrl?: string }) => {
     const response = await fetch(`${API_URL}/doctors/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     })
     if (!response.ok) throw new Error('Failed to update doctor')
+    return response.json()
+  },
+
+  uploadImage: async (file: File) => {
+    const token = localStorage.getItem('token')
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch(`${API_URL}/doctors/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    })
+    if (!response.ok) throw new Error('Failed to upload image')
     return response.json()
   },
 
@@ -67,23 +83,55 @@ export const serviceApi = {
     return response.json()
   },
 
-  create: async (data: { name: string; price: number; type: string }) => {
+  create: async (data: { name: string; price: number; type: string; imageUrl?: string }) => {
     const response = await fetch(`${API_URL}/services`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     })
-    if (!response.ok) throw new Error('Failed to create service')
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Service create error:', response.status, errorText)
+      throw new Error(`Failed to create service: ${response.status}`)
+    }
     return response.json()
   },
 
-  update: async (id: number, data: { name: string; price: number; type: string }) => {
+  update: async (id: number, data: { name: string; price: number; type: string; imageUrl?: string }) => {
     const response = await fetch(`${API_URL}/services/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     })
-    if (!response.ok) throw new Error('Failed to update service')
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Service update error:', response.status, errorText)
+      throw new Error(`Failed to update service: ${response.status}`)
+    }
+    // PUT usually returns 204 No Content
+    if (response.status === 204) {
+      return { success: true }
+    }
+    return response.json()
+  },
+
+  uploadImage: async (file: File) => {
+    const token = localStorage.getItem('token')
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch(`${API_URL}/services/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Service image upload error:', response.status, errorText)
+      throw new Error(`Failed to upload image: ${response.status}`)
+    }
     return response.json()
   },
 
@@ -345,6 +393,7 @@ export const userManagementApi = {
     phone: string
     username: string
     password: string
+    imageUrl?: string
   }) => {
     const response = await fetch(`${API_URL}/admin/usermanagement/doctors`, {
       method: 'POST',
@@ -358,7 +407,7 @@ export const userManagementApi = {
     return response.json()
   },
 
-  updateDoctor: async (id: number, data: { name: string; specialtyId: number; phone: string }) => {
+  updateDoctor: async (id: number, data: { name: string; specialtyId: number; phone: string; imageUrl?: string }) => {
     const response = await fetch(`${API_URL}/admin/usermanagement/doctors/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -366,6 +415,22 @@ export const userManagementApi = {
     })
     if (!response.ok) throw new Error('Failed to update doctor')
     return response.ok
+  },
+
+  uploadDoctorImage: async (file: File) => {
+    const token = localStorage.getItem('token')
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch(`${API_URL}/doctors/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    })
+    if (!response.ok) throw new Error('Failed to upload image')
+    return response.json()
   },
 
   deleteDoctor: async (id: number) => {

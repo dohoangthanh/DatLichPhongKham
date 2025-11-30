@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/booking.dart';
 import '../services/booking_service.dart';
+import '../config/api_config.dart';
 import 'appointment_confirmation_screen.dart';
 
 class DateTimeSelectionScreen extends StatefulWidget {
@@ -14,12 +15,13 @@ class DateTimeSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<DateTimeSelectionScreen> createState() => _DateTimeSelectionScreenState();
+  State<DateTimeSelectionScreen> createState() =>
+      _DateTimeSelectionScreenState();
 }
 
 class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
   final BookingService _bookingService = BookingService();
-  
+
   DateTime _selectedDate = DateTime.now();
   String? _selectedSlot;
   List<String> _availableSlots = [];
@@ -45,12 +47,12 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
       final month = _selectedDate.month.toString().padLeft(2, '0');
       final day = _selectedDate.day.toString().padLeft(2, '0');
       final dateString = '$year-$month-$day';
-      
+
       final slots = await _bookingService.getAvailableSlots(
         widget.doctor.doctorId,
         dateString,
       );
-      
+
       if (mounted) {
         setState(() {
           _availableSlots = slots;
@@ -69,8 +71,18 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return '${months[date.month - 1]} ${date.year}';
   }
@@ -104,20 +116,36 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: const Color(0xFF1E88E5).withValues(alpha: 0.1),
-                    child: Text(
-                      widget.doctor.name.isNotEmpty 
-                          ? widget.doctor.name[0].toUpperCase() 
-                          : 'D',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E88E5),
-                      ),
-                    ),
-                  ),
+                  widget.doctor.imageUrl != null &&
+                          widget.doctor.imageUrl!.isNotEmpty
+                      ? CircleAvatar(
+                          radius: 28,
+                          backgroundColor:
+                              const Color(0xFF1E88E5).withValues(alpha: 0.1),
+                          backgroundImage: NetworkImage(
+                            widget.doctor.imageUrl!.startsWith('http')
+                                ? widget.doctor.imageUrl!
+                                : '${ApiConfig.baseUrl.replaceAll('/api', '')}${widget.doctor.imageUrl}',
+                          ),
+                          onBackgroundImageError: (exception, stackTrace) {
+                            print('Error loading image: $exception');
+                          },
+                        )
+                      : CircleAvatar(
+                          radius: 28,
+                          backgroundColor:
+                              const Color(0xFF1E88E5).withValues(alpha: 0.1),
+                          child: Text(
+                            widget.doctor.name.isNotEmpty
+                                ? widget.doctor.name[0].toUpperCase()
+                                : 'D',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E88E5),
+                            ),
+                          ),
+                        ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -226,7 +254,8 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
                                           color: isSelected
                                               ? const Color(0xFF1E88E5)
                                               : Colors.grey[100],
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                           border: Border.all(
                                             color: isSelected
                                                 ? const Color(0xFF1E88E5)
@@ -234,7 +263,9 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          slot.length > 5 ? slot.substring(0, 5) : slot,
+                                          slot.length > 5
+                                              ? slot.substring(0, 5)
+                                              : slot,
                                           style: TextStyle(
                                             color: isSelected
                                                 ? Colors.white
@@ -262,7 +293,8 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AppointmentConfirmationScreen(
+                              builder: (context) =>
+                                  AppointmentConfirmationScreen(
                                 doctor: widget.doctor,
                                 specialty: widget.specialty,
                                 date: _selectedDate,
@@ -371,8 +403,10 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
   }
 
   Widget _buildCalendarDays() {
-    final firstDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
-    final lastDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+    final firstDayOfMonth =
+        DateTime(_selectedDate.year, _selectedDate.month, 1);
+    final lastDayOfMonth =
+        DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
     final daysInMonth = lastDayOfMonth.day;
     final firstWeekday = firstDayOfMonth.weekday % 7;
 
@@ -385,7 +419,8 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
     for (int day = 1; day <= daysInMonth; day++) {
       final date = DateTime(_selectedDate.year, _selectedDate.month, day);
       final isSelected = date.day == _selectedDate.day;
-      final isPast = date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
+      final isPast =
+          date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
 
       dayWidgets.add(
         InkWell(
@@ -432,8 +467,18 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
 
   String _formatMonthDay(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '${months[date.month - 1]} ${date.day}';
   }

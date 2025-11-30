@@ -13,10 +13,12 @@ namespace QuanLyKhamBenhAPI.Controllers
     public class ServicesController : ControllerBase
     {
         private readonly QuanLyKhamBenhContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ServicesController(QuanLyKhamBenhContext context)
+        public ServicesController(QuanLyKhamBenhContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // GET: api/services - Public endpoint for pricing page
@@ -29,7 +31,8 @@ namespace QuanLyKhamBenhAPI.Controllers
                 ServiceId = s.ServiceId,
                 Name = s.Name,
                 Price = s.Price,
-                Type = s.Type ?? "Unknown"
+                Type = s.Type ?? "Unknown",
+                ImageUrl = s.ImageUrl
             }).ToListAsync();
 
             return Ok(services);
@@ -44,7 +47,8 @@ namespace QuanLyKhamBenhAPI.Controllers
             {
                 Name = dto.Name,
                 Price = dto.Price,
-                Type = dto.Type
+                Type = dto.Type,
+                ImageUrl = dto.ImageUrl
             };
 
             _context.Services.Add(service);
@@ -55,7 +59,8 @@ namespace QuanLyKhamBenhAPI.Controllers
                 ServiceId = service.ServiceId,
                 Name = service.Name,
                 Price = service.Price,
-                Type = service.Type
+                Type = service.Type,
+                ImageUrl = service.ImageUrl
             };
 
             return CreatedAtAction(nameof(GetServices), new { id = service.ServiceId }, createdDto);
@@ -75,6 +80,7 @@ namespace QuanLyKhamBenhAPI.Controllers
             service.Name = dto.Name;
             service.Price = dto.Price;
             service.Type = dto.Type;
+            service.ImageUrl = dto.ImageUrl;
 
             try
             {
@@ -93,6 +99,59 @@ namespace QuanLyKhamBenhAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        // POST: api/services/upload-image
+        [HttpPost("upload-image")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded" });
+            }
+
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new { message = "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+            }
+
+            // Validate file size (max 5MB)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size exceeds 5MB limit." });
+            }
+
+            try
+            {
+                // Create uploads directory if it doesn't exist
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "services");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate unique filename
+                var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Save file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Return the URL path
+                var imageUrl = $"/uploads/services/{uniqueFileName}";
+                return Ok(new { imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
+            }
         }
 
         // DELETE: api/services/{id}

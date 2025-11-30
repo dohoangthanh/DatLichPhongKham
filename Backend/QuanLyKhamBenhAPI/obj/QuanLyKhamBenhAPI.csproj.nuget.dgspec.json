@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {}
+    "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {
+    "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
+        "projectUniqueName": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
         "projectName": "QuanLyKhamBenhAPI",
-        "projectPath": "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
-        "packagesPath": "C:\\Users\\minhk\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\minhk\\Downloads\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\obj\\",
+        "projectPath": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\minhk\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -108,7 +109,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

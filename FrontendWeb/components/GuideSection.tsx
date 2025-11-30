@@ -50,32 +50,34 @@ const GuideSection: React.FC = () => {
   ]
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+    <section className="py-12 bg-white relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/30 via-purple-50/20 to-pink-50/30 pointer-events-none"></div>
+      <div className="max-w-screen-2xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-10 animate-fadeIn">
+          <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             Hướng Dẫn Khách Hàng
           </h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <div className="w-32 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
+          <p className="text-lg text-gray-600 max-w-4xl mx-auto">
             Quy trình đặt lịch và khám bệnh đơn giản, nhanh chóng chỉ với 6 bước. Chúng tôi luôn sẵn sàng hỗ trợ bạn.
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {steps.map((item, index) => (
               <div 
                 key={index}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 relative"
+                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 relative group hover:scale-105 animate-slideUp"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
+                <div className="absolute -top-5 -left-5 w-14 h-14 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/50 group-hover:shadow-xl group-hover:shadow-indigo-500/70 transition-all duration-300 group-hover:scale-110">
                   {item.step}
                 </div>
                 
-                <div className="mt-4 mb-4 flex justify-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mt-6 mb-4 flex justify-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-10 h-10 text-indigo-600 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                     </svg>
                   </div>

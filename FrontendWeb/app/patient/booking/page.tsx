@@ -20,6 +20,7 @@ interface Doctor {
   doctorId: number
   name: string
   phone: string
+  imageUrl?: string
 }
 
 export default function BookingPage() {
@@ -167,9 +168,9 @@ export default function BookingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Đang tải...</p>
         </div>
       </div>
@@ -182,10 +183,10 @@ export default function BookingPage() {
 
   if (success) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50">
+        <div className="text-center bg-white p-8 rounded-lg shadow-2xl border-t-4 border-green-500">
           <div className="text-6xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-green-600 mb-2">Đặt Lịch Thành Công!</h2>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent mb-2">Đặt Lịch Thành Công!</h2>
           <p className="text-gray-600">Đang chuyển đến trang thanh toán...</p>
         </div>
       </div>
@@ -197,30 +198,30 @@ export default function BookingPage() {
       <Header />
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
         {/* Progress Steps */}
         <div className="max-w-4xl mx-auto mb-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 1 ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg' : 'bg-gray-300 text-gray-600'}`}>
                 1
               </div>
               <div className="text-sm ml-2 font-medium">Chọn Bác sĩ & Ngày</div>
             </div>
             
-            <div className={`w-24 h-1 mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+            <div className={`w-24 h-1 mx-4 ${step >= 2 ? 'bg-gradient-to-r from-cyan-500 to-blue-600' : 'bg-gray-300'}`}></div>
             
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 2 ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg' : 'bg-gray-300 text-gray-600'}`}>
                 2
               </div>
               <div className="text-sm ml-2 font-medium">Chọn Giờ</div>
             </div>
             
-            <div className={`w-24 h-1 mx-4 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+            <div className={`w-24 h-1 mx-4 ${step >= 3 ? 'bg-gradient-to-r from-cyan-500 to-blue-600' : 'bg-gray-300'}`}></div>
             
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 3 ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg' : 'bg-gray-300 text-gray-600'}`}>
                 3
               </div>
               <div className="text-sm ml-2 font-medium">Xác Nhận</div>
@@ -229,7 +230,7 @@ export default function BookingPage() {
         </div>
 
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-blue-600">
+          <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Đặt Lịch Khám Bệnh Trực Tuyến
           </h1>
 
@@ -254,8 +255,8 @@ export default function BookingPage() {
                       onClick={() => handleSpecialtySelect(specialty.specialtyId)}
                       className={`p-4 rounded-lg border-2 text-left transition-all ${
                         selectedSpecialty === specialty.specialtyId
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-300 hover:border-blue-400'
+                          ? 'border-cyan-500 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-lg shadow-cyan-500/20'
+                          : 'border-gray-300 hover:border-cyan-400'
                       }`}
                     >
                       <h3 className="font-semibold text-lg">{specialty.name}</h3>
@@ -278,13 +279,25 @@ export default function BookingPage() {
                         onClick={() => handleDoctorSelect(doctor.doctorId)}
                         className={`p-4 rounded-lg border-2 text-left transition-all ${
                           selectedDoctor === doctor.doctorId
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-300 hover:border-blue-400'
+                            ? 'border-cyan-500 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-lg shadow-cyan-500/20'
+                            : 'border-gray-300 hover:border-cyan-400'
                         }`}
                       >
                         <div className="flex items-center">
-                          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl mr-4">
-                            👨‍⚕️
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center overflow-hidden mr-4 border-4 border-cyan-200">
+                            {doctor.imageUrl ? (
+                              <img 
+                                src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                                alt={doctor.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.parentElement!.innerHTML = '<span class="text-3xl">👨‍⚕️</span>';
+                                }}
+                              />
+                            ) : (
+                              <span className="text-3xl">👨‍⚕️</span>
+                            )}
                           </div>
                           <div>
                             <h3 className="font-semibold text-lg">{doctor.name}</h3>
@@ -308,7 +321,7 @@ export default function BookingPage() {
                     value={selectedDate}
                     onChange={(e) => handleDateSelect(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all"
                   />
                 </div>
               )}
@@ -316,7 +329,7 @@ export default function BookingPage() {
               {selectedDoctor && selectedDate && (
                 <button
                   onClick={handleNextStep}
-                  className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30"
                 >
                   Tiếp Theo
                 </button>
@@ -327,7 +340,7 @@ export default function BookingPage() {
           {/* Step 2: Select Time Slot */}
           {step === 2 && (
             <div className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-4 rounded-lg mb-6 border-l-4 border-cyan-500">
                 <p className="text-sm text-gray-700">
                   <span className="font-semibold">Bác sĩ:</span> {doctors.find(d => d.doctorId === selectedDoctor)?.name}
                 </p>
@@ -352,8 +365,8 @@ export default function BookingPage() {
                         onClick={() => setSelectedTime(slot)}
                         className={`py-3 px-4 rounded-lg border-2 font-semibold transition-all ${
                           selectedTime === slot
-                            ? 'border-blue-600 bg-blue-600 text-white'
-                            : 'border-gray-300 hover:border-blue-400'
+                            ? 'border-cyan-500 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+                            : 'border-gray-300 hover:border-cyan-400'
                         }`}
                       >
                         {slot}
@@ -375,7 +388,7 @@ export default function BookingPage() {
                 {selectedTime && (
                   <button
                     onClick={() => setStep(3)}
-                    className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30"
                   >
                     Tiếp Theo
                   </button>
@@ -387,7 +400,7 @@ export default function BookingPage() {
           {/* Step 3: Confirm */}
           {step === 3 && (
             <div className="space-y-6">
-              <div className="bg-blue-50 p-6 rounded-lg space-y-3">
+              <div className="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 p-6 rounded-lg space-y-3 border-l-4 border-cyan-500">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">Thông Tin Đặt Lịch</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -420,7 +433,7 @@ export default function BookingPage() {
                 <button
                   onClick={handleBooking}
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30 disabled:opacity-50 disabled:shadow-none"
                 >
                   {isLoading ? 'Đang xử lý...' : 'Xác Nhận Đặt Lịch'}
                 </button>

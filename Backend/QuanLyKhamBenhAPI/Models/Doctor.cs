@@ -11,6 +11,8 @@ public partial class Doctor
 
     public string? Phone { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public int? SpecialtyId { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();

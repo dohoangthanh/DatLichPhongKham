@@ -170,9 +170,9 @@ export default function PaymentPage() {
 
   if (loading || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Đang tải...</p>
         </div>
       </div>
@@ -204,24 +204,24 @@ export default function PaymentPage() {
       <Header />
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full mb-4 border-4 border-cyan-200">
+              <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
               Xác nhận và Thanh toán
             </h1>
             <p className="text-gray-600">Vui lòng kiểm tra thông tin trước khi thanh toán</p>
           </div>
 
           {/* Appointment Info Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-cyan-500">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
               Thông tin Lịch hẹn
             </h2>
             
@@ -252,10 +252,10 @@ export default function PaymentPage() {
           </div>
 
           {/* Loyalty Points Display */}
-          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4 mb-6">
+          <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                   </svg>
@@ -266,15 +266,15 @@ export default function PaymentPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-amber-600">{loyaltyPoints}</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{loyaltyPoints}</p>
                 <p className="text-xs text-amber-700">điểm</p>
               </div>
             </div>
           </div>
 
           {/* Promo Code Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-purple-500">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
               Mã Khuyến mãi
             </h2>
             
@@ -284,12 +284,12 @@ export default function PaymentPage() {
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 placeholder="Nhập mã khuyến mãi"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
               />
               <button
                 onClick={handleValidatePromo}
                 disabled={isValidatingPromo || !promoCode.trim()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isValidatingPromo ? 'Đang kiểm tra...' : 'Áp dụng'}
               </button>
@@ -303,8 +303,8 @@ export default function PaymentPage() {
           </div>
 
           {/* Payment Summary Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-emerald-500">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
               Tóm tắt Chi phí
             </h2>
             
@@ -336,7 +336,7 @@ export default function PaymentPage() {
               <div className="border-t pt-3 mt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xl font-bold text-gray-800">Tổng cộng</span>
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     {formatCurrency(getFinalAmount())}
                   </span>
                 </div>
@@ -350,15 +350,15 @@ export default function PaymentPage() {
           </div>
 
           {/* Payment Method Selection */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-indigo-500">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
               Chọn Phương thức Thanh toán
             </h2>
             
             <div className="space-y-3">
               {/* VNPAY Option */}
               <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedMethod === 'VNPAY' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                selectedMethod === 'VNPAY' ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/20' : 'border-gray-200 hover:border-blue-300'
               }`}>
                 <input
                   type="radio"
@@ -369,7 +369,7 @@ export default function PaymentPage() {
                   className="w-5 h-5 text-blue-600"
                 />
                 <div className="ml-4 flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded flex items-center justify-center shadow-md">
                     <span className="text-white font-bold text-xs">VNPAY</span>
                   </div>
                   <span className="font-semibold text-gray-800">Thanh toán qua VNPAY</span>
@@ -378,7 +378,7 @@ export default function PaymentPage() {
 
               {/* Momo Option */}
               <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedMethod === 'Momo' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                selectedMethod === 'Momo' ? 'border-pink-500 bg-gradient-to-r from-pink-50 to-rose-50 shadow-lg shadow-pink-500/20' : 'border-gray-200 hover:border-pink-300'
               }`}>
                 <input
                   type="radio"
@@ -386,7 +386,7 @@ export default function PaymentPage() {
                   value="Momo"
                   checked={selectedMethod === 'Momo'}
                   onChange={(e) => setSelectedMethod(e.target.value)}
-                  className="w-5 h-5 text-blue-600"
+                  className="w-5 h-5 text-pink-600"
                 />
                 <div className="ml-4 flex items-center gap-3 flex-1">
                   <div className="w-12 h-12 bg-pink-600 rounded flex items-center justify-center">
@@ -398,7 +398,7 @@ export default function PaymentPage() {
 
               {/* Cash Option */}
               <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedMethod === 'Cash' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                selectedMethod === 'Cash' ? 'border-violet-500 bg-gradient-to-r from-violet-50 to-purple-50 shadow-lg shadow-violet-500/20' : 'border-gray-200 hover:border-violet-300'
               }`}>
                 <input
                   type="radio"
@@ -406,7 +406,7 @@ export default function PaymentPage() {
                   value="Cash"
                   checked={selectedMethod === 'Cash'}
                   onChange={(e) => setSelectedMethod(e.target.value)}
-                  className="w-5 h-5 text-blue-600"
+                  className="w-5 h-5 text-violet-600"
                 />
                 <div className="ml-4 flex items-center gap-3 flex-1">
                   <div className="w-12 h-12 bg-gray-600 rounded flex items-center justify-center">
@@ -421,13 +421,13 @@ export default function PaymentPage() {
           </div>
 
           {/* Security Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-            <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <svg className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             <div>
-              <p className="text-sm text-blue-800 font-semibold">Thanh toán của bạn được bảo mật</p>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="text-sm text-emerald-900 font-semibold">Thanh toán của bạn được bảo mật</p>
+              <p className="text-sm text-emerald-800 mt-1">
                 Đây là môi trường giả lập thanh toán. Nhấn nút để xác nhận thanh toán thành công.
               </p>
             </div>
@@ -445,7 +445,7 @@ export default function PaymentPage() {
             <button
               onClick={handlePayment}
               disabled={isProcessing || paymentInfo.payment.status === 'Paid'}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center gap-2">

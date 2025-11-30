@@ -11,6 +11,7 @@ interface Service {
   name: string
   price: number
   type: string
+  imageUrl?: string
 }
 
 export default function PricingPage() {
@@ -27,6 +28,7 @@ export default function PricingPage() {
     try {
       setLoading(true)
       const data = await patientApi.services.getAll()
+      console.log('Pricing page - Services data:', data)
       setServices(data)
     } catch (error) {
       console.error('Error fetching services:', error)
@@ -71,7 +73,7 @@ export default function PricingPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16">
+      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-4">
@@ -85,8 +87,9 @@ export default function PricingPage() {
       </section>
 
       {/* Search & Filter */}
-      <section className="py-8 bg-white border-b sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-10 bg-white sticky top-0 z-10 shadow-md relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-50/20 via-transparent to-pink-50/20 pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             {/* Search Box */}
             <div className="w-full md:w-96">
@@ -171,10 +174,22 @@ export default function PricingPage() {
                       <tr key={service.serviceId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                              </svg>
+                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center mr-3">
+                              {service.imageUrl ? (
+                                <img 
+                                  src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                                  alt={service.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.parentElement!.innerHTML = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>';
+                                  }}
+                                />
+                              ) : (
+                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                              )}
                             </div>
                             <span className="font-medium text-gray-900">{service.name}</span>
                           </div>
@@ -194,8 +209,8 @@ export default function PricingPage() {
                         </td>
                         <td className="px-6 py-4 text-center">
                           <a
-                            href="/booking"
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            href="/patient/booking"
+                            className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                           >
                             Đặt lịch
                           </a>
@@ -210,10 +225,25 @@ export default function PricingPage() {
               <div className="md:hidden space-y-4">
                 {filteredServices.map(service => (
                   <div key={service.serviceId} className="bg-white rounded-lg shadow-sm p-4">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center flex-shrink-0">
+                        {service.imageUrl ? (
+                          <img 
+                            src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                            alt={service.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<span class="text-2xl">🔌</span>';
+                            }}
+                          />
+                        ) : (
+                          <span className="text-2xl">🔌</span>
+                        )}
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-gray-900 mb-1">{service.name}</h3>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           {service.type}
                         </span>
                       </div>
@@ -235,7 +265,7 @@ export default function PricingPage() {
                         Mã DV: #{service.serviceId}
                       </span>
                       <a
-                        href="/booking"
+                        href="/patient/booking"
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                       >
                         Đặt lịch
@@ -294,8 +324,8 @@ export default function PricingPage() {
             Liên hệ hotline <span className="font-bold">1900 565 656</span> để được tư vấn miễn phí
           </p>
           <a
-            href="/booking"
-            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            href="/patient/booking"
+            className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg"
           >
             Đặt Lịch Khám Ngay
           </a>

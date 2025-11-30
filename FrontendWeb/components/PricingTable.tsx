@@ -51,23 +51,27 @@ const PricingTable: React.FC = () => {
   ]
 
   return (
-    <section className="bg-white py-12">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Bảng Giá Dịch Vụ
-        </h2>
+    <section className="bg-white py-12 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-50/30 via-orange-50/20 to-yellow-50/30 pointer-events-none"></div>
+      <div className="max-w-screen-2xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-10 animate-fadeIn">
+          <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-amber-600 via-orange-600 to-yellow-600 bg-clip-text text-transparent">
+            Bảng Giá Dịch Vụ
+          </h2>
+          <div className="w-32 h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 mx-auto rounded-full"></div>
+        </div>
 
-        <div className="max-w-6xl mx-auto overflow-hidden rounded-xl shadow-lg">
+        <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl shadow-2xl animate-slideUp">
           <table className="w-full">
-            <thead className="bg-blue-100">
+            <thead className="bg-gradient-to-r from-amber-100 via-orange-100 to-yellow-100">
               <tr>
-                <th className="px-6 py-4 text-left text-gray-700 font-semibold">
+                <th className="px-6 py-5 text-left text-gray-800 font-bold text-lg">
                   Dịch vụ
                 </th>
-                <th className="px-6 py-4 text-left text-gray-700 font-semibold">
+                <th className="px-6 py-5 text-left text-gray-800 font-bold text-lg">
                   Mô tả
                 </th>
-                <th className="px-6 py-4 text-right text-gray-700 font-semibold">
+                <th className="px-6 py-5 text-right text-gray-800 font-bold text-lg">
                   Giá (VNĐ)
                 </th>
               </tr>
@@ -77,7 +81,7 @@ const PricingTable: React.FC = () => {
                 <tr
                   key={index}
                   className={`${
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                   } hover:bg-blue-50 transition`}
                 >
                   <td className="px-6 py-4 text-gray-800">{service.name}</td>

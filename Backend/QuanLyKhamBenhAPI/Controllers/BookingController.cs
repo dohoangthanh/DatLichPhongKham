@@ -33,7 +33,7 @@ public class BookingController : ControllerBase
     {
         var doctors = await _context.Doctors
             .Where(d => d.SpecialtyId == specialtyId)
-            .Select(d => new { d.DoctorId, d.Name, d.Phone })
+            .Select(d => new { d.DoctorId, d.Name, d.Phone, d.ImageUrl })
             .ToListAsync();
         return Ok(doctors);
     }
@@ -140,9 +140,10 @@ public class BookingController : ControllerBase
         _context.Payments.Add(payment);
         await _context.SaveChangesAsync();
 
-        return Ok(new { 
-            appointmentId = appointment.AppointmentId, 
-            message = "Appointment created successfully" 
+        return Ok(new
+        {
+            appointmentId = appointment.AppointmentId,
+            message = "Appointment created successfully"
         });
     }
 
@@ -181,7 +182,8 @@ public class BookingController : ControllerBase
                 {
                     a.Doctor.DoctorId,
                     a.Doctor.Name,
-                    a.Doctor.Phone
+                    a.Doctor.Phone,
+                    a.Doctor.ImageUrl
                 } : null,
                 Specialty = a.Doctor != null && a.Doctor.Specialty != null ? new
                 {
