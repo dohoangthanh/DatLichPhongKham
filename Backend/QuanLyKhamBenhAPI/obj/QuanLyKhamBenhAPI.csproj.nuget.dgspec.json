@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {}
+    "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {}
   },
   "projects": {
-    "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {
+    "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
+        "projectUniqueName": "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
         "projectName": "QuanLyKhamBenhAPI",
-        "projectPath": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
+        "projectPath": "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\obj\\",
+        "outputPath": "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

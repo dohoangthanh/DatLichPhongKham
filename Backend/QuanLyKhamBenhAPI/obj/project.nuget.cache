@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "k8NUE6/cSoA=",
+  "dgSpecHash": "a+TCs++XL8o=",
   "success": true,
-  "projectFilePath": "D:\\QuanLyKhamBenh\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
+  "projectFilePath": "D:\\DatLichPhongKham-main\\Backend\\QuanLyKhamBenhAPI\\QuanLyKhamBenhAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\azure.ai.openai\\2.1.0-beta.2\\azure.ai.openai.2.1.0-beta.2.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\azure.core\\1.44.1\\azure.core.1.44.1.nupkg.sha512",
