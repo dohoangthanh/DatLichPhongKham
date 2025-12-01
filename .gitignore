@@ -1,2 +1,7 @@
 /Backend/QuanLyKhamBenhAPI/appsettings.json
 /Backend/QuanLyKhamBenhAPI/bin/
+bin/
+obj/
+*.user
+*.suo
+*.vs/
