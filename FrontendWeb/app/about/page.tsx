@@ -1,10 +1,41 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+interface Stats {
+  doctorCount: number
+  specialtyCount: number
+  satisfactionRate: number
+  support24_7: boolean
+}
+
 export default function AboutPage() {
+  const [stats, setStats] = useState<Stats>({
+    doctorCount: 50,
+    specialtyCount: 30,
+    satisfactionRate: 98,
+    support24_7: true
+  })
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+        const response = await fetch(`${API_URL}/statistics/homepage`)
+        if (response.ok) {
+          const data = await response.json()
+          setStats(data)
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+
+    fetchStats()
+  }, [])
   const qualities = [
     {
       title: 'Chất lượng hàng đầu',
@@ -35,11 +66,11 @@ export default function AboutPage() {
     }
   ]
 
-  const stats = [
+  const statsData = [
     { value: '15+', label: 'Năm kinh nghiệm' },
-    { value: '50+', label: 'Bác sĩ chuyên khoa' },
+    { value: `${stats.doctorCount}+`, label: 'Bác sĩ chuyên khoa' },
     { value: '100K+', label: 'Bệnh nhân tin tưởng' },
-    { value: '98%', label: 'Hài lòng dịch vụ' }
+    { value: `${stats.satisfactionRate}%`, label: 'Hài lòng dịch vụ' }
   ]
 
   const facilities = [
@@ -214,7 +245,7 @@ export default function AboutPage() {
             Con Số Ấn Tượng
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
+            {statsData.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
                   {stat.value}

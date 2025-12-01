@@ -50,10 +50,11 @@ export default function ChatbotBubble() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/chatbot/chat`, {
+      // Sử dụng LocalChat API - không cần Gemini, đọc từ database
+      const response = await fetch(`${API_URL}/localchat/chat`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...(token && { 'Authorization': `Bearer ${token}` }),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

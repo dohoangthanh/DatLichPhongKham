@@ -1,0 +1,335 @@
+using Microsoft.EntityFrameworkCore;
+using QuanLyKhamBenhAPI.Models;
+using System.Text.RegularExpressions;
+
+namespace QuanLyKhamBenhAPI.Services
+{
+    public class LocalChatbotService
+    {
+        private readonly QuanLyKhamBenhContext _context;
+        private readonly ILogger<LocalChatbotService> _logger;
+        private readonly IConfiguration _configuration;
+
+        public LocalChatbotService(
+            QuanLyKhamBenhContext context,
+            ILogger<LocalChatbotService> logger,
+            IConfiguration configuration)
+        {
+            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+        }
+
+        public async Task<string> GetResponseAsync(string userMessage, int? patientId = null)
+        {
+            try
+            {
+                var normalizedMessage = NormalizeMessage(userMessage);
+
+                // 1. Tìm trong knowledge base trước
+                var knowledgeAnswer = await SearchKnowledgeBase(normalizedMessage);
+                if (!string.IsNullOrEmpty(knowledgeAnswer))
+                {
+                    return knowledgeAnswer;
+                }
+
+                // 2. Xử lý câu hỏi về bác sĩ
+                if (IsDoctorQuery(normalizedMessage))
+                {
+                    return await HandleDoctorQuery(normalizedMessage);
+                }
+
+                // 3. Xử lý câu hỏi về chuyên khoa
+                if (IsSpecialtyQuery(normalizedMessage))
+                {
+                    return await HandleSpecialtyQuery(normalizedMessage);
+                }
+
+                // 4. Xử lý câu hỏi về dịch vụ
+                if (IsServiceQuery(normalizedMessage))
+                {
+                    return await HandleServiceQuery(normalizedMessage);
+                }
+
+                // 5. Xử lý câu hỏi về đặt lịch
+                if (IsBookingQuery(normalizedMessage))
+                {
+                    return HandleBookingQuery(patientId);
+                }
+
+                // 6. Xử lý câu hỏi về lịch hẹn của bệnh nhân
+                if (IsMyAppointmentQuery(normalizedMessage) && patientId.HasValue)
+                {
+                    return await HandleMyAppointments(patientId.Value);
+                }
+
+                // 7. Trả lời mặc định
+                return GetDefaultResponse();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetResponseAsync");
+                return "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.";
+            }
+        }
+
+        private async Task<string> SearchKnowledgeBase(string normalizedMessage)
+        {
+            try
+            {
+                var knowledge = await _context.ChatKnowledges
+                    .Where(k => k.IsActive)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                foreach (var item in knowledge)
+                {
+                    var normalizedQuestion = NormalizeMessage(item.Question);
+                    var similarity = CalculateSimilarity(normalizedMessage, normalizedQuestion);
+
+                    if (similarity > 0.7) // 70% giống nhau
+                    {
+                        // Cập nhật usage trong background (không await)
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                var knowledgeToUpdate = await _context.ChatKnowledges
+                                    .FirstOrDefaultAsync(k => k.KnowledgeId == item.KnowledgeId);
+                                if (knowledgeToUpdate != null)
+                                {
+                                    knowledgeToUpdate.UsageCount++;
+                                    knowledgeToUpdate.LastUsedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+                                }
+                            }
+                            catch (Exception updateEx)
+                            {
+                                _logger.LogError(updateEx, $"Error updating usage for knowledge {item.KnowledgeId}");
+                            }
+                        });
+
+                        return item.Answer;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching knowledge base");
+            }
+
+            return string.Empty;
+        }
+
+        private bool IsDoctorQuery(string message)
+        {
+            var keywords = new[] { "bác sĩ", "bs", "doctor", "bác si", "bac si", "thầy thuốc" };
+            return keywords.Any(k => message.Contains(k));
+        }
+
+        private async Task<string> HandleDoctorQuery(string message)
+        {
+            var doctors = await _context.Doctors
+                .Include(d => d.Specialty)
+                .Take(5)
+                .ToListAsync();
+
+            if (!doctors.Any())
+                return "Hiện tại chưa có thông tin bác sĩ.";
+
+            var response = "📋 **Danh sách bác sĩ của phòng khám:**\n\n";
+            foreach (var doctor in doctors)
+            {
+                response += $"👨‍⚕️ **BS. {doctor.Name}**\n";
+                response += $"   - Chuyên khoa: {doctor.Specialty?.Name ?? "Chưa xác định"}\n";
+                response += $"   - Số điện thoại: {doctor.Phone}\n\n";
+            }
+
+            response += $"Tổng số: {await _context.Doctors.CountAsync()} bác sĩ\n";
+            response += "Bạn có thể đặt lịch khám tại: /patient/booking";
+
+            return response;
+        }
+
+        private bool IsSpecialtyQuery(string message)
+        {
+            var keywords = new[] { "chuyên khoa", "khoa", "specialty", "chuyen khoa" };
+            return keywords.Any(k => message.Contains(k));
+        }
+
+        private async Task<string> HandleSpecialtyQuery(string message)
+        {
+            var specialties = await _context.Specialties.ToListAsync();
+
+            if (!specialties.Any())
+                return "Hiện tại chưa có thông tin chuyên khoa.";
+
+            var response = "🏥 **Các chuyên khoa tại phòng khám:**\n\n";
+            foreach (var specialty in specialties)
+            {
+                var doctorCount = await _context.Doctors
+                    .Where(d => d.SpecialtyId == specialty.SpecialtyId)
+                    .CountAsync();
+
+                response += $"• {specialty.Name}";
+                if (!string.IsNullOrEmpty(specialty.Description))
+                    response += $" - {specialty.Description}";
+                response += $" ({doctorCount} bác sĩ)\n";
+            }
+
+            return response;
+        }
+
+        private bool IsServiceQuery(string message)
+        {
+            var keywords = new[] { "dịch vụ", "dvụ", "service", "khám", "xét nghiệm", "chi phí", "giá" };
+            return keywords.Any(k => message.Contains(k));
+        }
+
+        private async Task<string> HandleServiceQuery(string message)
+        {
+            var services = await _context.Services.Take(10).ToListAsync();
+
+            if (!services.Any())
+                return "Hiện tại chưa có thông tin dịch vụ.";
+
+            var response = "💊 **Các dịch vụ tại phòng khám:**\n\n";
+            foreach (var service in services)
+            {
+                response += $"• {service.Name} - {service.Price:N0} VNĐ\n";
+            }
+
+            response += $"\nTổng số: {await _context.Services.CountAsync()} dịch vụ";
+            return response;
+        }
+
+        private bool IsBookingQuery(string message)
+        {
+            var keywords = new[] { "đặt lịch", "đặt hẹn", "booking", "đăng ký khám", "dat lich", "hen kham" };
+            return keywords.Any(k => message.Contains(k));
+        }
+
+        private string HandleBookingQuery(int? patientId)
+        {
+            if (!patientId.HasValue)
+            {
+                return "Để đặt lịch khám, bạn cần đăng nhập tài khoản.\n\n" +
+                       "Các bước đặt lịch:\n" +
+                       "1. Đăng nhập vào hệ thống\n" +
+                       "2. Vào trang 'Đặt lịch khám'\n" +
+                       "3. Chọn chuyên khoa và bác sĩ\n" +
+                       "4. Chọn ngày và giờ khám\n" +
+                       "5. Xác nhận đặt lịch";
+            }
+
+            return "📅 Để đặt lịch khám:\n\n" +
+                   "1. Vào trang: /patient/booking\n" +
+                   "2. Chọn chuyên khoa phù hợp\n" +
+                   "3. Chọn bác sĩ\n" +
+                   "4. Chọn ngày và giờ khám\n" +
+                   "5. Xác nhận thông tin\n\n" +
+                   "Hoặc gọi hotline để được hỗ trợ!";
+        }
+
+        private bool IsMyAppointmentQuery(string message)
+        {
+            var keywords = new[] { "lịch hẹn", "lịch khám", "appointment", "lich hen", "cuộc hẹn" };
+            return keywords.Any(k => message.Contains(k));
+        }
+
+        private async Task<string> HandleMyAppointments(int patientId)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Doctor)
+                .ThenInclude(d => d!.Specialty)
+                .Where(a => a.PatientId == patientId)
+                .OrderByDescending(a => a.Date)
+                .Take(5)
+                .ToListAsync();
+
+            if (!appointments.Any())
+                return "Bạn chưa có lịch hẹn nào. Bạn có muốn đặt lịch khám không?";
+
+            var response = "📅 **Lịch hẹn của bạn:**\n\n";
+            foreach (var apt in appointments)
+            {
+                response += $"• Ngày: {apt.Date:dd/MM/yyyy} - {apt.Time}\n";
+                response += $"  Bác sĩ: {apt.Doctor?.Name ?? "N/A"}\n";
+                response += $"  Chuyên khoa: {apt.Doctor?.Specialty?.Name ?? "N/A"}\n";
+                response += $"  Trạng thái: {apt.Status}\n\n";
+            }
+
+            return response;
+        }
+
+        private string GetDefaultResponse()
+        {
+            var responses = new[]
+            {
+                "Tôi có thể giúp bạn:\n• Thông tin bác sĩ và chuyên khoa\n• Dịch vụ khám bệnh\n• Hướng dẫn đặt lịch\n• Xem lịch hẹn của bạn\n\nBạn muốn biết điều gì?",
+                "Bạn có thể hỏi tôi về:\n• Danh sách bác sĩ\n• Các chuyên khoa\n• Dịch vụ và giá cả\n• Cách đặt lịch khám",
+                "Tôi là trợ lý ảo của phòng khám. Hãy hỏi tôi về bác sĩ, dịch vụ, hoặc cách đặt lịch nhé! 😊"
+            };
+
+            return responses[new Random().Next(responses.Length)];
+        }
+
+        private string NormalizeMessage(string message)
+        {
+            message = message.ToLower().Trim();
+            message = Regex.Replace(message, @"\s+", " ");
+            // Loại bỏ dấu tiếng Việt để dễ so sánh
+            message = RemoveVietnameseTones(message);
+            return message;
+        }
+
+        private double CalculateSimilarity(string s1, string s2)
+        {
+            var longer = s1.Length > s2.Length ? s1 : s2;
+            var shorter = s1.Length > s2.Length ? s2 : s1;
+
+            if (longer.Length == 0) return 1.0;
+
+            // Tính Levenshtein distance
+            var distance = LevenshteinDistance(longer, shorter);
+            return (longer.Length - distance) / (double)longer.Length;
+        }
+
+        private int LevenshteinDistance(string s1, string s2)
+        {
+            var matrix = new int[s1.Length + 1, s2.Length + 1];
+
+            for (int i = 0; i <= s1.Length; i++)
+                matrix[i, 0] = i;
+
+            for (int j = 0; j <= s2.Length; j++)
+                matrix[0, j] = j;
+
+            for (int i = 1; i <= s1.Length; i++)
+            {
+                for (int j = 1; j <= s2.Length; j++)
+                {
+                    var cost = s1[i - 1] == s2[j - 1] ? 0 : 1;
+                    matrix[i, j] = Math.Min(
+                        Math.Min(matrix[i - 1, j] + 1, matrix[i, j - 1] + 1),
+                        matrix[i - 1, j - 1] + cost);
+                }
+            }
+
+            return matrix[s1.Length, s2.Length];
+        }
+
+        private string RemoveVietnameseTones(string text)
+        {
+            var vietnameseChars = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ";
+            var replacements = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd";
+
+            for (int i = 0; i < vietnameseChars.Length; i++)
+            {
+                text = text.Replace(vietnameseChars[i], replacements[i]);
+            }
+
+            return text;
+        }
+    }
+}

@@ -21,8 +21,9 @@ builder.Services.AddScoped<IAuthService>(provider =>
 });
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Chatbot Service
+// Chatbot Services
 builder.Services.AddScoped<ChatbotService>();
+builder.Services.AddScoped<LocalChatbotService>();
 
 // JWT Configuration
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "YourSecretKeyHere";

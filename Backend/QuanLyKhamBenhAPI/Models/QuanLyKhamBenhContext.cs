@@ -49,6 +49,8 @@ public partial class QuanLyKhamBenhContext : DbContext
 
     public virtual DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
+    public virtual DbSet<ChatKnowledge> ChatKnowledges { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Appointment>(entity =>
@@ -378,6 +380,18 @@ public partial class QuanLyKhamBenhContext : DbContext
                 entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Value).IsRequired().HasMaxLength(500);
             });
+        });
+
+        modelBuilder.Entity<ChatKnowledge>(entity =>
+        {
+            entity.HasKey(e => e.KnowledgeId);
+            entity.Property(e => e.Question).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Answer).IsRequired();
+            entity.Property(e => e.Category).HasMaxLength(50).HasDefaultValue("general");
+            entity.Property(e => e.UsageCount).HasDefaultValue(0);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

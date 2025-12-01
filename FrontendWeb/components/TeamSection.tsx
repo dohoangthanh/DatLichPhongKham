@@ -15,31 +15,51 @@ interface Doctor {
   imageUrl?: string
 }
 
+interface Stats {
+  doctorCount: number
+  specialtyCount: number
+  satisfactionRate: number
+  support24_7: boolean
+}
+
 const TeamSection: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [stats, setStats] = useState<Stats>({
+    doctorCount: 50,
+    specialtyCount: 30,
+    satisfactionRate: 98,
+    support24_7: true
+  })
   const [loading, setLoading] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchData = async () => {
       try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
-        const response = await fetch(`${API_URL}/doctors`)
-        if (response.ok) {
-          const data = await response.json()
-          console.log('Doctors data:', data) // Debug log
-          // Lấy 8 bác sĩ trực tiếp
-          setDoctors(data.slice(0, 8))
+        
+        // Fetch doctors
+        const doctorsResponse = await fetch(`${API_URL}/doctors`)
+        if (doctorsResponse.ok) {
+          const doctorsData = await doctorsResponse.json()
+          setDoctors(doctorsData.slice(0, 8))
+        }
+
+        // Fetch statistics
+        const statsResponse = await fetch(`${API_URL}/statistics/homepage`)
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json()
+          setStats(statsData)
         }
       } catch (error) {
-        console.error('Error fetching doctors:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchDoctors()
+    fetchData()
   }, [])
 
   // Auto-scroll effect
@@ -166,15 +186,15 @@ const TeamSection: React.FC = () => {
         <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-8 mt-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">50+</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">{stats.doctorCount}+</p>
               <p className="text-gray-700 font-medium">Bác sĩ chuyên khoa</p>
             </div>
             <div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">30+</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">{stats.specialtyCount}+</p>
               <p className="text-gray-700 font-medium">Chuyên khoa</p>
             </div>
             <div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">98%</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">{stats.satisfactionRate}%</p>
               <p className="text-gray-700 font-medium">Hài lòng</p>
             </div>
             <div>
