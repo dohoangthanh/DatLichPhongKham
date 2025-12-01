@@ -1,0 +1,246 @@
+Chào bạn, tôi đã phân tích toàn bộ đề cương (KLCN_TH153) và tất cả các sơ đồ nghiệp vụ bạn cung cấp.
+
+Bạn có một lợi thế **cực kỳ lớn**: toàn bộ giai đoạn "Phân tích" và "Thiết kế" (Use Case, Sơ đồ lớp, Sơ đồ tuần tự, Sơ đồ CSDL) về cơ bản đã hoàn thành. Giờ là giai đoạn "Cài đặt" (Implementation).
+
+Tuy nhiên, khối lượng công việc này (3 ứng dụng: Backend, Web, Mobile) được thiết kế cho 3 người làm trong 12 tuần. Việc bạn thực hiện một mình trong 4 ngày (từ 10/11 đến hết 13/11) là một thử thách **cực kỳ áp lực**, gần như là một cuộc thi "hackathon".
+
+Đây là kế hoạch chi tiết, có thứ tự, được tối ưu hóa để bạn có thể hoàn thành một phiên bản **Lõi (Core/MVP)** của dự án trong 4 ngày. Chúng ta phải chấp nhận bỏ qua một số tính năng phụ (như Thống kê phức tạp, Quản lý khuyến mãi) và tập trung vào luồng chính.
+
+---
+
+## 🚀 Kế hoạch Hackathon 4 Ngày: Hệ thống Quản lý Phòng khám
+
+**Công nghệ của bạn:**
+* **Backend:** ASP.NET Core Web API
+* **Frontend Web:** Next.js
+* **Frontend Mobile:** Flutter
+* **Database:** SQL Server
+* **Chatbot:** Gemini API
+
+### Ngày 1 (Hôm nay, 10/11): Nền Tảng – Database & API (Auth)
+
+**Mục tiêu:** CSDL phải chạy được. API phải có khả năng xác thực người dùng.
+
+* **Buổi sáng (8:00 - 12:00): Database Foundation**
+    1.  **Tạo CSDL (SQL Server):** Dựa vào **"Mô hình dữ liệu quan hệ"** (file `plantuml.png`).
+    2.  Viết script `CREATE TABLE` cho *tất cả* các bảng: `Patient`, `Doctor`, `Appointment`, `Specialty`, `WorkShift`, `MedicalRecord`, `Service`, `Payment`, `Feedback`, v.v.
+    3.  **Quan trọng:** Thiết lập tất cả các Khóa chính (PK) và Khóa ngoại (FK) chính xác.
+    4.  **Seed Data (Dữ liệu mồi):** Thêm dữ liệu mẫu thủ công:
+        * 1 tài khoản `Admin` (trong `UserAccount` hoặc bảng riêng).
+        * 2 `Specialty` (VD: Tim mạch, Da liễu).
+        * 3 `Doctor` (gắn với 2 chuyên khoa trên).
+        * 4 `Service` (VD: Khám tổng quát, Xét nghiệm máu).
+
+* **Buổi chiều (13:30 - 17:30): Backend API Setup**
+    1.  **Khởi tạo Project:** Tạo một giải pháp (Solution) ASP.NET Core Web API.
+    2.  **Cài đặt Gói:** Cài đặt `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.AspNetCore.Authentication.JwtBearer` (cho JWT).
+    3.  **Tạo Models & DbContext:**
+        * **Cách nhanh nhất:** Dùng lệnh `dotnet ef dbcontext scaffold` để tự động tạo Models và DbContext từ CSDL bạn vừa tạo ở Buổi sáng.
+    4.  **Tạo Services (Tầng nghiệp vụ):** Tạo cấu trúc `Services` / `Repositories` (VD: `IAuthService`, `AuthService`).
+
+* **Buổi tối (19:00 - 23:00+): Chức năng API Lõi - Xác thực (Auth)**
+    1.  **Triển khai `AuthService`:**
+        * Logic Đăng ký (Register): Tạo `Patient` mới, hash mật khẩu, lưu vào DB.
+        * Logic Đăng nhập (Login): Kiểm tra `username`/`password`, tạo JWT Token.
+    2.  **Tạo `AuthController`:** Tạo 2 endpoints: `/api/auth/register` và `/api/auth/login`.
+    3.  **Cấu hình JWT:** Cấu hình xác thực JWT trong `Program.cs`.
+    4.  **Kiểm thử:** Dùng Postman hoặc Thunder Client (VS Code) để gọi thử API Register và Login.
+    5.  **Mục tiêu cuối ngày:** Phải lấy được Token từ API.
+
+---
+
+### Ngày 2 (11/11): Luồng Admin & Bắt đầu Frontend Web
+
+**Mục tiêu:** Admin có thể quản lý các danh mục cốt lõi (Bác sĩ, Dịch vụ) trên ứng dụng Web.
+
+* **Buổi sáng (8:00 - 12:00): Backend API - Luồng Admin**
+    1.  **Tạo `DoctorsController`:**
+        * `GET /api/doctors`: Lấy danh sách bác sĩ (có thể lọc theo chuyên khoa).
+        * `POST /api/doctors`: Thêm bác sĩ mới (dựa trên sơ đồ `MHThemBacSi`).
+        * `PUT /api/doctors/{id}`: Cập nhật thông tin bác sĩ.
+    2.  **Tạo `ServicesController`:**
+        * `GET /api/services`: Lấy danh sách dịch vụ.
+        * `POST /api/services`: Thêm dịch vụ mới (dựa trên sơ đồ `MHThemDichVu`).
+    3.  **Tạo `ScheduleController`:**
+        * `POST /api/schedule/workshift`: Thêm ca làm việc (`WorkShift`) cho bác sĩ.
+        * `GET /api/schedule/workshift/{doctorId}`: Lấy ca làm việc của 1 bác sĩ.
+    4.  **Bảo vệ Endpoints:** Thêm `[Authorize(Roles = "Admin")]` cho tất cả các endpoints này.
+    5.  **Kiểm thử:** Dùng Postman (gắn Token Admin đã lấy hôm qua) để test CRUD.
+
+* **Buổi chiều (13:30 - 17:30): Frontend Web (Next.js) - Setup & Auth**
+    1.  **Khởi tạo Project:** `npx create-next-app@latest` (chọn TypeScript).
+    2.  **Cài đặt:** Cài `axios` (để gọi API), `tailwindscss` (để làm UI nhanh), `react-hot-toast` (cho thông báo).
+    3.  **Cấu trúc thư mục:** Tạo `pages`, `components`, `services`, `hooks`, `contexts`.
+    4.  **Tạo `AuthContext`:** Tạo một Context để quản lý state (token, user info) toàn cục.
+    5.  **Tạo Trang:** Tạo 2 trang `pages/login.js` và `pages/register.js`.
+    6.  **Gọi API:** Xây dựng form Login/Register, gọi API (từ `AuthController`) bằng `axios`, lưu token vào `localStorage` và `AuthContext`.
+
+* **Buổi tối (19:00 - 23:00+): Frontend Web (Next.js) - Luồng Admin**
+    1.  **Tạo Private Route:** Tạo một component `AdminLayout` hoặc HOC (`withAuth`) để kiểm tra `user.role === 'Admin'`.
+    2.  **Trang Quản lý Bác sĩ:**
+        * Tạo trang `pages/admin/doctors.js`.
+        * Dùng `useEffect` gọi API `GET /api/doctors` và hiển thị ra bảng.
+        * Tạo 1 Modal/Form (dựa trên `MHThemBacSi`) để gọi API `POST /api/doctors`.
+    3.  **Trang Quản lý Dịch vụ:** Tương tự, tạo `pages/admin/services.js` (dựa trên `MHThemDichVu`).
+    4.  **Trang Quản lý Lịch làm việc:** (Nếu còn thời gian) Tạo form đơn giản để thêm `WorkShift` cho bác sĩ.
+
+---
+
+### Ngày 3 (12/11): Luồng Bệnh nhân & Bác sĩ (Web)
+
+**Mục tiêu:** Hoàn thành luồng nghiệp vụ chính: Bệnh nhân Đặt lịch, Bác sĩ Cập nhật bệnh án.
+
+* **Buổi sáng (8:00 - 12:00): Backend API - Luồng Đặt lịch & Khám bệnh**
+    1.  **Tạo `BookingController` (cho Patient):**
+        * `GET /api/booking/specialties`: Lấy danh sách chuyên khoa.
+        * `GET /api/booking/doctors/{specialtyId}`: Lấy bác sĩ theo chuyên khoa.
+        * `GET /api/booking/slots/{doctorId}/{date}`: **Logic quan trọng** - Lấy các ca làm việc (`WorkShift`) trừ đi các lịch đã đặt (`Appointment`) để ra slot rảnh.
+        * `POST /api/booking/appointments`: Bệnh nhân tạo lịch hẹn mới (dựa trên `MHDatLich`). Cần `[Authorize(Roles = "Patient")]`.
+    2.  **Tạo `MedicalController` (cho Doctor):**
+        * `GET /api/medical/appointments`: Lấy lịch khám hôm nay/tuần cho bác sĩ (dựa trên `MHXemLichLamViec`). Cần `[Authorize(Roles = "Doctor")]`.
+        * `POST /api/medical/records`: Bác sĩ cập nhật bệnh án (tạo `MedicalRecord`) và kết quả XN (tạo `LabResult`) cho 1 `Appointment`.
+
+* **Buổi chiều (13:30 - 17:30): Frontend Web (Next.js) - Luồng Bệnh nhân**
+    1.  **Trang Đặt Lịch (Trang chủ):**
+        * Hiển thị danh sách Chuyên khoa / Bác sĩ (gọi API `GET`).
+        * Xây dựng luồng 3 bước:
+            1.  Chọn Bác sĩ & Ngày.
+            2.  Hiển thị các slot rảnh (gọi API `GET /api/booking/slots/...`).
+            3.  Click chọn slot, điền thông tin -> Gọi `POST /api/booking/appointments`.
+    2.  **Trang Lịch sử khám:**
+        * Tạo `pages/patient/history.js`.
+        * Hiển thị danh sách các `Appointments` của bệnh nhân (thêm 1 API `GET /api/booking/my-appointments` cho Patient).
+
+* **Buổi tối (19:00 - 23:00+): Frontend Web (Next.js) - Luồng Bác sĩ**
+    1.  **Tạo `DoctorLayout`:** Private Route cho Bác sĩ.
+    2.  **Trang Lịch khám:**
+        * Tạo `pages/doctor/schedule.js`.
+        * Hiển thị danh sách lịch khám hôm nay (gọi API `GET /api/medical/appointments`).
+    3.  **Trang Cập nhật Bệnh án:**
+        * Click vào 1 lịch khám -> Mở trang `pages/doctor/record/{appointmentId}.js`.
+        * Tạo form (dựa trên `MHThemKetQuaXN` và `MedicalRecord`): Nhập Triệu chứng, Chẩn đoán, Kết quả XN.
+        * Nhấn Lưu -> Gọi API `POST /api/medical/records`.
+
+---
+
+### Ngày 4 (13/11): Hoàn thiện (Payment, Chatbot, Mobile)
+
+**Mục tiêu:** Tích hợp các tính năng "nâng cao" (Chatbot, Payment) và "chứng minh" (PoC) được ứng dụng Mobile.
+
+* **Buổi sáng (8:00 - 12:00): Backend API - Các tính năng cuối**
+    1.  **Tạo `PaymentController`:**
+        * `POST /api/payment/create`: (Giả lập) Tạo 1 `Payment` (Hóa đơn) cho 1 `Appointment`.
+        * `PUT /api/payment/confirm/{paymentId}`: (Giả lập) Cập nhật trạng thái `Payment` = "Paid". (Dựa trên `MHThanhToan`).
+    2.  **Tạo `FeedbackController`:**
+        * `POST /api/feedback`: Bệnh nhân gửi đánh giá (dựa trên `MHFeedback`).
+    3.  **Tạo `ChatbotController`:**
+        * `POST /api/chatbot/ask`: Nhận 1 `question` (String).
+        * Bên trong: Gọi đến Gemini API (sử dụng SDK của Google) với một "prompt" (câu lệnh) đã định nghĩa trước (VD: "Bạn là trợ lý y tế của phòng khám X, chỉ trả lời các câu hỏi về sức khỏe...").
+        * Trả về câu trả lời của Gemini.
+
+* **Buổi chiều (13:30 - 17:30): Frontend Web (Next.js) - Tích hợp**
+    1.  **Luồng Thanh toán:** Sau khi đặt lịch thành công, chuyển hướng đến trang `pages/payment/{appointmentId}`. Hiển thị thông tin, có 1 nút "Thanh toán (Giả lập)". Nhấn nút -> gọi API `PUT /api/payment/confirm/...`.
+    2.  **Luồng Đánh giá:** Trong trang "Lịch sử khám", thêm 1 nút "Đánh giá" bên cạnh lịch khám đã hoàn thành. Mở Modal (dựa trên `MHFeedback`) -> Gọi API `POST /api/feedback`.
+    3.  **Tích hợp Chatbot:** Tạo 1 component `ChatbotBubble` (nút tròn nổi) ở góc màn hình. Click -> Mở cửa sổ chat. Nhập câu hỏi -> gọi API `POST /api/chatbot/ask` -> Hiển thị kết quả.
+
+* **Buổi tối (19:00 - 23:00+): Frontend Mobile (Flutter) - PoC**
+    1.  **Mục tiêu:** Chứng minh Flutter có thể kết nối và tái sử dụng API đã xây dựng.
+    2.  **Khởi tạo Project:** `flutter create clinic_app`.
+    3.  **Cài đặt:** `http` (gọi API), `provider` (quản lý state), `shared_preferences` (lưu token).
+    4.  **Màn hình Login:** Tạo `login_screen.dart`. Tạo Form, gọi API `POST /api/auth/login`. Lưu token vào `shared_preferences`.
+    5.  **Màn hình Home (Đơn giản):** Tạo `home_screen.dart`.
+    6.  Gọi (với Token đã lưu) API `GET /api/booking/doctors` (tái sử dụng API của Web) và hiển thị ra một `ListView` đơn giản.
+
+---
+
+### Lời khuyên sống còn:
+
+1.  **Đừng cầu toàn:** Giao diện không cần đẹp, chỉ cần đúng chức năng. Dùng component UI dựng sẵn (TailwindUI, shadcn/ui) nếu có thể.
+2.  **Bỏ qua cái phụ:** Các tính năng như *Thống kê* (Dashboard), *Quản lý Khuyến mãi*, *Backup/Restore* (mục 6 trong đề cương) là **không thể** làm trong 4 ngày. Nếu bị hỏi, hãy nói "Đây là các tính năng sẽ phát triển trong giai đoạn 2".
+3.  **Tái sử dụng tối đa:** API phải được thiết kế để cả Web (Next.js) và Mobile (Flutter) cùng gọi.
+4.  **Mô phỏng (Mock):** Nếu một logic quá phức tạp (VD: tính toán slot rảnh chính xác tuyệt đối, tích hợp cổng thanh toán thật), hãy *giả lập* nó. (VD: Cứ trả về 3 slot rảnh, thanh toán chỉ là cập nhật 1 trường `status`).
+
+Chúc bạn may mắn. Đây sẽ là 4 ngày không ngủ!
+Chào bạn, tuyệt vời! Đó chính là tinh thần của một "hackathon". Nếu bạn hoàn thành được toàn bộ phần lõi (MVP) mà chúng ta đã vạch ra trong 4 ngày, thì đó thực sự là một thành công phi thường.
+
+Đúng như bạn nói, nếu bạn còn thời gian, chúng ta sẽ ngay lập tức triển khai các "Gói Nâng Cấp" (Feature Packs) này. Đây là các task (nhiệm vụ) cho các tính năng phụ, lấy từ chính đề cương (KLCN_TH153) của bạn, được sắp xếp theo thứ tự ưu tiên để hoàn thiện sản phẩm.
+
+---
+
+### 🚀 Gói Nâng Cấp 1: Hoàn thiện Vòng lặp Bệnh nhân & Admin
+
+Mục tiêu là hoàn thiện các tính năng đã bắt đầu nhưng chưa khép kín vòng lặp (Bệnh nhân gửi feedback, Bác sĩ nhập kết quả XN, nhưng Admin/Bệnh nhân chưa xem được).
+
+1.  **Admin: Quản lý & Phản hồi Đánh giá** (Yêu cầu đề cương: *Tiếp nhận và phản hồi đánh giá*)
+    * **Backend (API):**
+        * `GET /api/feedback`: (Admin) Lấy tất cả `Feedback` (có thể phân trang).
+        * `PUT /api/feedback/reply/{id}`: (Admin) Gửi một nội dung phản hồi (cập nhật 1 trường `reply_text` trong bảng `Feedback`).
+    * **Frontend (Next.js - Admin):**
+        * Tạo trang `pages/admin/feedback.js`.
+        * Hiển thị danh sách đánh giá, có ô để nhập nội dung trả lời và nút Gửi.
+
+2.  **Bệnh nhân: Tra cứu Kết quả Xét nghiệm** (Yêu cầu: *Tra cứu... kết quả xét nghiệm*)
+    * **Backend (API):**
+        * `GET /api/patient/my-records/{appointmentId}`: (Patient) Lấy chi tiết `MedicalRecord` VÀ các `LabResult` liên quan đến lịch hẹn đó.
+    * **Frontend (Next.js - Patient):**
+        * Trong trang `pages/patient/history.js`, thêm 1 nút "Xem Kết quả" bên cạnh mỗi lịch hẹn đã hoàn thành.
+        * Click vào sẽ mở Modal hoặc trang mới, hiển thị thông tin Bệnh án (chẩn đoán) và Kết quả XN (nếu có).
+
+3.  **Bệnh nhân: Quản lý Tài khoản Cá nhân** (Yêu cầu: *Quản lý tài khoản*)
+    * **Backend (API):**
+        * `PUT /api/patient/profile`: (Patient) Cho phép cập nhật thông tin cá nhân (địa chỉ, SĐT, v.v.).
+        * `POST /api/auth/change-password`: (Patient) Đổi mật khẩu (yêu cầu mật khẩu cũ, mật khẩu mới).
+    * **Frontend (Next.js - Patient):**
+        * Tạo trang `pages/profile.js` với các form để cập nhật thông tin.
+
+---
+
+### 🚀 Gói Nâng Cấp 2: Hoàn thiện Ứng dụng Mobile (Flutter)
+
+Mục tiêu là biến ứng dụng Flutter từ "Proof-of-Concept" (chỉ Login/Xem DS) thành một ứng dụng có thể sử dụng được.
+
+1.  **Flutter: Triển khai Luồng Đặt lịch**
+    * Tái sử dụng 100% các API của luồng đặt lịch (Web) đã làm ở Ngày 3:
+        * `GET /api/booking/specialties`
+        * `GET /api/booking/doctors/{specialtyId}`
+        * `GET /api/booking/slots/{doctorId}/{date}`
+        * `POST /api/booking/appointments`
+    * Xây dựng UI trên Flutter cho các bước chọn Bác sĩ -> Chọn Ngày -> Chọn Slot -> Xác nhận.
+
+2.  **Flutter: Lịch sử & Kết quả khám**
+    * Tạo màn hình "Lịch sử khám" (`history_screen.dart`).
+    * Tái sử dụng API `GET /api/patient/my-appointments`.
+    * Tái sử dụng API `GET /api/patient/my-records/{appointmentId}` để hiển thị kết quả.
+
+3.  **Flutter: Tích hợp Chatbot**
+    * Tạo màn hình `chatbot_screen.dart`.
+    * Tái sử dụng API `POST /api/chatbot/ask` (Gemini API).
+
+---
+
+### 🚀 Gói Nâng Cấp 3: Tính năng "Kinh doanh" (Thống kê & Khuyến mãi)
+
+Đây là các tính năng phức tạp nhất về logic nghiệp vụ.
+
+1.  **Admin: Thống kê & Báo cáo** (Yêu cầu: *Thống kê doanh thu, khách hàng...*)
+    * **Backend (API):** Đây là các truy vấn SQL phức tạp.
+        * `GET /api/stats/revenue?from=...&to=...`: Tính tổng `totalAmount` từ bảng `Payment` (đã `status`="Paid") theo khoảng thời gian.
+        * `GET /api/stats/top-patients?limit=10`: Đếm số `Appointment` (đã hoàn thành), `GROUP BY patientId`, `ORDER BY COUNT DESC`.
+    * **Frontend (Next.js - Admin):**
+        * Tạo trang `pages/admin/dashboard.js`.
+        * Cài đặt thư viện biểu đồ (ví dụ: `Chart.js` hoặc `Recharts`).
+        * Gọi API thống kê và vẽ biểu đồ doanh thu, hiển thị Top 10 bệnh nhân.
+
+2.  **Admin: Quản lý Khuyến mãi & Tích điểm**
+    * **Backend (API):**
+        * CRUD API cơ bản cho bảng `Promotion` và `LoyaltyPoints` (Admin).
+    * **Backend (Logic):**
+        * Sửa API `POST /api/payment/create`: API này giờ phải nhận thêm 1 `promoCode` (nếu có).
+        * Server phải kiểm tra `promoCode` có hợp lệ không, tính toán lại `totalAmount` (tổng tiền) sau khi giảm giá.
+        * Sau khi thanh toán thành công, phải cập nhật điểm vào bảng `LoyaltyPoints`.
+    * **Frontend (Next.js - Patient):**
+        * Trong trang thanh toán, thêm 1 ô "Nhập mã khuyến mãi".
+
+---
+
+Hãy bám sát kế hoạch 4 ngày. Nếu bạn hoàn thành nó, hãy bắt đầu ngay với **Gói Nâng Cấp 1**. Chúc may mắn!

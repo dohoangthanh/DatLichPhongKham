@@ -1,0 +1,996 @@
+Tôi muốn xây dựng dự án này
+Nghiệp vụ:
+ĐỀ CƯƠNG CHI TIẾT
+KHÓA LUẬN TỐT NGHIỆP NGÀNH CNTT NĂM HỌC 2025 – 2026
+
+1.	Mã đề tài: KLCN_TH153
+2.	Tên đề tài: Xây dựng hệ thống quản lý phòng khám
+3.	Định hướng đề tài: 
+☑ Định hướng quản lý	• Định hướng nghiên cứu 	• Định hướng MMT
+4.	Thông tin GVHD
+−	Họ tên giảng viên: Nguyễn Thị Thu Tâm
+−	Điện thoại: 0909927572 
+−	Email: tamntt@huit.edu.vn  
+5.	Nhóm sinh viên thực hiện đề tài
+1)	Trương Thế Quyền 	MSSV: 2001224046 	Lớp: 13DHTH06
+2)	Trần Anh Quốc	MSSV: 2001223984 	Lớp: 13DHTH06
+3)	Đỗ Hoàng Thanh	MSSV: 2001224690	Lớp: 13DHTH04
+6.	Mục tiêu 
+	Khảo sát, phân tích, thiết kế một hệ thống quản lý phòng khám.
+	Cài đặt và triển khai được ứng dụng đáp ứng yêu cầu thực tế.
+	Lập kế hoạch thực hiện đề tài khóa luận, phân công công việc giữa các thành viên một cách phù hợp. 
+	Rèn luyện được tính tự học, tự nghiên cứu trong quá trình giải quyết công việc, đồng thời phối hợp nhóm để hoàn thành công việc chung.
+	Có tinh thần trách nhiệm trong công việc: hoàn thành các nhiệm vụ được giao đúng tiến độ, tìm cách nâng cao hiệu quả của ứng dụng.
+	Sáng tạo trong việc đề xuất giải pháp, kiên nhẫn và cố gắng trong quá trình nghiên cứu và triển khai.
+7.	Yêu cầu
+Các nội dung cụ thể cần thực hiện:
+	Mô hình hóa các qui trình nghiệp vụ bằng sơ đồ usecase và đặc tả.
+	Thiết kế sơ đồ lớp mức phân tích, sơ đồ lớp mức thiết kế, mô hình dữ liệu.
+	Thiết kế giao diện và các chức năng của hệ thống.
+	Cài đặt các chức năng của hệ thống trên nền tảng web và mobile.
+	Về phía khách hàng:
++ Tạo và quản lý tài khoản
++ Tìm kiếm đặt lịch khám trực tiếp
++ Tra cứu lịch sử khám và kết quả xét nghiệm
++ Thanh toán trực tuyến 
++ Đánh giá và phản hồi 
+	Về phía Bác sĩ:
++ Xem lịch khám trong ngày, tuần
++ Cập nhật hồ sơ khám bệnh
++ Quản lý bệnh án điện tử
+	Về phía admin:
++ Quản lý danh mục phòng khám (chuyên khoa, bác sĩ, lịch làm việc) 
++ Quản lý hồ sơ khách hàng
++ Quản lý lịch khám, dịch vụ khám bệnh
++ Quản lý ca làm việc
++ Tiếp nhận và phản hồi đánh giá dịch vụ
++ Thống kê (doanh thu phòng khám, khách hàng có lượt khám nhiều nhất theo thời gian quy định và các chính sách khuyến mãi, tích điểm)
++ Xây dựng chatbot để hỗ trợ tư vấn khách hàng.
+	Kiểm thử và triển khai ứng dụng.
+	Hoàn chỉnh báo cáo theo biểu mẫu qui định. 
+	Trình bày đồ án trước giáo viên hướng dẫn và hội đồng đánh giá.
+8.	Môi trường thực hiện
+	Hệ quản trị CSDL SQL Server
+	Nền tảng lập trình: ASP.NET Core
+	Microsoft Office: Word, Power Point
+9.	Thời gian thực hiện: 12 tuần (từ ngày 08/09/2025 tới ngày 30/11/2025)
+10.	Thang điểm
+STT	Nội dung	CLO	Điểm
+1	Khảo sát nghiệp vụ, mô hình hóa nghiệp vụ 
+	Xác định lý do, mục tiêu đề tài
+	Khảo sát hiện trạng: Cơ cấu tổ chức, Qui trình, biểu mẫu	CLO1.1	
+0.25
+0.5
+2	Lập kế hoạch và phân công thực hiện công việc	CLO6	0.25
+3	Phân tích hệ thống
+	Thiết kế sơ đồ Use-Case nghiệp vụ.
+	Thiết kế sơ đồ Use-Case hệ thống.
+	Sơ đồ lớp lớp phân tích	CLO1.2	
+0.25
+0.25
+0.25
+4	Thiết kế hệ thống
+	Sơ đồ lớp thiết kế
+	Mô hình dữ liệu	CLO2.1
+	
+0.25
+0.25
+	Thiết kế giao diện	CLO2.2	0.5
+5	Xây dựng API hệ thống
+Phân tích các chức năng trên các nền tảng	CLO1.1	0.25
+0.25
+6	Xây dựng các chức năng cơ bản của ứng dụng: đăng nhập, đăng xuất, backup & restore,…
+Cài đặt các chức năng sau:
+	Về phía khách hàng: trên 2 nền tảng Web và App
++ Tạo và quản lý tài khoản
++ Tìm kiếm đặt lịch khám trực tiếp
++ Thanh toán trực tuyến
+	Về phía Bác sĩ:
++ Cập nhật hồ sơ khám bệnh
++ Quản lý bệnh án điện tử
+	Về phía admin:
++ Quản lý danh mục phòng khám (chuyên khoa, bác sĩ, lịch làm việc) 
++ Quản lý hồ sơ khách hàng
++ Quản lý lịch khám, dịch vụ khám bệnh
++ Quản lý ca làm việc
++ Tiếp nhận và phản hồi đánh giá dịch vụ
++ Thống kê (doanh thu phòng khám, khách hàng có lượt khám nhiều nhất theo thời gian quy định và các chính sách khuyến mãi, tích điểm)
++ Xây dựng chatbot để hỗ trợ tư vấn khách hàng.	CLO3
+	0.5
+
+3.5
+
+0.25
+0.25
+0.25
+
+0.25
+0.25
+
+0.25
+
+0.25
+0.25
+0.25
+0.25
+
+
+0.5
+
+
+0.5
+	Kiểm thử và triển khai hệ thống	CLO4	0.75
+7	Nội dung kiến thức trình bày trong quyển báo cáo.	CLO5.1	0.5
+8	Hình thức, định dạng quyển báo cáo.	CLO5.1	0.5
+9	Thái độ, tác phong làm việc 	CLO6	0.5
+10	Phong cách báo cáo, Slide.	CLO5.2	0.5
+11	Cộng điểm khuyến khích cho nhóm sinh viên tham gia thực hiện NCKH liên quan nội dung đề tài (tổng điểm chung không vượt quá 10 điểm)
+	Thi SV NCKH đạt giải cấp khoa
+	Thi SV NCKH đạt giải cấp trường
+	Có bài báo đăng hội thảo cấp khoa
+	Có bài báo đăng tạp chí khoa học cấp trường trở lên		
+
+0.5
+1.0
+0.5
+1.0
+Tổng cộng		10.0
+11.	Thời gian và các công việc trong tuần:
+Tuần	Nội dung công việc
+1			Lập kế hoạch, phân chia công việc trong nhóm.
+	Khảo sát hiện trạng hệ thống quản lý phòng khám.
+	 Mô tả chi tiết từng qui trình thực tế đang diễn ra.
+2			Phân tích hệ thống dữ liệu khảo sát và lập mô hình usecase nghiệp vụ
+	Lập sơ đồ hoạt động (Activity diagram) để đặc tả cho từng use case trong mô hình use case nghiệp vụ (mỗi mô hình có đầy đủ các đối tượng như
+thừa tác viên, thực thể nghiệp vụ,…)
+3			Lập mô hình use case hệ thống
+	Lập bảng đặc tả cho từng use case
+4			Lập sơ đồ lớp mức phân tích
+	Thiết kế cơ sở dữ liệu.
+5			Lập sơ đồ lớp mức thiết kế
+	Thiết kế giao diện và các chức năng của hệ thống
+6			Cài đặt chức năng đăng nhập, đăng xuất, backup & restore,…
+	Về phía khách hàng:
++ Tạo và quản lý tài khoản
++ Tìm kiếm đặt lịch khám trực tiếp
++ Tra cứu lịch sử khám và kết quả xét nghiệm
+7			Về phía khách hàng:
++ Thanh toán trực tuyến 
++ Đánh giá và phản hồi 
+8			Về phía Bác sĩ:
++ Xem lịch khám trong ngày, tuần
++ Cập nhật hồ sơ khám bệnh
++ Quản lý bệnh án điện tử
+9			Về phía admin:
++ Quản lý danh mục phòng khám (chuyên khoa, bác sĩ, lịch làm việc) 
++ Quản lý hồ sơ khách hàng
+10			Về phía admin:
++ Quản lý lịch khám, dịch vụ khám bệnh
++ Quản lý ca làm việc
++ Tiếp nhận và phản hồi đánh giá dịch vụ
+11			Về phía admin:
++ Thống kê (doanh thu phòng khám, khách hàng có lượt khám nhiều nhất theo thời gian quy định và các chính sách khuyến mãi, tích điểm)
++ Xây dựng chatbot để hỗ trợ tư vấn khách hàng.
+12			Hoàn chỉnh báo cáo.
+	Thiết kế bài báo cáo trên PowerPoint.
+	Nộp báo cáo.
+12.	Tài liệu tham khảo
+[1]. 	Phạm Nguyễn Cương, Nguyễn Trần Minh Thư, Hồ Bảo Quốc, Giáo trình Phân tích thiết kế hệ thống thông tin theo hướng đối tượng, Nhà xuất bản Khoa học và kỹ thuật, 2016
+[2]. 	Ian Sommerville, Software Engineering (10th ed.), Addison Wesley, 2016
+[3]. 	Khoa CNTT, Bài giảng Lập trình web, Lưu hành nội bộ 
+[4]. 	https://react.dev/learn
+[5]. 	https://www.typescriptlang.org/docs/
+[6]. 	https://jwt.io/introduction
+[7]. 	https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-webapi?view=aspnetcore-7.0&tabs=visual-studio
+13.	Một số yêu cầu khác
+−	Số lượng SV tối đa thực hiện đề tài: 3 sinh viên.
+−	Có khả năng và tư duy lập trình, đọc hiểu tiếng Anh,…
+−	Gặp giảng viên hướng dẫn ít nhất 1 lần/tuần, thực hiện đề tài theo sự phân công của giảng viên hướng dẫn. Trước mỗi buổi báo cáo, sinh viên phải tích hợp những nội dung được phân công vào chung trong một tài liệu/ phần mềm.
+	Tp.HCM, ngày  tháng  năm 2025
+	Trưởng bộ môn	Giảng viên hướng dẫn
+	(ký và ghi rõ họ tên)	(ký và ghi rõ họ tên)
+	
+
+	Nguyễn Văn Lễ	Nguyễn Thị Thu Tâm
+
+## 1. Xác định lý do & mục tiêu đề tài
+
+### 1.1. Lý do chọn đề tài
+
+* Hoạt động của phòng khám (đặt lịch khám, tiếp nhận bệnh nhân, lưu trữ hồ sơ khám bệnh, quản lý bác sĩ, dịch vụ, thanh toán…) thường có nhiều thủ tục thủ công, dùng giấy tờ, dữ liệu phân tán, dẫn đến:
+
+  * Chờ đợi lâu, xếp hàng, sổ sách/phiếu thủ công. ([curogram.com][1])
+  * Thông tin hồ sơ bệnh nhân, lịch sử khám bệnh không được tra cứu nhanh, dễ bị sai sót. ([Kissflow][2])
+  * Việc đặt lịch, sắp xếp bác sĩ, dịch vụ và thanh toán chưa được tối ưu, dẫn tới lãng phí nguồn lực, khách hàng không thoả mái. ([keragon.com][3])
+* Xu hướng chuyển đổi số trong lĩnh vực y tế: việc ứng dụng hệ thống quản lý phòng khám (Clinic Management System) giúp nâng cao hiệu quả vận hành, giảm sai sót, cải thiện trải nghiệm bệnh nhân. ([KareXpert][4])
+* Nhóm sinh viên ngành CNTT có khả năng xây dựng một hệ thống Web/Mobile theo yêu cầu là phù hợp với định hướng quản lý ngành. Việc thực hiện đề tài sẽ giúp rèn luyện kỹ năng phân tích, thiết kế, triển khai phần mềm thực tế.
+
+### 1.2. Mục tiêu đề tài
+
+* Khảo sát, phân tích và thiết kế được **mô hình nghiệp vụ** cho phòng khám (bao gồm các vai trò: khách hàng/bệnh nhân, bác sĩ, admin phòng khám) — từ đặt lịch khám đến thanh toán, quản lý hồ sơ, quản lý dịch vụ.
+* Cài đặt và triển khai ứng dụng Web (và/hoặc Mobile) đáp ứng các chức năng chính: tài khoản khách hàng, tìm kiếm đặt lịch, tra cứu lịch sử khám, kết quả xét nghiệm, thanh toán trực tuyến, đánh giá/ phản hồi; bác sĩ: xem lịch khám, cập nhật hồ sơ khám bệnh, quản lý bệnh án điện tử; admin: quản lý danh mục, quản lý khách hàng, lịch khám, ca làm việc, đánh giá, thống kê, chatbot hỗ trợ.
+* Lập kế hoạch thực hiện đề tài, phân công công việc rõ ràng giữa các thành viên.
+* Rèn luyện khả năng tự học, nghiên cứu, phối hợp nhóm, giữ tinh thần trách nhiệm và sáng tạo trong công việc.
+
+---
+
+## 2. Khảo sát hiện trạng: Cơ cấu tổ chức, Qui trình, Biểu mẫu
+
+### 2.1. Cơ cấu tổ chức / Vai trò trong phòng khám
+
+Một phòng khám thông thường có các vai trò chính sau:
+
+* Bệnh nhân/Khách hàng: đặt lịch khám, đến khám, thanh toán, phản hồi.
+* Tiếp nhận / lễ tân: đăng ký bệnh nhân, kiểm tra thông tin, xác nhận lịch khám, thu tiền/quầy thanh toán.
+* Bác sĩ: thực hiện khám, cập nhật hồ sơ, kết luận bệnh án, gửi yêu cầu xét nghiệm (nếu có).
+* Phòng xét nghiệm / dịch vụ phụ trợ: thực hiện xét nghiệm, trả kết quả.
+* Nhà thuốc/thuốc: (nếu phòng khám có).
+* Quản trị/ Admin phòng khám: quản lý chuyên khoa, bác sĩ, lịch làm việc, dịch vụ, ca làm việc, khách hàng, báo cáo doanh thu, khuyến mãi, tích điểm.
+* Hỗ trợ (IT, lễ tân dịch vụ, chăm sóc khách hàng): phản hồi đánh giá, hỗ trợ chatbot…
+
+> Ví dụ: một nghiên cứu về hệ thống quản lý phòng khám chỉ ra rằng “clinic management systems has function to arrange and organize the inherent process in the health facility …” ([ResearchGate][5])
+
+### 2.2. Qui trình nghiệp vụ mẫu
+
+Dưới đây là các bước nghiệp vụ điển hình trong phòng khám — bạn có thể khảo sát trực tiếp tại phòng khám thực tế để điều chỉnh chi tiết.
+
+#### Qui trình khách hàng/bệnh nhân
+
+1. Bệnh nhân truy cập (Web/Mobile) hoặc đến lễ tân đặt lịch khám: chọn chuyên khoa, bác sĩ, ngày giờ.
+2. Hệ thống xác nhận lịch (qua điện thoại, SMS, email hoặc tự động).
+
+   * Việc đặt lịch trực tuyến giúp giảm chờ đợi và tối ưu lịch bác sĩ. ([keragon.com][3])
+3. Bệnh nhân đến phòng khám đúng ngày giờ: đăng ký tại lễ tân (kiểm tra thông tin, tạo hoặc cập nhật hồ sơ bệnh nhân).
+4. Bác sĩ khám: xem hồ sơ, nhập kết quả khám, chỉ định xét nghiệm hoặc dịch vụ nếu cần, cập nhật bệnh án điện tử.
+5. Nếu xét nghiệm/dịch vụ phụ trợ: bệnh nhân đến phòng xét nghiệm làm xét nghiệm, kết quả được trả (có thể online).
+6. Thanh toán: bệnh nhân thanh toán dịch vụ, xét nghiệm, thuốc (nếu có) — có thể hỗ trợ thanh toán trực tuyến hoặc tại quầy.
+7. Kết thúc: bệnh nhân nhận hoá đơn, kết quả, có thể đánh giá/ phản hồi dịch vụ.
+8. Hệ thống lưu lịch sử khám, kết quả để bệnh nhân có thể tra cứu sau này.
+
+#### Qui trình bác sĩ
+
+* Xem lịch khám (ngày/tuần) từ hệ thống.
+* Thực hiện khám: mở hồ sơ bệnh nhân, nhập thông tin, kết luận, chỉ định dịch vụ, cập nhật bệnh án điện tử.
+* Kết nối với hệ thống xét nghiệm/phòng phụ trợ (nếu có) để theo dõi kết quả.
+* Sau khi khám hoàn tất, bác sĩ xác nhận kết thúc buổi khám, có thể đánh giá phản hồi của bệnh nhân.
+
+#### Qui trình admin / quản trị phòng khám
+
+* Quản lý chuyên khoa, bác sĩ, lịch làm việc, ca khám của bác sĩ.
+* Quản lý hồ sơ khách hàng/bệnh nhân: tạo, sửa, xóa, tra cứu.
+* Quản lý dịch vụ khám bệnh: phí dịch vụ, gói khám, khuyến mãi/ tích điểm.
+* Quản lý lịch khám: kiểm soát lịch đặt, lịch hủy, sắp xếp slot khám, tránh trùng/lãng phí.
+* Quản lý ca làm việc: xác định ca khám, xác định bác sĩ làm việc, phòng khám hoạt động.
+* Tiếp nhận và phản hồi đánh giá dịch vụ từ bệnh nhân.
+* Thống kê: doanh thu phòng khám, số lượng khách hàng có lượt khám nhiều nhất theo thời gian, hiệu quả khuyến mãi/tích điểm.
+* Hỗ trợ chatbot để tư vấn khách hàng (qua Web/Mobile) — giảm tải gọi điện.
+* Báo cáo: tổng hợp dữ liệu, phân tích hiệu suất phòng khám, giám sát và cải tiến quy trình.
+
+### 2.3. Biểu mẫu và dữ liệu cần khảo sát
+
+Khi khảo sát thực tế tại phòng khám, bạn nên thu thập thông tin về các biểu mẫu, dữ liệu sau:
+
+* Biểu mẫu đăng ký bệnh nhân: tên, tuổi, giới tính, địa chỉ, số điện thoại, lịch sử khám bệnh, tiền sử bệnh.
+* Biểu mẫu đặt lịch khám: chuyên khoa, bác sĩ, ngày/giờ, trạng thái (đã xác nhận, hủy, hoàn thành).
+* Biểu mẫu khám bệnh: hồ sơ bệnh nhân, tiền sử, triệu chứng, chẩn đoán, dịch vụ chỉ định, phiếu đặt xét nghiệm/thuốc.
+* Biểu mẫu xét nghiệm/phụ trợ (nếu có): phiếu yêu cầu, kết quả, ngày/giờ thực hiện, kết luận.
+* Biểu mẫu thanh toán: dịch vụ khám, xét nghiệm, thuốc, phương thức thanh toán, ngày/giờ thanh toán, hóa đơn.
+* Biểu mẫu phản hồi/đánh giá dịch vụ: bệnh nhân đánh giá bác sĩ, dịch vụ, lịch khám, tổng thể trải nghiệm.
+* Biểu mẫu lịch làm việc bác sĩ/ca khám: bác sĩ, chuyên khoa, phòng khám, ca làm việc, thời gian bắt đầu/kết thúc.
+* Biểu mẫu khuyến mãi/tích điểm: mã khuyến mãi, khách hàng áp dụng, ngày áp dụng, điểm tích lũy, điều kiện.
+* Dữ liệu thống kê: số lượt khám mỗi bác sĩ, số lượt khám mỗi chuyên khoa, doanh thu theo tháng/quý, số hóa đơn, số khách hàng quay lại, phần trăm đặt lại lịch, số hủy lịch.
+
+### 2.4. Những khó khăn/thách thức thường gặp
+
+* Lịch khám bác sĩ trùng, khách hàng đặt lịch rồi không đến (no-show) dẫn đến slot trống. ([keragon.com][3])
+* Chuyển giao thông tin giữa các bộ phận (lễ tân, bác sĩ, xét nghiệm, kế toán) chưa đồng bộ — gây chậm trễ, sai sót. ([SotaERP][6])
+* Lưu trữ hồ sơ thủ công, tìm kiếm thông tin mất thời gian. ([Kissflow][2])
+* Thanh toán và quản lý tài chính thiếu minh bạch hoặc tích hợp chưa tốt với đặt lịch và dịch vụ. ([BoostedCRM][7])
+* Việc báo cáo, thống kê dữ liệu kém — khó đánh giá hiệu suất phòng khám.
+* Khả năng mở rộng, quản lý nhiều chi nhánh nếu phòng khám phát triển — cần hệ thống phù hợp. ([KareXpert][4])
+
+---
+
+## 3. Mô hình hóa nghiệp vụ sơ bộ
+
+### 3.1. Các Use Case nghiệp vụ chính
+
+Dưới đây là các use case nghiệp vụ mẫu (có thể khai thác sơ đồ use-case, đặc tả chi tiết) cho ba vai trò chính: khách hàng, bác sĩ, admin.
+
+#### Vai trò: Khách hàng
+
+* Đăng ký/đăng nhập tài khoản
+* Tìm kiếm chuyên khoa/bác sĩ
+* Đặt lịch khám
+* Hủy hoặc thay đổi lịch khám
+* Thanh toán dịch vụ trực tuyến
+* Tra cứu lịch sử khám, kết quả xét nghiệm
+* Đánh giá và phản hồi dịch vụ
+
+#### Vai trò: Bác sĩ
+
+* Đăng nhập hệ thống
+* Xem lịch khám hôm nay/tuần
+* Mở hồ sơ bệnh nhân
+* Cập nhật kết quả khám, bệnh án điện tử
+* Chỉ định dịch vụ/xét nghiệm
+* Kết thúc buổi khám / chuyển hồ sơ sang thanh toán
+
+#### Vai trò: Admin
+
+* Quản lý chuyên khoa, danh mục bác sĩ
+* Quản lý bác sĩ (thêm/sửa/xóa)
+* Quản lý lịch làm việc/ca khám của bác sĩ
+* Quản lý hồ sơ khách hàng
+* Quản lý lịch khám và dịch vụ khám bệnh
+* Quản lý thanh toán, khuyến mãi, tích điểm
+* Khởi tạo chatbot hỗ trợ khách hàng
+* Xem thống kê: doanh thu, lượt khám, khách hàng thường xuyên
+* Tiếp nhận và phản hồi đánh giá dịch vụ
+
+### 3.2. Mô hình dữ liệu & sơ đồ lớp (chỉ mô tả khái quát)
+
+* Thực thể (nhân vật) /chính: Khách hàng (Patient), Bác sĩ (Doctor), Lịch khám (Appointment), Dịch vụ khám bệnh (Service), Bệnh án (MedicalRecord), Kết quả xét nghiệm (LabResult), Thanh toán (Payment), Chuyên khoa (Specialty), Ca làm việc (WorkShift), Đánh giá (Feedback), Khuyến mãi/Tích điểm (Promotion / LoyaltyPoints)
+* Mối quan hệ:
+
+  * Khách hàng đặt nhiều Lịch khám → mỗi lịch khám được bác sĩ xử lý.
+  * Bác sĩ thuộc chuyên khoa, có nhiều ca làm việc.
+  * Một lịch khám có thể sử dụng nhiều dịch vụ khám bệnh và dẫn tới một hoặc nhiều kết quả xét nghiệm.
+  * Bệnh án được tạo cho lịch khám sau khi khám xong.
+  * Thanh toán được liên kết với lịch khám và dịch vụ.
+  * Khách hàng có thể tham gia khuyến mãi hoặc tích điểm liên quan tới thanh toán.
+  * Đánh giá được thực hiện bởi khách hàng cho lịch khám/dịch vụ.
+* Sơ đồ lớp mức phân tích (ví dụ lớp Patient, Doctor, Appointment, Service, Payment, Feedback)
+* Sơ đồ lớp thiết kế sẽ mở rộng với các lớp hỗ trợ (ví dụ: UserAccount, Role, Notification, ChatbotSession…)
+
+Sơ đồ Use-Case nghiệp vụ:
+### 1. Khách hàng/Bệnh nhân
+Đây là người dùng chính, sử dụng hệ thống để quản lý việc khám chữa bệnh cá nhân. Các chức năng bao gồm:
+* **Đăng ký/Đăng nhập tài khoản:** Tạo và truy cập tài khoản cá nhân.
+* **Tìm kiếm chuyên khoa/bác sĩ:** Tìm kiếm thông tin về các dịch vụ y tế và bác sĩ.
+* **Đặt lịch khám:** Hẹn lịch khám với bác sĩ.
+* **Hủy/Thay đổi lịch khám:** Điều chỉnh lịch hẹn đã đặt.
+* **Thanh toán trực tuyến:** Trả phí dịch vụ khám qua mạng.
+* **Tra cứu lịch sử khám & kết quả:** Xem lại thông tin về các lần khám trước và kết quả xét nghiệm.
+* **Đánh giá/Phản hồi dịch vụ:** Gửi ý kiến về chất lượng dịch vụ.
+
+---
+
+### 2. Bác sĩ
+Đây là người cung cấp dịch vụ y tế, sử dụng hệ thống để quản lý quy trình khám bệnh. Các chức năng bao gồm:
+* **Xem lịch khám:** Theo dõi lịch hẹn với bệnh nhân.
+* **Mở hồ sơ bệnh nhân:** Truy cập thông tin y tế của bệnh nhân.
+* **Cập nhật bệnh án điện tử:** Ghi chép thông tin chẩn đoán, điều trị vào hồ sơ.
+* **Chỉ định dịch vụ/xét nghiệm:** Yêu cầu bệnh nhân thực hiện các dịch vụ y tế cần thiết.
+* **Kết thúc buổi khám:** Hoàn tất phiên khám bệnh trên hệ thống.
+
+---
+
+### 3. Admin phòng khám
+Đây là người quản trị hệ thống, chịu trách nhiệm vận hành và quản lý chung. Các chức năng bao gồm:
+* **Quản lý chuyên khoa, bác sĩ:** Thêm, xóa, sửa thông tin về bác sĩ và các khoa.
+* **Quản lý lịch làm việc/ca khám:** Sắp xếp lịch làm việc cho bác sĩ.
+* **Quản lý hồ sơ khách hàng:** Quản lý thông tin tài khoản của bệnh nhân.
+* **Quản lý dịch vụ & thanh toán:** Cấu hình các gói dịch vụ và quản lý giao dịch tài chính.
+* **Quản lý khuyến mãi/tích điểm:** Tạo và quản lý các chương trình ưu đãi.
+* **Thống kê & báo cáo:** Xem các báo cáo về hoạt động của phòng khám.
+* **Phản hồi đánh giá khách hàng:** Tiếp nhận và xử lý các phản hồi từ bệnh nhân.
+* **Chatbot hỗ trợ khách hàng:** Quản lý và cấu hình chatbot tự động.
+
+Mô hình hóa quy trình nghiệp vụ:
+Các bên tham gia (tác nhân) trong quy trình này bao gồm:
+1.  **Khách hàng** (Bệnh nhân)
+2.  **Hệ thống** (Phần mềm/Website)
+3.  **Lễ tân phòng khám**
+4.  **Bác sĩ**
+5.  **Phòng xét nghiệm**
+6.  **Kế toán**
+
+Dưới đây là mô tả chi tiết các luồng nghiệp vụ:
+
+### Giai đoạn 1: Khách hàng Đặt lịch khám (Tương tác với Hệ thống)
+
+Luồng này mô tả quá trình bệnh nhân đặt lịch hẹn trực tuyến trước khi đến phòng khám.
+
+1.  **Khách hàng:** Bắt đầu bằng việc "Truy cập ứng dụng / web phòng khám", sau đó "Chọn chuyên khoa, bác sĩ, thời gian khám" và "Nhập thông tin cá nhân / đăng nhập".
+2.  **Hệ thống:**
+    * Kiểm tra xem khách hàng **"Đã có tài khoản?"** hay chưa (nếu chưa sẽ yêu cầu đăng ký, nếu có sẽ yêu cầu đăng nhập).
+    * Sau khi xác thực, hệ thống "Kiểm tra lịch làm việc bác sĩ và slot trống".
+3.  **Quyết định (Hệ thống):** **"Còn slot không?"**
+    * **Nếu KHÔNG:** Hệ thống "Thông báo 'Không còn lịch trống' và gợi ý khung khác". (Kết thúc luồng).
+    * **Nếu CÓ:** Hệ thống "Cho phép đặt slot tạm thời".
+4.  **Khách hàng:** "Chọn phương thức thanh toán (tại quầy / online)".
+5.  **Quyết định (Hệ thống):** **"Thanh toán online?"**
+    * **Nếu CÓ (thanh toán online):**
+        * Hệ thống "Kết nối cổng thanh toán".
+        * Một quyết định nữa: **"Thanh toán thành công?"**
+            * **Nếu KHÔNG:** "Thông báo lỗi thanh toán". (Kết thúc luồng).
+            * **Nếu CÓ:** "Xác nhận lịch khám". (Kết thúc luồng đặt lịch thành công).
+    * **Nếu KHÔNG (thanh toán tại quầy):**
+        * Hệ thống "Ghi nhận trạng thái 'Chờ xác nhận tại quầy'". (Kết thúc luồng đặt lịch thành công).
+
+---
+
+### Giai đoạn 2: Quy trình tại phòng khám (Tiếp nhận, Khám, Thanh toán)
+
+Luồng này mô tả những gì xảy ra khi bệnh nhân đến phòng khám sau khi đã đặt lịch.
+
+1.  **Lễ tân phòng khám:**
+    * Bắt đầu bằng việc "Kiểm tra danh sách lịch khám trong ngày".
+    * "Tiếp nhận bệnh nhân đến khám".
+    * **Quyết định:** **"Trùng khớp lịch khám?"**
+        * **Nếu KHÔNG:** "Từ chối hoặc cập nhật thông tin".
+        * **Nếu CÓ:** "Cập nhật trạng thái 'Đã tiếp nhận'" và chuyển thông tin cho bác sĩ.
+
+2.  **Bác sĩ:**
+    * "Nhận thông tin bệnh nhân từ hệ thống".
+    * "Khám bệnh, nhập kết quả và chỉ định dịch vụ".
+    * **Quyết định:** **"Có chỉ định dịch vụ?"** (như xét nghiệm, X-quang, v.v.)
+        * **Nếu CÓ:** "Chuyển thông tin sang phòng xét nghiệm / dịch vụ".
+            * **Phòng xét nghiệm:** "Thực hiện xét nghiệm, gõ kết quả" và gửi lại cho bác sĩ.
+            * **Bác sĩ:** "Nhận kết quả và cập nhật bệnh án điện tử".
+        * **Nếu KHÔNG (hoặc sau khi đã có kết quả):** Bác sĩ "Kết thúc buổi khám, gửi hồ sơ sang bộ phận thanh toán".
+
+3.  **Kế toán:**
+    * Nhận hồ sơ từ bác sĩ, "Kiểm tra dịch vụ và phí".
+    * "Thu tiền (hoặc xác nhận thanh toán trực tuyến)" nếu bệnh nhân chưa trả.
+    * "Hoàn tất giao dịch, in hóa đơn".
+
+4.  **Khách hàng:**
+    * "Nhận kết quả, hóa đơn và phản hồi đánh giá".
+    * (Kết thúc toàn bộ quy trình).
+
+Sơ đồ Use Case hệ thống:
+### 1\. Tác nhân: Admin phòng khám
+
+Sơ đồ này mô tả các chức năng quản trị và vận hành hệ thống của "Admin phòng khám".
+
+**Các chức năng (Use Cases):**
+
+  * Đăng nhập hệ thống
+  * Quản lý chuyên khoa
+  * Quản lý bác sĩ
+  * Quản lý lịch làm việc
+  * Quản lý dịch vụ & thanh toán
+  * Quản lý hồ sơ khách hàng
+  * Quản lý khuyến mãi / tích điểm
+  * Thống kê & báo cáo
+  * Phản hồi đánh giá khách hàng
+  * Quản lý chatbot hỗ trợ
+
+**Mối quan hệ giữa các chức năng:**
+
+  * **`Quản lý lịch làm việc` \<\<include\>\> `Quản lý bác sĩ`:** Để quản lý lịch làm việc, admin *luôn phải* thực hiện (hoặc sử dụng) chức năng quản lý bác sĩ (ví dụ: để chọn bác sĩ và gán lịch).
+  * **`Quản lý dịch vụ & thanh toán` \<\<include\>\> `Quản lý hồ sơ khách hàng`:** Khi quản lý dịch vụ hoặc thanh toán, admin *luôn phải* truy cập (hoặc sử dụng) chức năng quản lý hồ sơ khách hàng (ví dụ: để gán dịch vụ cho khách hàng).
+  * **`Quản lý dịch vụ & thanh toán` \<\<include\>\> `Thống kê & báo cáo`:** Chức năng quản lý dịch vụ & thanh toán *luôn bao gồm* chức năng thống kê & báo cáo. (Đây là một mối quan hệ hơi bất thường, logic thông thường là "Thống kê & báo cáo" sẽ *include* "Quản lý dịch vụ" để lấy dữ liệu).
+  * **`Phản hồi đánh giá khách hàng` \<\<extend\>\> `Thống kê & báo cáo`:** Chức năng "Thống kê & báo cáo" (use case cơ sở) có thể được *mở rộng tùy chọn* bằng chức năng "Phản hồi đánh giá khách hàng". (Ví dụ: Khi xem báo cáo về đánh giá, admin có thể *chọn* phản hồi ngay lập tức).
+
+-----
+
+### 2\. Tác nhân: Khách hàng
+
+Sơ đồ này mô tả các chức năng mà "Khách hàng" (bệnh nhân) có thể thực hiện trên hệ thống.
+
+**Các chức năng (Use Cases):**
+
+  * Đăng ký/Đăng nhập
+  * Tìm kiếm chuyên khoa/bác sĩ
+  * Đặt lịch khám
+  * Hủy/Thay đổi lịch khám
+  * Thanh toán dịch vụ
+  * Tra cứu kết quả xét nghiệm
+  * Tra cứu lịch sử khám bệnh
+  * Đánh giá/Phản hồi dịch vụ
+
+**Mối quan hệ giữa các chức năng:**
+
+  * **`Đặt lịch khám` \<\<include\>\> `Đăng ký/Đăng nhập`:** Để "Đặt lịch khám", khách hàng *bắt buộc phải* thực hiện chức năng "Đăng ký/Đăng nhập" trước.
+  * **`Thanh toán dịch vụ` \<\<include\>\> `Đặt lịch khám`:** Chức năng "Thanh toán dịch vụ" *luôn bao gồm* chức năng "Đặt lịch khám". (Điều này có thể hiểu là việc thanh toán gắn liền với một lịch khám cụ thể).
+  * **`Hủy/Thay đổi lịch khám` \<\<extend\>\> `Đặt lịch khám`:** Chức năng "Đặt lịch khám" (use case cơ sở) có thể được *mở rộng tùy chọn* bằng chức năng "Hủy/Thay đổi lịch khám". (Logic này hơi lạ, thường "Hủy/Thay đổi" là một use case riêng biệt).
+  * **`Tra cứu kết quả xét nghiệm` \<\<include\>\> `Tra cứu lịch sử khám bệnh`:** Chức năng "Tra cứu kết quả xét nghiệm" *luôn bao gồm* chức năng "Tra cứu lịch sử khám bệnh". (Logic thông thường có thể là ngược lại: xem lịch sử *bao gồm* xem kết quả).
+  * **`Đánh giá/Phản hồi dịch vụ` \<\<extend\>\> `Tra cứu lịch sử khám bệnh`:** Khi "Tra cứu lịch sử khám bệnh" (use case cơ sở), khách hàng có *tùy chọn* thực hiện chức năng "Đánh giá/Phản hồi dịch vụ" (ví dụ: đánh giá cho một lần khám cũ).
+
+-----
+
+### 3\. Tác nhân: Bác sĩ
+
+Sơ đồ này mô tả các chức năng nghiệp vụ của "Bác sĩ" khi sử dụng hệ thống.
+
+**Các chức năng (Use Cases):**
+
+  * Đăng nhập hệ thống
+  * Xem lịch khám
+  * Tra cứu phiếu khám bệnh
+  * Cập nhật phiếu khám bệnh
+  * Xem thông tin khám bệnh
+  * Lập phiếu yêu cầu dịch vụ (chỉ định xét nghiệm, v.v.)
+  * Tra cứu dịch vụ
+  * Tra cứu kết quả dịch vụ
+  * Kê toa thuốc
+  * Tra cứu thuốc
+
+**Mối quan hệ giữa các chức năng:**
+
+  * **`Kê toa thuốc` \<\<include\>\> `Tra cứu thuốc`:** Để "Kê toa thuốc", bác sĩ *bắt buộc phải* thực hiện chức năng "Tra cứu thuốc" (để chọn thuốc từ danh mục).
+  * **`Lập phiếu yêu cầu dịch vụ` \<\<include\>\> `Tra cứu dịch vụ`:** Để "Lập phiếu yêu cầu dịch vụ", bác sĩ *bắt buộc phải* thực hiện chức năng "Tra cứu dịch vụ" (để chọn dịch vụ từ danh mục).
+  * **`Cập nhật phiếu khám bệnh` \<\<extend\>\> `Tra cứu phiếu khám bệnh`:** Khi "Tra cứu phiếu khám bệnh" (use case cơ sở), bác sĩ có *tùy chọn* "Cập nhật phiếu khám bệnh" đó.
+  * **`Xem thông tin khám bệnh` \<\<extend\>\> `Tra cứu phiếu khám bệnh`:** Khi "Tra cứu phiếu khám bệnh", bác sĩ có *tùy chọn* "Xem thông tin khám bệnh" chi tiết.
+  * **`Lập phiếu yêu cầu dịch vụ` \<\<extend\>\> `Tra cứu phiếu khám bệnh`:** Khi "Tra cứu phiếu khám bệnh", bác sĩ có *tùy chọn* "Lập phiếu yêu cầu dịch vụ" mới cho bệnh nhân đó.
+  * **`Tra cứu kết quả dịch vụ` \<\<extend\>\> `Tra cứu phiếu khám bệnh`:** Khi "Tra cứu phiếu khám bệnh", bác sĩ có *tùy chọn* "Tra cứu kết quả dịch vụ" (kết quả xét nghiệm) liên quan đến bệnh nhân.
+
+Sơ đồ lớp phân tích:
+### 1. Các Lớp chính (Core Entities)
+
+* **Patient (Bệnh nhân):**
+    * **Thuộc tính:** patientId (mã bệnh nhân), name (tên), dob (ngày sinh), gender (giới tính), phone, address.
+    * **Phương thức:** viewHistory() (xem lịch sử), bookAppointment() (đặt lịch hẹn).
+* **Doctor (Bác sĩ):**
+    * **Thuộc tính:** doctorId (mã bác sĩ), name (tên), specialty (chuyên khoa), phone.
+    * **Phương thức:** viewSchedule() (xem lịch làm việc), updateMedicalRecord() (cập nhật bệnh án).
+* **Appointment (Lịch hẹn):**
+    * **Thuộc tính:** appointmentId (mã lịch hẹn), date, time, status (trạng thái: Đã lên lịch/Hoàn thành/Đã hủy).
+    * **Phương thức:** cancel() (hủy lịch), reschedule() (đổi lịch).
+
+---
+
+### 2. Các Lớp liên quan (Related Entities)
+
+* **Feedback (Phản hồi):**
+    * **Thuộc tính:** feedbackId, rating (điểm đánh giá), comment (bình luận), createdDate.
+* **LoyaltyPoints (Điểm thưởng):**
+    * **Thuộc tính:** pointsId, points (số điểm), lastUpdated (lần cập nhật cuối).
+    * **Phương thức:** redeemPoints() (đổi điểm).
+* **Specialty (Chuyên khoa):**
+    * **Thuộc tính:** specialtyId, name, description (mô tả).
+* **WorkShift (Ca làm việc):**
+    * **Thuộc tính:** shiftId, date, startTime, endTime.
+* **Service (Dịch vụ):**
+    * **Thuộc tính:** serviceId, name, price (giá), type (loại: Khám/Xét nghiệm/Khác).
+* **MedicalRecord (Bệnh án):**
+    * **Thuộc tính:** recordId, symptoms (triệu chứng), diagnosis (chẩn đoán), treatment (điều trị), createdDate.
+    * **Phương thức:** updateRecord() (cập nhật).
+* **LabResult (Kết quả xét nghiệm):**
+    * **Thuộc tính:** resultId, resultDetails (chi tiết kết quả), resultDate.
+    * **Phương thức:** viewResult() (xem kết quả).
+* **Payment (Thanh toán):**
+    * **Thuộc tính:** paymentId, totalAmount (tổng tiền), paymentMethod (phương thức), status, paymentDate.
+    * **Phương thức:** processPayment() (xử lý thanh toán).
+* **Promotion (Khuyến mãi):**
+    * **Thuộc tính:** promoId, description, discountPercent (phần trăm giảm), startDate, endDate.
+
+---
+
+### 3. Các Mối quan hệ (Relationships)
+
+Sơ đồ mô tả các mối quan hệ (associations) và bản số (multiplicity) giữa các lớp:
+
+* **Bệnh nhân và Lịch hẹn:**
+    * `1` **Patient** có thể có `0..*` (nhiều) **Appointments**.
+    * `1` **Appointment** chỉ thuộc về `1` **Patient**.
+* **Bệnh nhân và Phản hồi:**
+    * `1` **Patient** có thể có `0..*` (nhiều) **Feedbacks**.
+    * `1` **Feedback** thuộc về `1` **Patient**.
+* **Bệnh nhân và Điểm thưởng:**
+    * `1` **Patient** có `0..1` (một hoặc không có) tài khoản **LoyaltyPoints**.
+    * `1` **LoyaltyPoints** thuộc về `1` **Patient**.
+* **Bác sĩ và Lịch hẹn:**
+    * `1` **Doctor** có thể có `0..*` (nhiều) **Appointments**.
+    * `1` **Appointment** được xử lý bởi `1` **Doctor**.
+* **Bác sĩ và Chuyên khoa/Ca làm việc:**
+    * `1` **Doctor** thuộc `1` **Specialty**. Một **Specialty** có thể có `0..*` **Doctors**.
+    * `1` **Doctor** có `0..*` (nhiều) **WorkShifts**.
+* **Lịch hẹn và các thực thể liên quan:**
+    * `1` **Appointment** liên quan đến `1` **MedicalRecord** (Bệnh án).
+    * `1` **Appointment** liên quan đến `1` **Payment** (Thanh toán).
+    * `1` **Appointment** có thể bao gồm `0..*` (nhiều) **Services**. (Và `1` **Service** có thể nằm trong `0..*` **Appointments** - đây là quan hệ nhiều-nhiều).
+* **Bệnh án và Kết quả xét nghiệm:**
+    * `1` **MedicalRecord** có thể có `0..*` (nhiều) **LabResults**.
+    * `1` **LabResult** thuộc về `1` **MedicalRecord**.
+* **Thanh toán và Khuyến mãi:**
+    * `1` **Payment** có thể áp dụng `0..1` (một hoặc không) **Promotion**.
+    * `1` **Promotion** có thể được dùng cho `0..*` (nhiều) **Payments**.
+
+
+Sơ đồ Mô hình dữ liệu quan hệ:
+### Mô tả các Bảng (Entities)
+Sơ đồ bao gồm các bảng chính sau:
+
+UserAccount (Tài khoản người dùng): Lưu trữ thông tin đăng nhập.
+
+userId (PK - Khóa chính)
+
+username, password, role
+
+patientId (FK): Liên kết đến bảng Patient.
+
+Patient (Bệnh nhân): Lưu trữ thông tin bệnh nhân.
+
+patientId (PK)
+
+LoyaltyPoints (Điểm thưởng): Quản lý điểm tích lũy của bệnh nhân.
+
+pointsId (PK)
+
+patientId (FK): Liên kết đến Patient.
+
+Doctor (Bác sĩ): Lưu trữ thông tin bác sĩ.
+
+doctorId (PK)
+
+specialtyId (FK): Liên kết đến bảng Specialty.
+
+Specialty (Chuyên khoa): Lưu trữ danh sách các chuyên khoa.
+
+specialtyId (PK)
+
+WorkShift (Ca làm việc): Lưu trữ lịch làm việc của bác sĩ.
+
+shiftId (PK)
+
+doctorId (FK): Liên kết đến bảng Doctor.
+
+Feedback (Phản hồi): Lưu trữ đánh giá của bệnh nhân.
+
+feedbackId (PK)
+
+patientId (FK): Bệnh nhân đưa ra phản hồi.
+
+doctorId (FK): Bác sĩ được nhận phản hồi.
+
+Appointment (Lịch hẹn): Bảng trung tâm lưu trữ thông tin các cuộc hẹn.
+
+appointmentId (PK)
+
+patientId (FK): Liên kết đến Patient (bệnh nhân đặt lịch).
+
+doctorId (FK): Liên kết đến Doctor (bác sĩ phụ trách).
+
+Service (Dịch vụ): Danh mục các dịch vụ (khám, xét nghiệm, v.v.).
+
+serviceId (PK)
+
+AppointmentService (Bảng nối Dịch vụ - Lịch hẹn): Bảng nối thể hiện quan hệ nhiều-nhiều.
+
+id (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+serviceId (FK): Liên kết đến Service.
+
+MedicalRecord (Bệnh án): Lưu trữ thông tin khám bệnh.
+
+recordId (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+LabResult (Kết quả xét nghiệm): Lưu kết quả xét nghiệm chi tiết.
+
+resultId (PK)
+
+recordId (FK): Liên kết đến MedicalRecord.
+
+Payment (Thanh toán): Lưu thông tin thanh toán cho một lịch hẹn.
+
+paymentId (PK)
+
+appointmentId (FK): Liên kết đến Appointment.
+
+Promotion (Khuyến mãi): Danh mục các chương trình khuyến mãi.
+
+promoId (PK)
+
+PaymentPromotion (Bảng nối Thanh toán - Khuyến mãi): Bảng nối thể hiện khuyến mãi được áp dụng cho thanh toán.
+
+id (PK)
+
+paymentId (FK): Liên kết đến Payment.
+
+promoId (FK): Liên kết đến Promotion.
+
+Tóm tắt các Mối quan hệ chính
+Một UserAccount "has" (có) một Patient (liên kết tài khoản đăng nhập với hồ sơ bệnh nhân).
+
+Một Patient "books" (đặt) nhiều Appointments, "gives" (đưa ra) nhiều Feedbacks, và "has" (có) nhiều LoyaltyPoints (lịch sử điểm thưởng).
+
+Một Doctor "receives" (nhận) nhiều Feedbacks, "handles" (xử lý) nhiều Appointments, "belongs-to" (thuộc về) một Specialty, và "works-in" (làm việc) trong nhiều WorkShifts.
+
+Một Appointment (cuộc hẹn) là trung tâm, nó:
+
+"creates" (tạo ra) một MedicalRecord (bệnh án).
+
+"results in" (dẫn đến) một Payment (thanh toán).
+
+"includes" (bao gồm) nhiều Services (thông qua bảng nối AppointmentService).
+
+Một MedicalRecord "has" (có) nhiều LabResults (kết quả xét nghiệm).
+
+Một Payment (thanh toán) "applies" (áp dụng) nhiều Promotions (thông qua bảng nối PaymentPromotion).
+
+SƠ ĐỒ LỚP Ở MỨC THIẾT KẾ
+### Mô tả chi tiết các nhóm Lớp
+
+#### 1. Nhóm Lớp Tài khoản & Tác nhân
+Đây là các lớp đại diện cho người dùng tương tác với hệ thống.
+
+* **UserAccount:**
+    * Quản lý thông tin đăng nhập (`username`, `passwordHash`, `role`).
+    * Cung cấp các phương thức `login()` và `logout()`.
+    * Có mối quan hệ 1-1 "tùy chọn" (optional) với `Doctor` và `Patient`, nghĩa là một tài khoản có thể liên kết với một bác sĩ hoặc một bệnh nhân.
+* **Doctor:**
+    * Lưu thông tin bác sĩ (`doctorId`, `name`, `phone`).
+    * Tham chiếu đến `Specialty` (chuyên khoa).
+    * Có các phương thức nghiệp vụ như `viewSchedule()` (xem lịch) và `updateMedicalRecord()` (cập nhật bệnh án).
+* **Patient:**
+    * Lưu thông tin bệnh nhân (`patientId`, `name`, `dob`, `gender`, v.v.).
+    * Có các phương thức nghiệp vụ như `viewHistory()` (xem lịch sử) và `bookAppointment()` (đặt lịch).
+
+#### 2. Nhóm Lớp Nghiệp vụ chính (Lõi)
+Đây là các lớp xử lý quy trình khám bệnh cốt lõi.
+
+* **Appointment (Lịch hẹn):**
+    * Lớp trung tâm, lưu trữ thông tin cuộc hẹn (`appointmentId`, `date`, `time`, `status`).
+    * Có các phương thức `cancel()` (hủy) và `reschedule()` (đổi lịch).
+    * Một `Patient` có thể có (0..*) nhiều `Appointments`.
+    * Một `Doctor` có thể xử lý (0..*) nhiều `Appointments`.
+* **MedicalRecord (Bệnh án):**
+    * Lưu thông tin khám bệnh (`recordId`, `symptoms`, `diagnosis`, `treatment`).
+    * Một `Appointment` chỉ có (0..1) một `MedicalRecord`.
+* **LabResult (Kết quả xét nghiệm):**
+    * Lưu kết quả xét nghiệm chi tiết (`resultId`, `resultDetails`).
+    * Một `MedicalRecord` có thể có (0..*) nhiều `LabResults`.
+* **Service (Dịch vụ):**
+    * Lưu thông tin các dịch vụ y tế (`serviceId`, `name`, `price`, `type`).
+    * Một `Appointment` có thể bao gồm (0..*) nhiều `Services`.
+
+#### 3. Nhóm Lớp Quản lý & Hỗ trợ
+Đây là các lớp bổ trợ cho các nghiệp vụ quản lý và tài chính.
+
+* **Specialty (Chuyên khoa):**
+    * Danh mục chuyên khoa (`specialtyId`, `name`).
+    * Một `Doctor` thuộc về (1) một `Specialty`.
+* **WorkShift (Ca làm việc):**
+    * Lịch làm việc của bác sĩ (`shiftId`, `date`, `startTime`, `endTime`).
+    * Một `Doctor` có (0..*) nhiều `WorkShifts`.
+* **Payment (Thanh toán):**
+    * Thông tin thanh toán (`paymentId`, `totalAmount`, `paymentMethod`, `status`).
+    * Một `Appointment` có (0..1) một `Payment`.
+* **Promotion (Khuyến mãi):**
+    * Thông tin khuyến mãi (`promoId`, `discountPercent`).
+    * Một `Payment` có thể áp dụng (0..1) một `Promotion`.
+
+#### 4. Nhóm Lớp Tương tác Khách hàng
+Các lớp liên quan đến trải nghiệm của bệnh nhân.
+
+* **Feedback (Phản hồi):**
+    * Lưu đánh giá của bệnh nhân (`feedbackId`, `rating`, `comment`).
+    * Một `Patient` có thể gửi (0..*) nhiều `Feedbacks`.
+* **LoyaltyPoints (Điểm thưởng):**
+    * Quản lý điểm tích lũy (`pointsId`, `points`).
+    * Một `Patient` có (1) một tài khoản `LoyaltyPoints`.
+* **Notification (Thông báo):**
+    * Lớp dùng để gửi thông báo (`notificationId`, `message`).
+* **ChatbotSession (Phiên Chatbot):**
+    * Lưu lịch sử hội thoại chatbot (`sessionId`, `question`, `response`).
+
+THIẾT KẾ CHỨC NĂNG HỆ THỐNG
+## 1. Chức năng: Thêm Dịch Vụ
+Tác nhân: **Admin**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHThemDichVu` (Màn hình Thêm Dịch Vụ)
+    * **Thuộc tính:** `txtMaDV` (TextBox), `txtTenDV` (TextBox), `txtGia` (TextBox), `cboLoai` (ComboBox), `btnThemDV` (Button).
+    * **Phương thức:** `HienThi()`, `btnThemDV_Click()`.
+* **Business:** Lớp `DichVu`
+    * **Thuộc tính:** `maDV` (String), `tenDV` (String), `gia` (Double), `loai` (String).
+    * **Phương thức:** `ThemDichVu(dv : DichVu) : Integer`.
+* **Data Access:** Lớp `DichVuDB`
+    * **Phương thức:** `static Them(dv : DichVu) : Integer`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Admin** "Nhập thông tin dịch vụ" vào màn hình `MHThemDichVu`.
+2.  **Admin** nhấn vào nút, kích hoạt sự kiện `btnThemDV_Click()`.
+3.  `MHThemDichVu` gọi phương thức `ThemDichVu(dv)` của lớp nghiệp vụ `DichVu`.
+4.  Lớp `DichVu` tiếp tục gọi phương thức `Them(dv)` của lớp `DichVuDB` để lưu vào cơ sở dữ liệu.
+5.  `DichVuDB` thực thi và "Trả kết quả" (thành công/thất bại) về cho `DichVu`.
+6.  `DichVu` "Trả kết quả" về cho giao diện `MHThemDichVu`.
+7.  `MHThemDichVu` hiển thị "Thông báo 'Thêm thành công'" cho **Admin**.
+
+---
+
+## 2. Chức năng: Thêm Bác Sĩ (Có Tài Khoản)
+Tác nhân: **Admin**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **Tầng Giao Diện (UI):** Lớp `MHThemBacSi`
+    * **Thuộc tính:** `txtMaBS` (TextBox), `txtTenBS` (TextBox), `txtChuyenKhoa` (TextBox), `txtSDT` (TextBox), **`txtTenDangNhap` (TextBox), `txtMatKhau` (TextBox)**, `btnThemBS` (Button).
+    * **Phương thức:** `HienThi() : void`, `btnThemBS_Click() : void`.
+
+* **Tầng Nghiệp Vụ (Business):**
+    * Lớp `BacSi`
+        * **Thuộc tính:** `maBS` (String), `tenBS` (String), `chuyenKhoa` (String), `sdt` (String).
+        * **Phương thức:** **`ThemBacSiVaTaiKhoan(bs : BacSi, tk: TaiKhoan) : Boolean`**.
+    * Lớp `TaiKhoan`
+        * **Thuộc tính:** `tenDangNhap` (String), `matKhauHash` (String), **`maBS_FK` (String)**, `role` (String).
+
+* **Tầng Truy Cập Dữ Liệu (Data Access):**
+    * Lớp `BacSiDB`
+        * **Phương thức:** **`static Them(bs : BacSi) : String`** (Trả về mã BS mới).
+    * Lớp `TaiKhoanDB`
+        * **Phương thức:** **`static Them(tk : TaiKhoan) : Boolean`**.
+
+---
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Admin** tương tác với hệ thống, gọi `HienThi()` để mở màn hình `MHThemBacSi`.
+2.  **Admin** "Nhập thông tin (Bác sĩ & Tài khoản)" vào giao diện.
+3.  **Admin** nhấn nút, kích hoạt sự kiện `btnThemBS_Click()`.
+4.  `MHThemBacSi` (tạo đối tượng `bs` và `tk` từ input) gọi phương thức **`ThemBacSiVaTaiKhoan(bs, tk)`** của lớp `BacSi`.
+5.  Lớp `BacSi` gọi phương thức `Them(bs)` của lớp `BacSiDB` để lưu bác sĩ.
+6.  `BacSiDB` "Trả về `maBS_moi`" (mã bác sĩ vừa tạo) cho `BacSi`.
+7.  Lớp `BacSi` thực hiện `tk.setMaBS(maBS_moi)` để gán mã bác sĩ (foreign key) cho đối tượng tài khoản.
+8.  Lớp `BacSi` gọi phương thức `Them(tk)` của lớp `TaiKhoanDB` để lưu tài khoản.
+9.  `TaiKhoanDB` "Trả kết quả (true/false)" về cho `BacSi`.
+10. `BacSi` "Thông báo kết quả" (true/false) về cho `MHThemBacSi`.
+11. `MHThemBacSi` "Hiển thị thông báo" (ví dụ: "Thêm thành công") cho **Admin**.
+
+---
+
+## 3. Chức năng: Thêm Kết Quả Xét Nghiệm
+Tác nhân: **Kỹ thuật viên**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHThemKetQuaXN`
+    * **Thuộc tính:** `txtMaKQ` (TextBox), `txtChiTiet` (TextBox), `dtpNgayXN` (DatePicker), `btnThemKQ` (Button).
+    * **Phương thức:** `HienThi()`, `btnThemKQ_Click()`.
+* **Business:** Lớp `KetQuaXN`
+    * **Thuộc tính:** `maKQ` (String), `chiTiet` (String), `ngayXN` (Date).
+    * **Phương thức:** `ThemKetQua(kq : KetQuaXN) : Integer`.
+* **Data Access:** Lớp `KetQuaXNDB`
+    * **Phương thức:** `static Them(kq : KetQuaXN) : Integer`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Kỹ thuật viên** "Nhập thông tin kết quả" vào `MHThemKetQuaXN`.
+2.  **Kỹ thuật viên** nhấn `btnThemKQ_Click()`.
+3.  `MHThemKetQuaXN` gọi phương thức `ThemKetQua(kq)` của lớp `KetQuaXN`.
+4.  Lớp `KetQuaXN` gọi phương thức `Them(kq)` của `KetQuaXNDB`.
+5.  `KetQuaXNDB` "Trả kết quả" về `KetQuaXN`.
+6.  `KetQuaXN` "Trả kết quả" về `MHThemKetQuaXN`.
+7.  `MHThemKetQuaXN` "Hiển thị 'Thêm thành công'" cho **Kỹ thuật viên**.
+
+---
+
+## 4. Chức năng: Gửi Phản Hồi (Feedback)
+Tác nhân: **Bệnh nhân**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHFeedback`
+    * **Thuộc tính:** `txtRating` (TextBox), `txtComment` (TextBox), `btnGui` (Button).
+    * **Phương thức:** `HienThi()`, `btnGui_Click()`.
+* **Business:** Lớp `Feedback`
+    * **Thuộc tính:** `maFB` (String), `maBN` (String), `rating` (Integer), `comment` (String), `ngayTao` (Date).
+    * **Phương thức:** `ThemFeedback(fb : Feedback) : Integer`.
+* **Data Access:** Lớp `FeedbackDB`
+    * **Phương thức:** `static Them(fb : Feedback) : Integer`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Bệnh nhân** "Nhập đánh giá" vào màn hình `MHFeedback`.
+2.  **Bệnh nhân** nhấn `btnGui_Click()`.
+3.  `MHFeedback` gọi phương thức `ThemFeedback(fb)` của lớp `Feedback`.
+4.  Lớp `Feedback` gọi phương thức `Them(fb)` của `FeedbackDB`.
+5.  `FeedbackDB` "Trả kết quả" về `Feedback`.
+6.  `Feedback` "Trả kết quả" về `MHFeedback`.
+7.  `MHFeedback` "Hiển thị 'Gửi thành công'" cho **Bệnh nhân**.
+
+---
+
+## 5. Chức năng: Xem Lịch Làm Việc
+Tác nhân: **Bác sĩ**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHXemLichLamViec`
+    * **Thuộc tính:** `cboBacSi` (ComboBox), `gridLichLam` (GridView).
+    * **Phương thức:** `HienThi()`, `HienThiLich(maBS : String)`.
+* **Business:** Lớp `CaLamViec`
+    * **Thuộc tính:** `maCa` (String), `maBS` (String), `ngay` (Date), `gioBatDau` (Time), `gioKetThuc` (Time).
+    * **Phương thức:** `LayLichTheoBS(maBS : String) : List<CaLamViec>`.
+* **Data Access:** Lớp `CaLamViecDB`
+    * **Phương thức:** `static DocTheoBacSi(maBS : String) : List<CaLamViec>`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Bác sĩ** khởi động chức năng, gọi `HienThi()` để mở màn hình `MHXemLichLamViec`.
+2.  **Bác sĩ** "Chọn bác sĩ" (từ `ComboBox`).
+3.  `MHXemLichLamViec` gọi phương thức `LayLichTheoBS(maBS)` của lớp `CaLamViec`.
+4.  Lớp `CaLamViec` gọi `DocTheoBacSi(maBS)` của `CaLamViecDB` để truy vấn CSDL.
+5.  `CaLamViecDB` "Trả danh sách ca làm" (một `List<CaLamViec>`) về cho `CaLamViec`.
+6.  `CaLamViec` "Trả danh sách" về cho `MHXemLichLamViec`.
+7.  `MHXemLichLamViec` "Hiển thị lịch làm việc" (lên `GridView`) cho **Bác sĩ**.
+
+---
+
+## 6. Chức năng: Thêm Bệnh Nhân (Có Tài Khoản)
+Tác nhân: **Nhân viên lễ tân**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **Tầng Giao Diện (UI):** Lớp `MHThemBenhNhan`
+    * **Thuộc tính:** `txtMaBN` (TextBox), `txtTenBN` (TextBox), `txtSDT` (TextBox), `txtDiaChi` (TextBox), `txtNgaySinh` (TextBox), `cboGioiTinh` (ComboBox), **`txtTenDangNhap` (TextBox), `txtMatKhau` (TextBox)**, `btnThemBN` (Button).
+    * **Phương thức:** `HienThi() : void`, `btnThemBN_Click() : void`.
+
+* **Tầng Nghiệp Vụ (Business):**
+    * Lớp `BenhNhan`
+        * **Thuộc tính:** `maBN` (String), `tenBN` (String), `ngaySinh` (Date), `gioiTinh` (String), `sdt` (String), `diaChi` (String).
+        * **Phương thức:** **`ThemBenhNhanVaTaiKhoan(bn : BenhNhan, tk: TaiKhoan) : Boolean`**, `KiemTraTonTai(maBN : String) : Boolean`.
+    * Lớp `TaiKhoan`
+        * **Thuộc tính:** `tenDangNhap` (String), `matKhauHash` (String), **`maBN_FK` (String)**, `role` (String).
+
+* **Tầng Truy Cập Dữ Liệu (Data Access):**
+    * Lớp `BenhNhanDB`
+        * **Phương thức:** **`static Them(bn : BenhNhan) : String`** (Trả về mã BN mới), `static DocThongTin(maBN : String) : BenhNhan`.
+    * Lớp `TaiKhoanDB`
+        * **Phương thức:** **`static Them(tk : TaiKhoan) : Boolean`**.
+
+---
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Nhân viên lễ tân** tương tác với hệ thống, gọi `HienThi()` để mở màn hình `MHThemBenhNhan`.
+2.  **Nhân viên lễ tân** "Nhập thông tin (Bệnh nhân & Tài khoản)" vào giao diện.
+3.  **Nhân viên lễ tân** nhấn nút, kích hoạt sự kiện `btnThemBN_Click()`.
+4.  `MHThemBenhNhan` (tạo đối tượng `bn` và `tk` từ input) gọi phương thức **`ThemBenhNhanVaTaiKhoan(bn, tk)`** của lớp `BenhNhan`.
+5.  Lớp `BenhNhan` gọi phương thức `Them(bn)` của lớp `BenhNhanDB` để lưu bệnh nhân.
+6.  `BenhNhanDB` "Trả về `maBN_moi`" (mã bệnh nhân vừa tạo) cho `BenhNhan`.
+7.  Lớp `BenhNhan` thực hiện `tk.setMaBN(maBN_moi)` để gán mã bệnh nhân (foreign key) cho đối tượng tài khoản.
+8.  Lớp `BenhNhan` gọi phương thức `Them(tk)` của lớp `TaiKhoanDB` để lưu tài khoản.
+9.  `TaiKhoanDB` "Trả kết quả (true/false)" về cho `BenhNhan`.
+10. `BenhNhan` "Thông báo kết quả" (true/false) về cho `MHThemBenhNhan`.
+11. `MHThemBenhNhan` "Cập nhật thông báo ('Thêm thành công' hoặc 'Thất bại')" cho **Nhân viên lễ tân**.
+
+---
+
+## 7. Chức năng: Đặt Lịch Khám
+Tác nhân: **Bệnh nhân**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHDatLich`
+    * **Thuộc tính:** `cboBacSi` (ComboBox), `cboChuyenKhoa` (ComboBox), `dtpNgay` (DatePicker), `cboGio` (ComboBox), `btnDatLich` (Button).
+    * **Phương thức:** `HienThi()`, `btnDatLich_Click()`.
+* **Business:** Lớp `LichKham`
+    * **Thuộc tính:** `maLich` (String), `maBN` (String), `maBS` (String), `ngay` (Date), `gio` (String), `trangThai` (String).
+    * **Phương thức:** `DatLich(lk : LichKham) : Integer`.
+* **Data Access:** Lớp `LichKhamDB`
+    * **Phương thức:** `static Them(lk : LichKham) : Integer`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Bệnh nhân** khởi động màn hình, gọi `HienThi()`.
+2.  **Bệnh nhân** "Chọn bác sĩ, ngày, giờ" trên giao diện `MHDatLich`.
+3.  **Bệnh nhân** nhấn nút, kích hoạt `btnDatLich_Click()`.
+4.  `MHDatLich` gọi phương thức `DatLich(lk)` của lớp `LichKham`.
+5.  Lớp `LichKham` gọi phương thức `Them(lk)` của `LichKhamDB`.
+6.  `LichKhamDB` "Trả kết quả" về cho `LichKham`.
+7.  `LichKham` gửi "Thông báo thành công" về `MHDatLich`.
+8.  `MHDatLich` "Hiển thị xác nhận đặt lịch" cho **Bệnh nhân**.
+
+---
+
+## 8. Chức năng: Xử Lý Thanh Toán
+Tác nhân: **Lễ tân**
+
+### Sơ đồ Lớp 3 Tầng (Thiết kế)
+* **UI:** Lớp `MHThanhToan`
+    * **Thuộc tính:** `txtMaHoaDon` (TextBox), `txtTongTien` (TextBox), `cboPhuongThuc` (ComboBox), `btnThanhToan` (Button).
+    * **Phương thức:** `HienThi()`, `btnThanhToan_Click()`.
+* **Business:** Lớp `ThanhToan`
+    * **Thuộc tính:** `maHD` (String), `maBN` (String), `tongTien` (Double), `phuongThuc` (String), `ngayTT` (Date).
+    * **Phương thức:** `XuLyThanhToan(tt : ThanhToan) : Boolean`.
+* **Data Access:** Lớp `ThanhToanDB`
+    * **Phương thức:** `static Luu(tt : ThanhToan) : Boolean`.
+
+### Sơ đồ Tuần tự (Sequence Diagram)
+1.  **Lễ tân** "Nhập thông tin thanh toán" vào màn hình `MHThanhToan`.
+2.  **Lễ tân** nhấn nút, kích hoạt sự kiện `btnThanhToan_Click()`.
+3.  `MHThanhToan` gọi phương thức `XuLyThanhToan(tt)` của lớp `ThanhToan`.
+4.  Lớp `ThanhToan` gọi phương thức `Luu(tt)` của lớp `ThanhToanDB` để lưu vào CSDL.
+5.  `ThanhToanDB` "Trả kết quả lưu" (true/false) về cho `ThanhToan`.
+6.  `ThanhToan` "Thông báo kết quả" về cho `MHThanhToan`.
+7.  `MHThanhToan` "Hiển thị 'Thanh toán thành công'" cho **Lễ tân**.
+
+trước hết, làm cho tôi những việc sau:
+chỉnh sơ đồ sequence và class cho chức năng Thêm bác sĩ (cập nhật là có cung cấp tài khoản cho bác sĩ)

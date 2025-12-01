@@ -1,0 +1,149 @@
+## 1. Xác định lý do & mục tiêu đề tài
+
+### 1.1. Lý do chọn đề tài
+
+* Hoạt động của phòng khám (đặt lịch khám, tiếp nhận bệnh nhân, lưu trữ hồ sơ khám bệnh, quản lý bác sĩ, dịch vụ, thanh toán…) thường có nhiều thủ tục thủ công, dùng giấy tờ, dữ liệu phân tán, dẫn đến:
+
+  * Chờ đợi lâu, xếp hàng, sổ sách/phiếu thủ công. ([curogram.com][1])
+  * Thông tin hồ sơ bệnh nhân, lịch sử khám bệnh không được tra cứu nhanh, dễ bị sai sót. ([Kissflow][2])
+  * Việc đặt lịch, sắp xếp bác sĩ, dịch vụ và thanh toán chưa được tối ưu, dẫn tới lãng phí nguồn lực, khách hàng không thoả mái. ([keragon.com][3])
+* Xu hướng chuyển đổi số trong lĩnh vực y tế: việc ứng dụng hệ thống quản lý phòng khám (Clinic Management System) giúp nâng cao hiệu quả vận hành, giảm sai sót, cải thiện trải nghiệm bệnh nhân. ([KareXpert][4])
+* Nhóm sinh viên ngành CNTT có khả năng xây dựng một hệ thống Web/Mobile theo yêu cầu là phù hợp với định hướng quản lý ngành. Việc thực hiện đề tài sẽ giúp rèn luyện kỹ năng phân tích, thiết kế, triển khai phần mềm thực tế.
+
+### 1.2. Mục tiêu đề tài
+
+* Khảo sát, phân tích và thiết kế được **mô hình nghiệp vụ** cho phòng khám (bao gồm các vai trò: khách hàng/bệnh nhân, bác sĩ, admin phòng khám) — từ đặt lịch khám đến thanh toán, quản lý hồ sơ, quản lý dịch vụ.
+* Cài đặt và triển khai ứng dụng Web (và/hoặc Mobile) đáp ứng các chức năng chính: tài khoản khách hàng, tìm kiếm đặt lịch, tra cứu lịch sử khám, kết quả xét nghiệm, thanh toán trực tuyến, đánh giá/ phản hồi; bác sĩ: xem lịch khám, cập nhật hồ sơ khám bệnh, quản lý bệnh án điện tử; admin: quản lý danh mục, quản lý khách hàng, lịch khám, ca làm việc, đánh giá, thống kê, chatbot hỗ trợ.
+* Lập kế hoạch thực hiện đề tài, phân công công việc rõ ràng giữa các thành viên.
+* Rèn luyện khả năng tự học, nghiên cứu, phối hợp nhóm, giữ tinh thần trách nhiệm và sáng tạo trong công việc.
+
+---
+
+## 2. Khảo sát hiện trạng: Cơ cấu tổ chức, Qui trình, Biểu mẫu
+
+### 2.1. Cơ cấu tổ chức / Vai trò trong phòng khám
+
+Một phòng khám thông thường có các vai trò chính sau:
+
+* Bệnh nhân/Khách hàng: đặt lịch khám, đến khám, thanh toán, phản hồi.
+* Tiếp nhận / lễ tân: đăng ký bệnh nhân, kiểm tra thông tin, xác nhận lịch khám, thu tiền/quầy thanh toán.
+* Bác sĩ: thực hiện khám, cập nhật hồ sơ, kết luận bệnh án, gửi yêu cầu xét nghiệm (nếu có).
+* Phòng xét nghiệm / dịch vụ phụ trợ: thực hiện xét nghiệm, trả kết quả.
+* Nhà thuốc/thuốc: (nếu phòng khám có).
+* Quản trị/ Admin phòng khám: quản lý chuyên khoa, bác sĩ, lịch làm việc, dịch vụ, ca làm việc, khách hàng, báo cáo doanh thu, khuyến mãi, tích điểm.
+* Hỗ trợ (IT, lễ tân dịch vụ, chăm sóc khách hàng): phản hồi đánh giá, hỗ trợ chatbot…
+
+> Ví dụ: một nghiên cứu về hệ thống quản lý phòng khám chỉ ra rằng “clinic management systems has function to arrange and organize the inherent process in the health facility …” ([ResearchGate][5])
+
+### 2.2. Qui trình nghiệp vụ mẫu
+
+Dưới đây là các bước nghiệp vụ điển hình trong phòng khám — bạn có thể khảo sát trực tiếp tại phòng khám thực tế để điều chỉnh chi tiết.
+
+#### Qui trình khách hàng/bệnh nhân
+
+1. Bệnh nhân truy cập (Web/Mobile) hoặc đến lễ tân đặt lịch khám: chọn chuyên khoa, bác sĩ, ngày giờ.
+2. Hệ thống xác nhận lịch (qua điện thoại, SMS, email hoặc tự động).
+
+   * Việc đặt lịch trực tuyến giúp giảm chờ đợi và tối ưu lịch bác sĩ. ([keragon.com][3])
+3. Bệnh nhân đến phòng khám đúng ngày giờ: đăng ký tại lễ tân (kiểm tra thông tin, tạo hoặc cập nhật hồ sơ bệnh nhân).
+4. Bác sĩ khám: xem hồ sơ, nhập kết quả khám, chỉ định xét nghiệm hoặc dịch vụ nếu cần, cập nhật bệnh án điện tử.
+5. Nếu xét nghiệm/dịch vụ phụ trợ: bệnh nhân đến phòng xét nghiệm làm xét nghiệm, kết quả được trả (có thể online).
+6. Thanh toán: bệnh nhân thanh toán dịch vụ, xét nghiệm, thuốc (nếu có) — có thể hỗ trợ thanh toán trực tuyến hoặc tại quầy.
+7. Kết thúc: bệnh nhân nhận hoá đơn, kết quả, có thể đánh giá/ phản hồi dịch vụ.
+8. Hệ thống lưu lịch sử khám, kết quả để bệnh nhân có thể tra cứu sau này.
+
+#### Qui trình bác sĩ
+
+* Xem lịch khám (ngày/tuần) từ hệ thống.
+* Thực hiện khám: mở hồ sơ bệnh nhân, nhập thông tin, kết luận, chỉ định dịch vụ, cập nhật bệnh án điện tử.
+* Kết nối với hệ thống xét nghiệm/phòng phụ trợ (nếu có) để theo dõi kết quả.
+* Sau khi khám hoàn tất, bác sĩ xác nhận kết thúc buổi khám, có thể đánh giá phản hồi của bệnh nhân.
+
+#### Qui trình admin / quản trị phòng khám
+
+* Quản lý chuyên khoa, bác sĩ, lịch làm việc, ca khám của bác sĩ.
+* Quản lý hồ sơ khách hàng/bệnh nhân: tạo, sửa, xóa, tra cứu.
+* Quản lý dịch vụ khám bệnh: phí dịch vụ, gói khám, khuyến mãi/ tích điểm.
+* Quản lý lịch khám: kiểm soát lịch đặt, lịch hủy, sắp xếp slot khám, tránh trùng/lãng phí.
+* Quản lý ca làm việc: xác định ca khám, xác định bác sĩ làm việc, phòng khám hoạt động.
+* Tiếp nhận và phản hồi đánh giá dịch vụ từ bệnh nhân.
+* Thống kê: doanh thu phòng khám, số lượng khách hàng có lượt khám nhiều nhất theo thời gian, hiệu quả khuyến mãi/tích điểm.
+* Hỗ trợ chatbot để tư vấn khách hàng (qua Web/Mobile) — giảm tải gọi điện.
+* Báo cáo: tổng hợp dữ liệu, phân tích hiệu suất phòng khám, giám sát và cải tiến quy trình.
+
+### 2.3. Biểu mẫu và dữ liệu cần khảo sát
+
+Khi khảo sát thực tế tại phòng khám, bạn nên thu thập thông tin về các biểu mẫu, dữ liệu sau:
+
+* Biểu mẫu đăng ký bệnh nhân: tên, tuổi, giới tính, địa chỉ, số điện thoại, lịch sử khám bệnh, tiền sử bệnh.
+* Biểu mẫu đặt lịch khám: chuyên khoa, bác sĩ, ngày/giờ, trạng thái (đã xác nhận, hủy, hoàn thành).
+* Biểu mẫu khám bệnh: hồ sơ bệnh nhân, tiền sử, triệu chứng, chẩn đoán, dịch vụ chỉ định, phiếu đặt xét nghiệm/thuốc.
+* Biểu mẫu xét nghiệm/phụ trợ (nếu có): phiếu yêu cầu, kết quả, ngày/giờ thực hiện, kết luận.
+* Biểu mẫu thanh toán: dịch vụ khám, xét nghiệm, thuốc, phương thức thanh toán, ngày/giờ thanh toán, hóa đơn.
+* Biểu mẫu phản hồi/đánh giá dịch vụ: bệnh nhân đánh giá bác sĩ, dịch vụ, lịch khám, tổng thể trải nghiệm.
+* Biểu mẫu lịch làm việc bác sĩ/ca khám: bác sĩ, chuyên khoa, phòng khám, ca làm việc, thời gian bắt đầu/kết thúc.
+* Biểu mẫu khuyến mãi/tích điểm: mã khuyến mãi, khách hàng áp dụng, ngày áp dụng, điểm tích lũy, điều kiện.
+* Dữ liệu thống kê: số lượt khám mỗi bác sĩ, số lượt khám mỗi chuyên khoa, doanh thu theo tháng/quý, số hóa đơn, số khách hàng quay lại, phần trăm đặt lại lịch, số hủy lịch.
+
+### 2.4. Những khó khăn/thách thức thường gặp
+
+* Lịch khám bác sĩ trùng, khách hàng đặt lịch rồi không đến (no-show) dẫn đến slot trống. ([keragon.com][3])
+* Chuyển giao thông tin giữa các bộ phận (lễ tân, bác sĩ, xét nghiệm, kế toán) chưa đồng bộ — gây chậm trễ, sai sót. ([SotaERP][6])
+* Lưu trữ hồ sơ thủ công, tìm kiếm thông tin mất thời gian. ([Kissflow][2])
+* Thanh toán và quản lý tài chính thiếu minh bạch hoặc tích hợp chưa tốt với đặt lịch và dịch vụ. ([BoostedCRM][7])
+* Việc báo cáo, thống kê dữ liệu kém — khó đánh giá hiệu suất phòng khám.
+* Khả năng mở rộng, quản lý nhiều chi nhánh nếu phòng khám phát triển — cần hệ thống phù hợp. ([KareXpert][4])
+
+---
+
+## 3. Mô hình hóa nghiệp vụ sơ bộ
+
+### 3.1. Các Use Case nghiệp vụ chính
+
+Dưới đây là các use case nghiệp vụ mẫu (có thể khai thác sơ đồ use-case, đặc tả chi tiết) cho ba vai trò chính: khách hàng, bác sĩ, admin.
+
+#### Vai trò: Khách hàng
+
+* Đăng ký/đăng nhập tài khoản
+* Tìm kiếm chuyên khoa/bác sĩ
+* Đặt lịch khám
+* Hủy hoặc thay đổi lịch khám
+* Thanh toán dịch vụ trực tuyến
+* Tra cứu lịch sử khám, kết quả xét nghiệm
+* Đánh giá và phản hồi dịch vụ
+
+#### Vai trò: Bác sĩ
+
+* Đăng nhập hệ thống
+* Xem lịch khám hôm nay/tuần
+* Mở hồ sơ bệnh nhân
+* Cập nhật kết quả khám, bệnh án điện tử
+* Chỉ định dịch vụ/xét nghiệm
+* Kết thúc buổi khám / chuyển hồ sơ sang thanh toán
+
+#### Vai trò: Admin
+
+* Quản lý chuyên khoa, danh mục bác sĩ
+* Quản lý bác sĩ (thêm/sửa/xóa)
+* Quản lý lịch làm việc/ca khám của bác sĩ
+* Quản lý hồ sơ khách hàng
+* Quản lý lịch khám và dịch vụ khám bệnh
+* Quản lý thanh toán, khuyến mãi, tích điểm
+* Khởi tạo chatbot hỗ trợ khách hàng
+* Xem thống kê: doanh thu, lượt khám, khách hàng thường xuyên
+* Tiếp nhận và phản hồi đánh giá dịch vụ
+
+### 3.2. Mô hình dữ liệu & sơ đồ lớp (chỉ mô tả khái quát)
+
+* Thực thể (nhân vật) /chính: Khách hàng (Patient), Bác sĩ (Doctor), Lịch khám (Appointment), Dịch vụ khám bệnh (Service), Bệnh án (MedicalRecord), Kết quả xét nghiệm (LabResult), Thanh toán (Payment), Chuyên khoa (Specialty), Ca làm việc (WorkShift), Đánh giá (Feedback), Khuyến mãi/Tích điểm (Promotion / LoyaltyPoints)
+* Mối quan hệ:
+
+  * Khách hàng đặt nhiều Lịch khám → mỗi lịch khám được bác sĩ xử lý.
+  * Bác sĩ thuộc chuyên khoa, có nhiều ca làm việc.
+  * Một lịch khám có thể sử dụng nhiều dịch vụ khám bệnh và dẫn tới một hoặc nhiều kết quả xét nghiệm.
+  * Bệnh án được tạo cho lịch khám sau khi khám xong.
+  * Thanh toán được liên kết với lịch khám và dịch vụ.
+  * Khách hàng có thể tham gia khuyến mãi hoặc tích điểm liên quan tới thanh toán.
+  * Đánh giá được thực hiện bởi khách hàng cho lịch khám/dịch vụ.
+* Sơ đồ lớp mức phân tích (ví dụ lớp Patient, Doctor, Appointment, Service, Payment, Feedback)
+* Sơ đồ lớp thiết kế sẽ mở rộng với các lớp hỗ trợ (ví dụ: UserAccount, Role, Notification, ChatbotSession…)
