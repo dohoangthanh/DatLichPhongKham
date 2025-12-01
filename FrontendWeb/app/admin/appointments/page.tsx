@@ -135,27 +135,67 @@ const AppointmentsPage: React.FC = () => {
     }
   }
 
-  const handleUpdateStatus = async (appointmentId: number, newStatus: string) => {
+  const handleUpdateStatus = async (appointmentId: number, newStatus: string, currentStatus: string) => {
+    // Check if trying to change from Cancelled status
+    if (currentStatus === 'Cancelled') {
+      alert('⚠️ Không thể chỉnh sửa lịch hẹn đã hủy! Trạng thái "Cancelled" đã bị khóa.');
+      return;
+    }
+    // Check if trying to change from Completed status
+    if (currentStatus === 'Completed') {
+      alert('⚠️ Không thể chỉnh sửa lịch hẹn đã hoàn thành! Trạng thái "Completed" đã bị khóa.');
+      return;
+    }
+
+    // Confirm if changing TO Cancelled status
+    if (newStatus === 'Cancelled') {
+      const confirmed = confirm(
+        '⚠️ Bạn có chắc muốn hủy lịch hẹn này không?\n\n' +
+        'Lưu ý:\n' +
+        '- Trạng thái "Cancelled" sẽ bị KHÓA và không thể thay đổi lại\n' +
+        '- Giờ khám sẽ được giải phóng để bệnh nhân khác đặt lịch'
+      );
+      
+      if (!confirmed) {
+        // Reset the select to current status
+        fetchAppointments();
+        return;
+      }
+    }
+
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/appointments/${appointmentId}`, {
+      
+      // Use /cancel endpoint for Cancelled status
+      const url = newStatus === 'Cancelled' 
+        ? `${API_URL}/appointments/${appointmentId}/cancel`
+        : `${API_URL}/appointments/${appointmentId}`;
+      
+      const response = await fetch(url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status: newStatus })
+        body: newStatus === 'Cancelled' ? '{}' : JSON.stringify({ status: newStatus })
       })
 
       if (response.ok) {
-        fetchAppointments()
-        alert('Cập nhật trạng thái thành công!')
+        fetchAppointments();
+        if (newStatus === 'Cancelled') {
+          alert('✅ Hủy lịch hẹn thành công! Giờ khám đã được giải phóng.');
+        } else {
+          alert('Cập nhật trạng thái thành công!');
+        }
       } else {
-        alert('Có lỗi xảy ra!')
+        const errorData = await response.json();
+        alert('❌ ' + (errorData.message || 'Có lỗi xảy ra!'));
+        fetchAppointments(); // Refresh to reset UI
       }
     } catch (error) {
-      console.error('Error updating status:', error)
-      alert('Có lỗi xảy ra!')
+      console.error('Error updating status:', error);
+      alert('Có lỗi xảy ra!');
+      fetchAppointments(); // Refresh to reset UI
     }
   }
 
@@ -292,16 +332,35 @@ const AppointmentsPage: React.FC = () => {
                     {appointment.doctor?.specialtyName || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <select
-                      value={appointment.status}
-                      onChange={(e) => handleUpdateStatus(appointment.appointmentId, e.target.value)}
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}
-                    >
-                      <option value="Scheduled">Scheduled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="No-show">No-show</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={appointment.status}
+                        onChange={(e) => handleUpdateStatus(appointment.appointmentId, e.target.value, appointment.status)}
+                        disabled={appointment.status === 'Cancelled' || appointment.status === 'Completed'}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)} ${
+                          appointment.status === 'Cancelled' || appointment.status === 'Completed'
+                            ? 'cursor-not-allowed opacity-75' 
+                            : 'cursor-pointer'
+                        }`}
+                        title={
+                          appointment.status === 'Cancelled' 
+                            ? '🔒 Trạng thái đã hủy không thể thay đổi' 
+                            : appointment.status === 'Completed'
+                            ? '🔒 Trạng thái đã hoàn thành không thể thay đổi'
+                            : 'Chọn trạng thái'
+                        }
+                      >
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="No-show">No-show</option>
+                      </select>
+                      {(appointment.status === 'Cancelled' || appointment.status === 'Completed') && (
+                        <span className="absolute -top-1 -right-1 text-red-600" title="Trạng thái khóa">
+                          🔒
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

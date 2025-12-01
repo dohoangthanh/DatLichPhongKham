@@ -132,6 +132,33 @@ public class ChatbotController : ControllerBase
             .Select(s => s.Name!)
             .ToListAsync();
 
+        // Lấy TẤT CẢ kết quả xét nghiệm
+        var ketQuaXetNghiem = await _context.LabResults
+            .Include(lr => lr.Record)
+                .ThenInclude(mr => mr!.Appointment)
+            .Where(lr => lr.Record!.Appointment!.PatientId == patientId)
+            .OrderByDescending(lr => lr.ResultDate)
+            .Select(lr => new KetQuaXetNghiemItem
+            {
+                Ngay = lr.ResultDate.HasValue ? lr.ResultDate.Value.ToString("dd/MM/yyyy") : "N/A",
+                ChiTiet = lr.ResultDetails
+            })
+            .ToListAsync();
+
+        // Lấy TẤT CẢ lịch sử thanh toán
+        var lichSuThanhToan = await _context.Payments
+            .Include(p => p.Appointment)
+            .Where(p => p.Appointment!.PatientId == patientId)
+            .OrderByDescending(p => p.PaymentDate)
+            .Select(p => new LichSuThanhToanItem
+            {
+                Ngay = p.PaymentDate.HasValue ? p.PaymentDate.Value.ToString("dd/MM/yyyy") : "N/A",
+                SoTien = p.TotalAmount,
+                PhuongThuc = p.PaymentMethod,
+                TrangThai = p.Status
+            })
+            .ToListAsync();
+
         // Tính tuổi
         int? tuoi = null;
         if (patient.Dob.HasValue)
@@ -149,7 +176,9 @@ public class ChatbotController : ControllerBase
             GioiTinh = patient.Gender,
             LichSuKham = lichSuKham,
             LichHenSapToi = lichHenSapToi,
-            ChuyenKhoaCuaPhongKham = chuyenKhoa
+            ChuyenKhoaCuaPhongKham = chuyenKhoa,
+            KetQuaXetNghiem = ketQuaXetNghiem,
+            LichSuThanhToan = lichSuThanhToan
         };
     }
 

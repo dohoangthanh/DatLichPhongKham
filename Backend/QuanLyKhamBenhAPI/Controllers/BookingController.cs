@@ -170,6 +170,7 @@ public class BookingController : ControllerBase
             .Where(a => a.PatientId == userAccount.PatientId.Value)
             .Include(a => a.Doctor)
             .ThenInclude(d => d!.Specialty)
+            .Include(a => a.Payments)
             .OrderByDescending(a => a.Date)
             .ThenByDescending(a => a.Time)
             .Select(a => new
@@ -189,7 +190,14 @@ public class BookingController : ControllerBase
                 {
                     a.Doctor.Specialty.SpecialtyId,
                     a.Doctor.Specialty.Name
-                } : null
+                } : null,
+                Payment = a.Payments.FirstOrDefault() != null ? new
+                {
+                    PaymentId = a.Payments.First().PaymentId,
+                    Status = a.Payments.First().Status,
+                    TotalAmount = a.Payments.First().TotalAmount
+                } : null,
+                HasFeedback = a.DoctorId.HasValue && _context.Feedbacks.Any(f => f.DoctorId == a.DoctorId && f.PatientId == a.PatientId)
             })
             .ToListAsync();
 

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/booking.dart';
 import '../services/booking_service.dart';
 import '../services/auth_service.dart';
+import 'payment_screen.dart';
 
 class AppointmentsHistoryScreen extends StatefulWidget {
   const AppointmentsHistoryScreen({super.key});
@@ -44,19 +45,20 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
       final authService = Provider.of<AuthService>(context, listen: false);
       final appointments = await _bookingService.getMyAppointments(authService.token!);
       
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      
       if (mounted) {
         setState(() {
+          // Scheduled: Only Scheduled or Confirmed appointments
           _upcomingAppointments = appointments.where((apt) {
-            final aptDate = DateTime.tryParse(apt.date);
-            return aptDate != null && (aptDate.isAfter(today) || aptDate.isAtSameMomentAs(today));
+            final status = apt.status.toLowerCase().trim();
+            return status == 'scheduled' || status == 'confirmed';
           }).toList();
+          
+          // History: Completed and Cancelled appointments
           _pastAppointments = appointments.where((apt) {
-            final aptDate = DateTime.tryParse(apt.date);
-            return aptDate != null && aptDate.isBefore(today);
+            final status = apt.status.toLowerCase().trim();
+            return status == 'completed' || status == 'cancelled';
           }).toList();
+          
           _isLoading = false;
         });
       }
@@ -70,14 +72,231 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
     }
   }
 
-  Color _getStatusColor(String status) {
+  Future<void> _cancelAppointment(Appointment appointment) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Appointment'),
+        content: const Text('Are you sure you want to cancel this appointment?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _bookingService.cancelAppointment(authService.token!, appointment.appointmentId);
+        await _loadAppointments(); // Reload to update the list
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Appointment cancelled successfully')),
+        );
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to cancel appointment: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildActionButtons(bool isUpcoming, Appointment appointment) {
+    if (isUpcoming) {
+      // Scheduled: View details and Cancel
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/appointment-detail', arguments: appointment.appointmentId);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E88E5),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'View Details',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _cancelAppointment(appointment),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else {
+      // History: Completed or Cancelled
+      if (appointment.status.toLowerCase() == 'cancelled') {
+        return const SizedBox.shrink(); // No buttons
+      } else if (appointment.status.toLowerCase() == 'completed') {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/test-results', arguments: appointment.appointmentId);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E88E5),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Record',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') {
+                        Navigator.pushNamed(context, '/invoice', arguments: appointment.appointmentId);
+                      } else {
+                        try {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentScreen(appointmentId: appointment.appointmentId),
+                            ),
+                          );
+                          if (result == true && mounted) {
+                            _loadAppointments();
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E88E5),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') ? 'Invoice' : 'Payment',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (appointment.hasFeedback ?? false) {
+                        Navigator.pushNamed(context, '/view-review', arguments: appointment.appointmentId);
+                      } else {
+                        try {
+                          final result = await Navigator.pushNamed(context, '/review', arguments: appointment.appointmentId);
+                          if (result == true && mounted) {
+                            _loadAppointments();
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E88E5),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      (appointment.hasFeedback ?? false) ? 'View Review' : 'Review',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      }
+    }
+    return const SizedBox.shrink();
+  }
+
+  String _getDisplayStatus(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
+        return 'Scheduled';
+      default:
+        return status;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return Colors.blue;
+      case 'confirmed':
+        return Colors.blue;
+      case 'completed':
         return Colors.green;
       case 'cancelled':
         return Colors.red;
-      case 'completed':
-        return Colors.blue;
       default:
         return Colors.grey;
     }
@@ -132,8 +351,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
             fontWeight: FontWeight.w600,
           ),
           tabs: const [
-            Tab(text: 'Upcoming'),
-            Tab(text: 'Past'),
+            Tab(text: 'Scheduled'),
+            Tab(text: 'History'),
           ],
         ),
       ),
@@ -221,11 +440,23 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: Colors.grey[200]!),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: InkWell(
+            onTap: () async {
+              final result = await Navigator.pushNamed(
+                context,
+                '/appointment-detail',
+                arguments: appointment.appointmentId,
+              );
+              if (result == true) {
+                _loadAppointments(); // Reload if appointment was changed
+              }
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   children: [
                     Expanded(
@@ -263,7 +494,7 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        appointment.status,
+                        _getDisplayStatus(appointment.status),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -289,8 +520,11 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                _buildActionButtons(isUpcoming, appointment),
               ],
             ),
+          ),
           ),
         );
       },

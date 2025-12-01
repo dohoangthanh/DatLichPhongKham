@@ -14,19 +14,25 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
 interface Appointment {
   appointmentId: number
-  date: string
-  time: string
+  date?: string
+  time?: string
   status: string
   doctor: {
     doctorId: number
     name: string
     phone: string
     imageUrl?: string
-  }
+  } | null
   specialty: {
     specialtyId: number
     name: string
-  }
+  } | null
+  payment?: {
+    paymentId: number
+    status: string
+    totalAmount: number
+  } | null
+  hasFeedback?: boolean
 }
 
 interface LabResult {
@@ -110,6 +116,8 @@ export default function HistoryPage() {
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Appointments data:', data)
+        console.log('First appointment:', data[0])
         setAppointments(data)
       }
     } catch (error) {
@@ -307,10 +315,10 @@ export default function HistoryPage() {
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-gray-800">
-                            {appointment.doctor.name}
+                            {appointment.doctor?.name || 'BS.'}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {appointment.specialty.name}
+                            {appointment.specialty?.name || ''}
                           </p>
                         </div>
                       </div>
@@ -321,7 +329,15 @@ export default function HistoryPage() {
                           <div>
                             <p className="text-xs text-gray-500">Ngày khám</p>
                             <p className="font-semibold text-gray-800">
-                              {new Date(appointment.date).toLocaleDateString('vi-VN')}
+                              {appointment.date ? (() => {
+                                try {
+                                  const dateStr = String(appointment.date);
+                                  const [year, month, day] = dateStr.split('-').map(Number);
+                                  return new Date(year, month - 1, day).toLocaleDateString('vi-VN');
+                                } catch (e) {
+                                  return appointment.date;
+                                }
+                              })() : 'Invalid Date'}
                             </p>
                           </div>
                         </div>
@@ -331,7 +347,7 @@ export default function HistoryPage() {
                           <div>
                             <p className="text-xs text-gray-500">Giờ khám</p>
                             <p className="font-semibold text-gray-800">
-                              {appointment.time}
+                              {appointment.time ? String(appointment.time).substring(0, 5) : ''}
                             </p>
                           </div>
                         </div>
@@ -341,7 +357,7 @@ export default function HistoryPage() {
                           <div>
                             <p className="text-xs text-gray-500">Liên hệ</p>
                             <p className="font-semibold text-gray-800">
-                              {appointment.doctor.phone}
+                              {appointment.doctor?.phone || ''}
                             </p>
                           </div>
                         </div>
@@ -357,19 +373,34 @@ export default function HistoryPage() {
                     <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent flex gap-3">
                       <button
                         className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
-                        onClick={() => {
-                          // TODO: Implement view details
-                          alert('Xem chi tiết')
-                        }}
+                        onClick={() => router.push(`/patient/appointments/${appointment.appointmentId}`)}
                       >
                         Xem Chi Tiết
                       </button>
                       <button
                         className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                        onClick={() => {
-                          // TODO: Implement cancel appointment
-                          if (confirm('Bạn có chắc muốn hủy lịch khám này?')) {
-                            alert('Hủy lịch khám')
+                        onClick={async () => {
+                          if (!confirm('Bạn có chắc muốn hủy lịch khám này?')) return;
+                          
+                          try {
+                            const response = await fetch(`${API_URL}/appointments/${appointment.appointmentId}/cancel`, {
+                              method: 'PUT',
+                              headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                              }
+                            });
+                            
+                            if (response.ok) {
+                              alert('Hủy lịch khám thành công!');
+                              fetchAppointments();
+                            } else {
+                              const error = await response.json();
+                              alert(error.message || 'Không thể hủy lịch khám');
+                            }
+                          } catch (error) {
+                            console.error('Error cancelling appointment:', error);
+                            alert('Có lỗi xảy ra khi hủy lịch khám');
                           }
                         }}
                       >
@@ -379,26 +410,48 @@ export default function HistoryPage() {
                   )}
 
                   {appointment.status === 'Completed' && (
-                    <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent flex gap-3">
-                      <button
-                        className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
-                        onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
-                      >
-                        Xem Kết Quả Khám
-                      </button>
-                      <button
-                        className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
-                        onClick={() => {
-                          setFeedbackModal({
-                            isOpen: true,
-                            appointmentId: appointment.appointmentId,
-                            doctorId: appointment.doctor.doctorId,
-                            doctorName: appointment.doctor.name
-                          })
-                        }}
-                      >
-                        Đánh Giá
-                      </button>
+                    <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent">
+                      <div className="grid grid-cols-3 gap-3">
+                        <button
+                          className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+                          onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
+                        >
+                          Xem Kết Quả Khám
+                        </button>
+                        <button
+                          className={`px-4 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
+                            appointment.payment?.status === 'Paid'
+                              ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
+                              : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
+                          }`}
+                          onClick={() => router.push(`/patient/payment/${appointment.appointmentId}`)}
+                        >
+                          {appointment.payment?.status === 'Paid' ? 'Xem lại Hóa đơn' : 'Thanh Toán'}
+                        </button>
+                        <button
+                          className={`px-4 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
+                            appointment.hasFeedback
+                              ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
+                              : 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'
+                          }`}
+                          onClick={() => {
+                            if (appointment.doctor) {
+                              if (appointment.hasFeedback) {
+                                router.push('/patient/feedback');
+                              } else {
+                                setFeedbackModal({
+                                  isOpen: true,
+                                  appointmentId: appointment.appointmentId,
+                                  doctorId: appointment.doctor.doctorId,
+                                  doctorName: appointment.doctor.name
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          {appointment.hasFeedback ? 'Xem Đánh giá' : 'Đánh Giá'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -92,6 +92,80 @@ namespace QuanLyKhamBenhAPI.Controllers
             });
         }
 
+        [HttpGet("my-feedback")]
+        public async Task<IActionResult> GetMyFeedback()
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            // Only patients can view their own feedback
+            if (user.Role != "Patient") return Forbid();
+
+            var feedbacks = await _context.Feedbacks
+                .Include(f => f.Doctor)
+                    .ThenInclude(d => d!.Specialty)
+                .Where(f => f.PatientId == user.PatientId)
+                .OrderByDescending(f => f.CreatedDate)
+                .Select(f => new
+                {
+                    f.FeedbackId,
+                    f.Rating,
+                    f.Comment,
+                    f.CreatedDate,
+                    f.ReplyText,
+                    f.RepliedDate,
+                    Doctor = f.Doctor != null ? new
+                    {
+                        f.Doctor.DoctorId,
+                        f.Doctor.Name,
+                        Specialty = f.Doctor.Specialty != null ? f.Doctor.Specialty.Name : null
+                    } : null
+                })
+                .ToListAsync();
+
+            return Ok(feedbacks);
+        }
+
+        [HttpGet("review/{appointmentId}")]
+        public async Task<IActionResult> GetReview(int appointmentId)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            // Get appointment to find doctor
+            var appointment = await _context.Appointments
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d!.Specialty)
+                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+            if (appointment == null) return NotFound("Appointment not found");
+
+            // Check if appointment belongs to user
+            if (user.Role == "Patient" && appointment.PatientId != user.PatientId) return Forbid();
+
+            // Get feedback for this appointment (patient-doctor pair)
+            var feedback = await _context.Feedbacks
+                .FirstOrDefaultAsync(f => 
+                    f.PatientId == appointment.PatientId && 
+                    f.DoctorId == appointment.DoctorId);
+
+            if (feedback == null) return NotFound("Review not found");
+
+            var review = new
+            {
+                AppointmentId = appointmentId,
+                Rating = feedback.Rating,
+                Comment = feedback.Comment,
+                Date = feedback.CreatedDate?.ToString("yyyy-MM-dd HH:mm:ss"),
+                DoctorName = appointment.Doctor?.Name ?? "Unknown",
+                Specialty = appointment.Doctor?.Specialty?.Name ?? "Unknown",
+                ReplyText = feedback.ReplyText,
+                RepliedDate = feedback.RepliedDate?.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+
+            return Ok(review);
+        }
+
         [HttpPut("reply/{id}")]
         public async Task<IActionResult> ReplyToFeedback(int id, [FromBody] ReplyFeedbackDto dto)
         {

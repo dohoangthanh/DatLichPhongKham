@@ -12,7 +12,11 @@ using QuanLyKhamBenhAPI.Models;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     [DbContext(typeof(QuanLyKhamBenhContext))]
+<<<<<<<< HEAD:Backend/QuanLyKhamBenhAPI/Migrations/20251125162928_InitialCreate.Designer.cs
     [Migration("20251125162928_InitialCreate")]
+========
+    [Migration("20251130061954_InitialCreate")]
+>>>>>>>> other/main:Backend/QuanLyKhamBenhAPI/Migrations/20251130061954_InitialCreate.Designer.cs
     partial class InitialCreate
     {
         /// <inheritdoc />

@@ -180,6 +180,53 @@ namespace QuanLyKhamBenhAPI.Controllers
             return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, createdDto);
         }
 
+        [HttpPut("{id}/cancel")]
+        [Authorize(Roles = "Patient,Doctor,Admin")]
+        public async Task<IActionResult> CancelAppointment(int id)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null) return NotFound();
+
+            // Check if appointment is already cancelled
+            if (appointment.Status == "Cancelled")
+            {
+                return BadRequest(new { message = "Appointment is already cancelled" });
+            }
+
+            // Check permissions
+            if (user.Role == "Patient" && appointment.PatientId != user.PatientId)
+            {
+                return Forbid();
+            }
+            if (user.Role == "Doctor" && appointment.DoctorId != user.DoctorId)
+            {
+                return Forbid();
+            }
+
+            // Cancel the appointment - this frees up the time slot
+            appointment.Status = "Cancelled";
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Appointment cancelled successfully. Time slot is now available for booking." });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AppointmentExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         [HttpPut("{id}")]
         [Authorize(Roles = "Doctor,Admin")]
         public async Task<IActionResult> PutAppointment(int id, UpdateAppointmentDto dto)
@@ -191,15 +238,31 @@ namespace QuanLyKhamBenhAPI.Controllers
             var existing = await _context.Appointments.FindAsync(id);
             if (existing == null) return NotFound();
 
+            // Lock Cancelled and Completed status - cannot be modified
+            if (existing.Status == "Cancelled")
+            {
+                return BadRequest(new { message = "Cannot modify a cancelled appointment. Cancelled status is locked." });
+            }
+            if (existing.Status == "Completed")
+            {
+                return BadRequest(new { message = "Cannot modify a completed appointment. Completed status is locked." });
+            }
+
             if (user.Role == "Doctor" && existing.DoctorId != user.DoctorId)
             {
                 return Forbid();
             }
-            // Admin can modify all
+            // Admin can modify all (except Cancelled and Completed)
 
             // Update only allowed fields
             if (!string.IsNullOrEmpty(dto.Status))
             {
+                // Prevent direct status change to Cancelled through PUT
+                // Must use /cancel endpoint instead
+                if (dto.Status == "Cancelled")
+                {
+                    return BadRequest(new { message = "Use /cancel endpoint to cancel appointments" });
+                }
                 existing.Status = dto.Status;
             }
 

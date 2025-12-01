@@ -226,7 +226,8 @@ export default function UpdateMedicalRecordPage() {
       }
 
       setTimeout(() => {
-        router.push('/doctor/medical-records')
+        // Chuyển đến trang chỉ định dịch vụ thay vì quay về danh sách
+        router.push(`/doctor/add-services/${appointmentId}`)
       }, 1500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
