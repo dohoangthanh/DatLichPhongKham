@@ -34,12 +34,14 @@ const ServicesPage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string>('')
 
   const serviceTypes = [
-    'Khám tổng quát',
+    'Khám bệnh tổng quát',
+    'Khám chuyên khoa',
     'Xét nghiệm',
-    'Chẩn đoán hình ảnh',
-    'Khám sức khỏe định kỳ',
-    'Siêu âm ổ bụng',
-    'Khác'
+    'Cận lâm sàng',
+    'Tiêm chủng',
+    'Thủ thuật nhỏ',
+    'Phẫu thuật',
+    'Vật lý trị liệu'
   ]
 
   useEffect(() => {
@@ -156,12 +158,14 @@ const ServicesPage: React.FC = () => {
 
   const getTypeColor = (type: string) => {
     const colors: { [key: string]: string } = {
-      'Khám tổng quát': 'bg-blue-100 text-blue-800',
+      'Khám bệnh tổng quát': 'bg-blue-100 text-blue-800',
+      'Khám chuyên khoa': 'bg-indigo-100 text-indigo-800',
       'Xét nghiệm': 'bg-green-100 text-green-800',
-      'Chẩn đoán hình ảnh': 'bg-purple-100 text-purple-800',
-      'Khám sức khỏe định kỳ': 'bg-yellow-100 text-yellow-800',
-      'Siêu âm ổ bụng': 'bg-pink-100 text-pink-800',
-      'Khác': 'bg-gray-100 text-gray-800'
+      'Cận lâm sàng': 'bg-purple-100 text-purple-800',
+      'Tiêm chủng': 'bg-yellow-100 text-yellow-800',
+      'Thủ thuật nhỏ': 'bg-orange-100 text-orange-800',
+      'Phẫu thuật': 'bg-red-100 text-red-800',
+      'Vật lý trị liệu': 'bg-pink-100 text-pink-800'
     }
     return colors[type] || 'bg-gray-100 text-gray-800'
   }
@@ -260,7 +264,14 @@ const ServicesPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {service.type === 'Khám tổng quát' ? 'KBS' : service.type === 'Xét nghiệm' ? 'XN' : 'CDHA'}-{String(service.serviceId).padStart(3, '0')}
+                    {service.type === 'Khám bệnh tổng quát' ? 'KBTQ' : 
+                     service.type === 'Khám chuyên khoa' ? 'KCK' : 
+                     service.type === 'Xét nghiệm' ? 'XN' : 
+                     service.type === 'Cận lâm sàng' ? 'CLS' : 
+                     service.type === 'Tiêm chủng' ? 'TC' : 
+                     service.type === 'Thủ thuật nhỏ' ? 'TTN' : 
+                     service.type === 'Phẫu thuật' ? 'PT' : 
+                     service.type === 'Vật lý trị liệu' ? 'VLTL' : 'DV'}-{String(service.serviceId).padStart(3, '0')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {service.name}

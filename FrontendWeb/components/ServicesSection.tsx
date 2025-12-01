@@ -48,15 +48,15 @@ const ServicesSection: React.FC = () => {
         const container = scrollRef.current
         const maxScroll = container.scrollWidth - container.clientWidth
         
-        if (container.scrollLeft >= maxScroll - 10) {
+        if (container.scrollLeft >= maxScroll - 5) {
           // Quay lại đầu khi đến cuối
           container.scrollTo({ left: 0, behavior: 'smooth' })
         } else {
-          // Scroll sang trái
-          container.scrollBy({ left: 350, behavior: 'smooth' })
+          // Scroll nhỏ từng chút để mượt hơn
+          container.scrollBy({ left: 1, behavior: 'auto' })
         }
       }
-    }, 3000) // Mỗi 3 giây
+    }, 15) // Mỗi 15ms để animation mượt
 
     return () => clearInterval(scrollInterval)
   }, [services, isPaused])
@@ -88,35 +88,13 @@ const ServicesSection: React.FC = () => {
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">
-              Dịch Vụ Y Tế
-            </h2>
-            <p className="text-gray-600">
-              Cung cấp đầy đủ các dịch vụ khám chửa bệnh chuyên nghiệp
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scroll('left')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-              aria-label="Scroll left"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-              aria-label="Scroll right"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            Dịch Vụ Y Tế
+          </h2>
+          <p className="text-gray-600">
+            Cung cấp đầy đủ các dịch vụ khám chửa bệnh chuyên nghiệp
+          </p>
         </div>
 
         {/* Services Horizontal Scroll */}

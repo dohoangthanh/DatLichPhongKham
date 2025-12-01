@@ -12,11 +12,7 @@ using QuanLyKhamBenhAPI.Models;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     [DbContext(typeof(QuanLyKhamBenhContext))]
-<<<<<<<< HEAD:Backend/QuanLyKhamBenhAPI/Migrations/20251125162928_InitialCreate.Designer.cs
-    [Migration("20251125162928_InitialCreate")]
-========
-    [Migration("20251130061954_InitialCreate")]
->>>>>>>> other/main:Backend/QuanLyKhamBenhAPI/Migrations/20251130061954_InitialCreate.Designer.cs
+    [Migration("20251201044327_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -128,6 +124,9 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .HasColumnName("doctorId");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -488,6 +487,9 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .HasColumnName("serviceId");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceId"));
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
@@ -203,11 +202,32 @@ export default function PaymentPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <Header />
-      <Navigation />
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-invoice, .print-invoice * {
+            visibility: visible;
+          }
+          .print-invoice {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}} />
+      
+      <div className="no-print">
+        <Header />
+      </div>
       
       <div className="max-w-screen-xl mx-auto px-6 py-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto print-invoice">
           {/* Header */}
           <div className="text-center mb-8">
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 border-4 ${
@@ -376,22 +396,13 @@ export default function PaymentPage() {
           </div>
 
           {/* Payment Method Selection */}
-<<<<<<< HEAD
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-indigo-500">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
-              Chọn Phương thức Thanh toán
-            </h2>
-            
-            <div className="space-y-3">
-=======
-          {paymentInfo.payment.status !== 'Paid' && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">
+          {paymentInfo && paymentInfo.payment.status !== 'Paid' && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-indigo-500">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-4 pb-2 border-b border-gray-200">
                 Chọn Phương thức Thanh toán
               </h2>
               
               <div className="space-y-3">
->>>>>>> other/main
               {/* VNPAY Option */}
               <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 selectedMethod === 'VNPAY' ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/20' : 'border-gray-200 hover:border-blue-300'
@@ -458,7 +469,7 @@ export default function PaymentPage() {
           )}
 
           {/* Security Notice */}
-          {paymentInfo.payment.status !== 'Paid' && (
+          {paymentInfo && paymentInfo.payment.status !== 'Paid' && (
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-lg p-4 mb-6 flex items-start gap-3">
               <svg className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -473,15 +484,15 @@ export default function PaymentPage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 no-print">
             <button
               onClick={() => router.push('/patient/history')}
               disabled={isProcessing}
               className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {paymentInfo.payment.status === 'Paid' ? 'Quay lại' : 'Hủy'}
+              {paymentInfo && paymentInfo.payment.status === 'Paid' ? 'Quay lại' : 'Hủy'}
             </button>
-            {paymentInfo.payment.status === 'Paid' ? (
+            {paymentInfo && paymentInfo.payment.status === 'Paid' ? (
               <button
                 onClick={() => window.print()}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30"
@@ -508,7 +519,9 @@ export default function PaymentPage() {
         </div>
       </div>
       
-      <Footer />
+      <div className="no-print">
+        <Footer />
+      </div>
     </main>
   )
 }

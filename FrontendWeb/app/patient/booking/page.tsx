@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import ChatbotBubble from '@/components/ChatbotBubble'
 
@@ -54,6 +53,7 @@ export default function BookingPage() {
   const fetchSpecialties = async () => {
     try {
       const response = await fetch(`${API_URL}/booking/specialties`)
+      
       if (response.ok) {
         const data = await response.json()
         setSpecialties(data)
@@ -134,21 +134,25 @@ export default function BookingPage() {
       setIsLoading(true)
       setError('')
       
+      const requestData = {
+        doctorId: selectedDoctor,
+        date: selectedDate,
+        time: selectedTime
+      }
+      
       const response = await fetch(`${API_URL}/booking/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          doctorId: selectedDoctor,
-          date: selectedDate,
-          time: selectedTime
-        })
+        body: JSON.stringify(requestData)
       })
 
+      const responseText = await response.text()
+
       if (response.ok) {
-        const data = await response.json()
+        const data = JSON.parse(responseText)
         const appointmentId = data.appointmentId || data
         setSuccess(true)
         setTimeout(() => {
@@ -156,12 +160,17 @@ export default function BookingPage() {
           router.push(`/patient/appointments/${appointmentId}`)
         }, 1500)
       } else {
-        const errorData = await response.json()
-        setError(errorData.message || 'Đặt lịch thất bại')
+        let errorMessage = 'Đặt lịch thất bại'
+        try {
+          const errorData = JSON.parse(responseText)
+          errorMessage = errorData.message || errorData.title || errorMessage
+        } catch (e) {
+          errorMessage = responseText || errorMessage
+        }
+        setError(errorMessage)
       }
     } catch (error) {
-      console.error('Error booking appointment:', error)
-      setError('Lỗi khi đặt lịch khám')
+      setError(`Lỗi khi đặt lịch khám: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
@@ -188,7 +197,7 @@ export default function BookingPage() {
         <div className="text-center bg-white p-8 rounded-lg shadow-2xl border-t-4 border-green-500">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent mb-2">Đặt Lịch Thành Công!</h2>
-          <p className="text-gray-600">Đang chuyển đến trang thanh toán...</p>
+          <p className="text-gray-600">Vui lòng chờ trong giây lát...</p>
         </div>
       </div>
     )
@@ -197,7 +206,6 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Header />
-      <Navigation />
       
       <div className="max-w-screen-xl mx-auto px-6 py-8">
         {/* Progress Steps */}

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import ChatbotBubble from '@/components/ChatbotBubble'
 import { patientProfileApi, authApi } from '@/services/patientApi'
@@ -132,7 +131,6 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Header />
-      <Navigation />
 
       <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="max-w-5xl mx-auto">

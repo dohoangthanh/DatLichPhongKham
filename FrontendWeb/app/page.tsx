@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
 import AboutSection from '@/components/AboutSection'
 import ServicesSection from '@/components/ServicesSection'
@@ -47,7 +46,6 @@ export default function Home() {
   return (
     <main className="bg-white">
       <Header />
-      <Navigation />
       <HeroSection />
       <AboutSection />
       <ServicesSection />

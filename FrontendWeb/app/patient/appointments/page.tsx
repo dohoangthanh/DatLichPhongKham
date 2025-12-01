@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 interface Appointment {
@@ -127,7 +126,6 @@ export default function AppointmentsPage() {
   return (
     <main>
       <Header />
-      <Navigation />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-12">

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 interface AppointmentDetail {
@@ -128,11 +127,32 @@ export default function AppointmentDetailPage() {
 
   return (
     <main>
-      <Header />
-      <Navigation />
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-content, .print-content * {
+            visibility: visible;
+          }
+          .print-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}} />
+      
+      <div className="no-print">
+        <Header />
+      </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-12">
+      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-12 no-print">
         <div className="max-w-5xl mx-auto px-4">
           <button
             onClick={() => router.back()}
@@ -158,7 +178,7 @@ export default function AppointmentDetailPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gray-50 print-content">
         <div className="max-w-5xl mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left Column - Main Info */}
@@ -245,7 +265,7 @@ export default function AppointmentDetailPage() {
             </div>
 
             {/* Right Column - Actions */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-1 space-y-6 no-print">
               {/* Actions Card */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">Hành Động</h2>
@@ -304,7 +324,9 @@ export default function AppointmentDetailPage() {
         </div>
       </section>
 
-      <Footer />
+      <div className="no-print">
+        <Footer />
+      </div>
     </main>
   )
 }

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 interface Feedback {
@@ -98,7 +97,6 @@ export default function PatientFeedbackPage() {
   return (
     <main>
       <Header />
-      <Navigation />
 
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-12">
         <div className="max-w-6xl mx-auto px-4">

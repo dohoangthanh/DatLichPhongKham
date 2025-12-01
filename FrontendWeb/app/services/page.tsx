@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { patientApi } from '@/services/patientApi'
 
@@ -37,20 +36,29 @@ export default function ServicesPage() {
   }
 
   const categories = [
-    { id: 'all', name: 'Tất cả dịch vụ' },
-    { id: 'kham', name: 'Khám bệnh' },
-    { id: 'xetnghiem', name: 'Xét nghiệm' },
-    { id: 'chandoan', name: 'Chẩn đoán hình ảnh' },
-    { id: 'khac', name: 'Dịch vụ khác' }
+    { id: 'all', name: 'Tất cả' },
+    { id: 'kham-benh-tong-quat', name: 'Khám tổng quát' },
+    { id: 'kham-chuyen-khoa', name: 'Chuyên khoa' },
+    { id: 'xet-nghiem', name: 'Xét nghiệm' },
+    { id: 'can-lam-sang', name: 'Cận lâm sàng' },
+    { id: 'tiem-chung', name: 'Tiêm chủng' },
+    { id: 'thu-thuat-nho', name: 'Thủ thuật nhỏ' },
+    { id: 'phau-thuat', name: 'Phẫu thuật' },
+    { id: 'vat-ly-tri-lieu', name: 'Vật Lý Trị Liệu' }
   ]
 
   const filteredServices = selectedCategory === 'all' 
     ? services 
     : services.filter(s => {
-        const name = s.name.toLowerCase()
-        if (selectedCategory === 'kham') return name.includes('khám')
-        if (selectedCategory === 'xetnghiem') return name.includes('xét nghiệm')
-        if (selectedCategory === 'chandoan') return name.includes('chẩn đoán') || name.includes('x-quang') || name.includes('siêu âm')
+        const type = s.type?.toLowerCase() || ''
+        if (selectedCategory === 'kham-benh-tong-quat') return type.includes('khám bệnh tổng quát')
+        if (selectedCategory === 'kham-chuyen-khoa') return type.includes('khám chuyên khoa')
+        if (selectedCategory === 'xet-nghiem') return type.includes('xét nghiệm')
+        if (selectedCategory === 'can-lam-sang') return type.includes('cận lâm sàng')
+        if (selectedCategory === 'tiem-chung') return type.includes('tiêm chủng')
+        if (selectedCategory === 'thu-thuat-nho') return type.includes('thủ thuật nhỏ')
+        if (selectedCategory === 'phau-thuat') return type.includes('phẫu thuật')
+        if (selectedCategory === 'vat-ly-tri-lieu') return type.includes('vật lý trị liệu')
         return true
       })
 
@@ -61,35 +69,29 @@ export default function ServicesPage() {
   return (
     <main>
       <Header />
-      <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-100 py-10">
+      <section className="bg-gradient-to-b from-blue-50/30 to-white py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-4">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-blue-700 mb-3">
               Dịch Vụ Khám Chữa Bệnh
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Chúng tôi cung cấp đa dạng các dịch vụ y tế chất lượng cao với đội ngũ bác sĩ chuyên môn giỏi
             </p>
           </div>
-        </div>
-      </section>
 
-      {/* Filter Section */}
-      <section className="py-10 bg-white relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/20 via-transparent to-teal-50/20 pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap gap-4 justify-center">
+          {/* Filter Section */}
+          <div className="flex flex-wrap gap-2 justify-center">
             {categories.map(category => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-2 rounded-full font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:shadow-md'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 hover:bg-blue-50 border border-gray-200'
                 }`}
               >
                 {category.name}
@@ -100,7 +102,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           {loading ? (
             <div className="text-center py-12">

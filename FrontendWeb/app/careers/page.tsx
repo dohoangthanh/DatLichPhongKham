@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 export default function CareersPage() {
@@ -151,7 +150,6 @@ export default function CareersPage() {
   return (
     <main>
       <Header />
-      <Navigation />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-10">

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
@@ -82,7 +81,6 @@ export default function LoyaltyPointsPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Header />
-      <Navigation />
       
       <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">

@@ -57,6 +57,8 @@ public class MedicalController : ControllerBase
         }
 
         var appointments = await query
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d!.Specialty)
 #pragma warning disable CS8602
             .Select(a => new
             {
@@ -64,14 +66,25 @@ public class MedicalController : ControllerBase
                 a.Date,
                 a.Time,
                 a.Status,
-                Patient = new { 
-                    a.Patient.PatientId, 
-                    a.Patient.Name, 
+                Patient = new
+                {
+                    a.Patient.PatientId,
+                    a.Patient.Name,
                     a.Patient.Phone,
                     a.Patient.Dob,
                     a.Patient.Gender,
                     a.Patient.Address
                 },
+                Doctor = a.Doctor != null ? new
+                {
+                    a.Doctor.DoctorId,
+                    a.Doctor.Name,
+                    Specialty = a.Doctor.Specialty != null ? new
+                    {
+                        a.Doctor.Specialty.SpecialtyId,
+                        a.Doctor.Specialty.Name
+                    } : null
+                } : null,
                 HasMedicalRecord = a.MedicalRecords.Any()
             })
 #pragma warning restore CS8602
@@ -235,50 +248,50 @@ public class MedicalController : ControllerBase
         }
 
         var dtos = records.Select(mr => new MedicalRecordDto
+        {
+            RecordId = mr.RecordId,
+            Symptoms = mr.Symptoms,
+            Diagnosis = mr.Diagnosis,
+            Treatment = mr.Treatment,
+            CreatedDate = mr.CreatedDate,
+            AppointmentId = mr.AppointmentId,
+            Appointment = mr.Appointment != null ? new AppointmentForRecordDto
             {
-                RecordId = mr.RecordId,
-                Symptoms = mr.Symptoms,
-                Diagnosis = mr.Diagnosis,
-                Treatment = mr.Treatment,
-                CreatedDate = mr.CreatedDate,
-                AppointmentId = mr.AppointmentId,
-                Appointment = mr.Appointment != null ? new AppointmentForRecordDto
+                AppointmentId = mr.Appointment.AppointmentId,
+                Date = mr.Appointment.Date,
+                Time = mr.Appointment.Time,
+                Status = mr.Appointment.Status,
+                PatientId = mr.Appointment.PatientId ?? 0,
+                DoctorId = mr.Appointment.DoctorId ?? 0,
+                Doctor = mr.Appointment.Doctor != null ? new DoctorDto
                 {
-                    AppointmentId = mr.Appointment.AppointmentId,
-                    Date = mr.Appointment.Date,
-                    Time = mr.Appointment.Time,
-                    Status = mr.Appointment.Status,
-                    PatientId = mr.Appointment.PatientId ?? 0,
-                    DoctorId = mr.Appointment.DoctorId ?? 0,
-                    Doctor = mr.Appointment.Doctor != null ? new DoctorDto
+                    DoctorId = mr.Appointment.Doctor.DoctorId,
+                    Name = mr.Appointment.Doctor.Name!,
+                    Phone = mr.Appointment.Doctor.Phone!,
+                    Specialty = mr.Appointment.Doctor.Specialty != null ? new SpecialtyDto
                     {
-                        DoctorId = mr.Appointment.Doctor.DoctorId,
-                        Name = mr.Appointment.Doctor.Name!,
-                        Phone = mr.Appointment.Doctor.Phone!,
-                        Specialty = mr.Appointment.Doctor.Specialty != null ? new SpecialtyDto
-                        {
-                            SpecialtyId = mr.Appointment.Doctor.Specialty.SpecialtyId,
-                            Name = mr.Appointment.Doctor.Specialty.Name!
-                        } : null
-                    } : null,
-                    Patient = mr.Appointment.Patient != null ? new PatientDto
-                    {
-                        PatientId = mr.Appointment.Patient.PatientId,
-                        Name = mr.Appointment.Patient.Name!,
-                        Dob = mr.Appointment.Patient.Dob?.ToString("yyyy-MM-dd") ?? "",
-                        Gender = mr.Appointment.Patient.Gender ?? "",
-                        Phone = mr.Appointment.Patient.Phone ?? "",
-                        Address = mr.Appointment.Patient.Address ?? ""
+                        SpecialtyId = mr.Appointment.Doctor.Specialty.SpecialtyId,
+                        Name = mr.Appointment.Doctor.Specialty.Name!
                     } : null
                 } : null,
-                LabResults = mr.LabResults?.Select(lr => new LabResultForRecordDto
+                Patient = mr.Appointment.Patient != null ? new PatientDto
                 {
-                    ResultId = lr.ResultId,
-                    ResultDetails = lr.ResultDetails,
-                    ResultDate = lr.ResultDate,
-                    RecordId = lr.RecordId ?? 0
-                }).ToList() ?? new List<LabResultForRecordDto>()
-            }).ToList();
+                    PatientId = mr.Appointment.Patient.PatientId,
+                    Name = mr.Appointment.Patient.Name!,
+                    Dob = mr.Appointment.Patient.Dob?.ToString("yyyy-MM-dd") ?? "",
+                    Gender = mr.Appointment.Patient.Gender ?? "",
+                    Phone = mr.Appointment.Patient.Phone ?? "",
+                    Address = mr.Appointment.Patient.Address ?? ""
+                } : null
+            } : null,
+            LabResults = mr.LabResults?.Select(lr => new LabResultForRecordDto
+            {
+                ResultId = lr.ResultId,
+                ResultDetails = lr.ResultDetails,
+                ResultDate = lr.ResultDate,
+                RecordId = lr.RecordId ?? 0
+            }).ToList() ?? new List<LabResultForRecordDto>()
+        }).ToList();
 
         return Ok(dtos);
     }
@@ -417,8 +430,9 @@ public class MedicalController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        return Ok(new { 
-            message = "Services added successfully", 
+        return Ok(new
+        {
+            message = "Services added successfully",
             totalAmount = totalAmount,
             serviceCount = request.ServiceIds.Count
         });

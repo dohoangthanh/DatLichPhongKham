@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { patientApi } from '@/services/patientApi'
 
@@ -39,10 +38,14 @@ export default function PricingPage() {
 
   const categories = [
     { id: 'all', name: 'Tất cả', icon: '📋' },
-    { id: 'kham', name: 'Khám bệnh', icon: '🩺' },
-    { id: 'xetnghiem', name: 'Xét nghiệm', icon: '🔬' },
-    { id: 'chandoan', name: 'Chẩn đoán hình ảnh', icon: '📊' },
-    { id: 'khac', name: 'Dịch vụ khác', icon: '⚕️' }
+    { id: 'kham-benh-tong-quat', name: 'Khám tổng quát', icon: '🩺' },
+    { id: 'kham-chuyen-khoa', name: 'Chuyên khoa', icon: '👨‍⚕️' },
+    { id: 'xet-nghiem', name: 'Xét nghiệm', icon: '🔬' },
+    { id: 'can-lam-sang', name: 'Cận lâm sàng', icon: '📊' },
+    { id: 'tiem-chung', name: 'Tiêm chủng', icon: '💉' },
+    { id: 'thu-thuat-nho', name: 'Thủ thuật nhỏ', icon: '🔧' },
+    { id: 'phau-thuat', name: 'Phẫu thuật', icon: '🏥' },
+    { id: 'vat-ly-tri-lieu', name: 'VLTL', icon: '⚕️' }
   ]
 
   const filteredServices = services.filter(service => {
@@ -55,9 +58,14 @@ export default function PricingPage() {
     if (selectedCategory === 'all') return matchesSearch
     
     let matchesCategory = false
-    if (selectedCategory === 'kham') matchesCategory = type.includes('kham') || name.includes('khám')
-    else if (selectedCategory === 'xetnghiem') matchesCategory = type.includes('lab') || name.includes('xét nghiệm')
-    else if (selectedCategory === 'chandoan') matchesCategory = type.includes('imaging') || name.includes('chẩn đoán') || name.includes('x-quang') || name.includes('siêu âm')
+    if (selectedCategory === 'kham-benh-tong-quat') matchesCategory = type.includes('khám bệnh tổng quát')
+    else if (selectedCategory === 'kham-chuyen-khoa') matchesCategory = type.includes('khám chuyên khoa')
+    else if (selectedCategory === 'xet-nghiem') matchesCategory = type.includes('xét nghiệm')
+    else if (selectedCategory === 'can-lam-sang') matchesCategory = type.includes('cận lâm sàng')
+    else if (selectedCategory === 'tiem-chung') matchesCategory = type.includes('tiêm chủng')
+    else if (selectedCategory === 'thu-thuat-nho') matchesCategory = type.includes('thủ thuật nhỏ')
+    else if (selectedCategory === 'phau-thuat') matchesCategory = type.includes('phẫu thuật')
+    else if (selectedCategory === 'vat-ly-tri-lieu') matchesCategory = type.includes('vật lý trị liệu')
     else matchesCategory = true
     
     return matchesSearch && matchesCategory
@@ -70,7 +78,6 @@ export default function PricingPage() {
   return (
     <main>
       <Header />
-      <Navigation />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-10">
@@ -113,21 +120,23 @@ export default function PricingPage() {
             </div>
 
             {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map(category => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-full font-medium transition-colors flex items-center gap-2 ${
-                    selectedCategory === category.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <span>{category.icon}</span>
-                  <span>{category.name}</span>
-                </button>
-              ))}
+            <div className="overflow-x-auto flex-1">
+              <div className="flex gap-2 min-w-max">
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
+                      selectedCategory === category.id
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <span>{category.icon}</span>
+                    <span>{category.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

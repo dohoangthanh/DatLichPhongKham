@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FeedbackModal from '@/components/FeedbackModal'
 import ChatbotBubble from '@/components/ChatbotBubble'
@@ -209,7 +208,6 @@ export default function HistoryPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Header />
-      <Navigation />
       
       <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="max-w-7xl mx-auto">
@@ -299,7 +297,7 @@ export default function HistoryPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-4 mb-3">
                         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center overflow-hidden border-4 border-gradient-to-r from-cyan-200 to-blue-300">
-                          {appointment.doctor.imageUrl ? (
+                          {appointment.doctor?.imageUrl ? (
                             <img 
                               src={appointment.doctor.imageUrl.startsWith('http') ? appointment.doctor.imageUrl : `http://localhost:5129${appointment.doctor.imageUrl}`}
                               alt={appointment.doctor.name}

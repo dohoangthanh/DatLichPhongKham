@@ -83,7 +83,8 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
+                    type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -132,6 +133,7 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     specialtyId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

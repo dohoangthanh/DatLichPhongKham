@@ -13,12 +13,24 @@ interface Patient {
   phone: string
 }
 
+interface Specialty {
+  specialtyId: number
+  name: string
+}
+
+interface Doctor {
+  doctorId: number
+  name: string
+  specialty?: Specialty
+}
+
 interface Appointment {
   appointmentId: number
   date: string
   time: string
   status: string
   patient: Patient
+  doctor?: Doctor
 }
 
 export default function DoctorSchedulePage() {
@@ -187,7 +199,9 @@ export default function DoctorSchedulePage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Tìm mạch</div>
+                          <div className="text-sm text-gray-900">
+                            {appointment.doctor?.specialty?.name || 'Chưa xác định'}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(appointment.status)}
