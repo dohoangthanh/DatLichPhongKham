@@ -22,6 +22,14 @@ interface Doctor {
   imageUrl?: string
 }
 
+interface WorkShift {
+  shiftId: number
+  doctorId: number
+  date: string
+  startTime: string
+  endTime: string
+}
+
 export default function BookingPage() {
   const { user, token, loading } = useAuth()
   const router = useRouter()
@@ -30,6 +38,7 @@ export default function BookingPage() {
   const [specialties, setSpecialties] = useState<Specialty[]>([])
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
+  const [doctorWorkShifts, setDoctorWorkShifts] = useState<WorkShift[]>([])
   
   const [selectedSpecialty, setSelectedSpecialty] = useState<number | null>(null)
   const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null)
@@ -104,8 +113,35 @@ export default function BookingPage() {
     fetchDoctors(specialtyId)
   }
 
-  const handleDoctorSelect = (doctorId: number) => {
+  const handleDoctorSelect = async (doctorId: number) => {
     setSelectedDoctor(doctorId)
+    setSelectedDate('')
+    setSelectedTime('')
+    setAvailableSlots([])
+    // Fetch work shifts for selected doctor
+    await fetchDoctorWorkShifts(doctorId)
+  }
+
+  const fetchDoctorWorkShifts = async (doctorId: number) => {
+    try {
+      setIsLoading(true)
+      const response = await fetch(`${API_URL}/schedule/workshift/${doctorId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        // Lọc chỉ lấy các ngày từ hôm nay trở đi
+        const today = new Date().toISOString().split('T')[0]
+        const futureShifts = data.filter((shift: WorkShift) => shift.date >= today)
+        setDoctorWorkShifts(futureShifts)
+      }
+    } catch (error) {
+      console.error('Error fetching doctor work shifts:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleDateSelect = (date: string) => {
@@ -243,6 +279,7 @@ export default function BookingPage() {
             Đặt Lịch Khám Bệnh Trực Tuyến
           </h1>
 
+
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg">
               <p className="text-red-600">{error}</p>
@@ -252,35 +289,49 @@ export default function BookingPage() {
           {/* Step 1: Select Doctor & Date */}
           {step === 1 && (
             <div className="space-y-6">
-              {/* Select Specialty */}
-              <div>
-                <label className="block text-lg font-semibold mb-3 text-gray-700">
-                  Chọn Chuyên Khoa
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {specialties.map((specialty) => (
-                    <button
-                      key={specialty.specialtyId}
-                      onClick={() => handleSpecialtySelect(specialty.specialtyId)}
-                      className={`p-4 rounded-lg border-2 text-left transition-all ${
-                        selectedSpecialty === specialty.specialtyId
-                          ? 'border-cyan-500 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-lg shadow-cyan-500/20'
-                          : 'border-gray-300 hover:border-cyan-400'
-                      }`}
-                    >
-                      <h3 className="font-semibold text-lg">{specialty.name}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{specialty.description}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Select Doctor */}
-              {selectedSpecialty && doctors.length > 0 && (
+              {/* Select Specialty - Ẩn khi đã chọn */}
+              {!selectedSpecialty && (
                 <div>
                   <label className="block text-lg font-semibold mb-3 text-gray-700">
-                    Chọn Bác Sĩ
+                    Chọn Chuyên Khoa
                   </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {specialties.map((specialty) => (
+                      <button
+                        key={specialty.specialtyId}
+                        onClick={() => handleSpecialtySelect(specialty.specialtyId)}
+                        className="p-4 rounded-lg border-2 text-left transition-all border-gray-300 hover:border-cyan-400 hover:shadow-md"
+                      >
+                        <h3 className="font-semibold text-lg">{specialty.name}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{specialty.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Select Doctor - Hiển thị sau khi chọn khoa */}
+              {selectedSpecialty && doctors.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-lg font-semibold text-gray-700">
+                      Chọn Bác Sĩ
+                    </label>
+                    <button
+                      onClick={() => {
+                        setSelectedSpecialty(null)
+                        setSelectedDoctor(null)
+                        setDoctors([])
+                        setSelectedDate('')
+                        setSelectedTime('')
+                        setAvailableSlots([])
+                        setDoctorWorkShifts([])
+                      }}
+                      className="text-sm text-cyan-600 hover:text-cyan-700 font-medium"
+                    >
+                      ← Quay lại
+                    </button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {doctors.map((doctor) => (
                       <button
@@ -319,19 +370,43 @@ export default function BookingPage() {
                 </div>
               )}
 
-              {/* Select Date */}
+              {/* Select Date - Dropdown */}
               {selectedDoctor && (
                 <div>
                   <label className="block text-lg font-semibold mb-3 text-gray-700">
                     Chọn Ngày Khám
                   </label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => handleDateSelect(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all"
-                  />
+                  {isLoading ? (
+                    <div className="w-full p-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-center">
+                      <span className="text-gray-500">⏳ Đang tải lịch làm việc...</span>
+                    </div>
+                  ) : doctorWorkShifts.length > 0 ? (
+                    <select
+                      value={selectedDate}
+                      onChange={(e) => handleDateSelect(e.target.value)}
+                      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all text-base"
+                    >
+                      <option value="">-- Chọn ngày khám --</option>
+                      {doctorWorkShifts.map((shift) => {
+                        const date = new Date(shift.date)
+                        const displayDate = date.toLocaleDateString('vi-VN', { 
+                          weekday: 'long', 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })
+                        return (
+                          <option key={shift.shiftId} value={shift.date}>
+                            {displayDate} ({shift.startTime} - {shift.endTime})
+                          </option>
+                        )
+                      })}
+                    </select>
+                  ) : (
+                    <div className="w-full p-3 border-2 border-red-300 rounded-lg bg-red-50">
+                      <p className="text-red-600 text-center">⚠️ Bác sĩ chưa đăng ký lịch làm việc</p>
+                    </div>
+                  )}
                 </div>
               )}
 

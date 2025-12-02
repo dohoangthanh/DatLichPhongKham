@@ -13,23 +13,13 @@ namespace QuanLyKhamBenhAPI.Controllers
     {
         private readonly LocalChatbotService _chatService;
         private readonly QuanLyKhamBenhContext _context;
-        private readonly ILogger<LocalChatController> _logger;
 
         public LocalChatController(
             LocalChatbotService chatService,
-            QuanLyKhamBenhContext context,
-            ILogger<LocalChatController> logger)
+            QuanLyKhamBenhContext context)
         {
             _chatService = chatService;
             _context = context;
-            _logger = logger;
-        }
-
-        // POST /api/localchat/test - Test endpoint
-        [HttpPost("test")]
-        public IActionResult Test([FromBody] ChatRequest request)
-        {
-            return Ok(new { message = "Test successful: " + request?.Message });
         }
 
         // POST /api/localchat/chat
@@ -38,13 +28,6 @@ namespace QuanLyKhamBenhAPI.Controllers
         {
             try
             {
-                _logger.LogInformation($"Received chat request: {request?.Message}");
-
-                if (string.IsNullOrWhiteSpace(request?.Message))
-                {
-                    return BadRequest(new { message = "Vui lòng nhập câu hỏi." });
-                }
-
                 int? patientId = null;
 
                 // Lấy patientId nếu user đã đăng nhập
@@ -56,16 +39,13 @@ namespace QuanLyKhamBenhAPI.Controllers
                     patientId = userAccount?.PatientId;
                 }
 
-                _logger.LogInformation("Calling chatService.GetResponseAsync");
                 var response = await _chatService.GetResponseAsync(request.Message, patientId);
-                _logger.LogInformation($"Got response: {response}");
 
                 return Ok(new { message = response });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogError(ex, "Error in Chat endpoint");
-                return StatusCode(500, new { message = $"Đã có lỗi xảy ra: {ex.Message}" });
+                return StatusCode(500, new { message = "Đã có lỗi xảy ra khi xóa lịch sử." });
             }
         }
 
@@ -105,7 +85,7 @@ namespace QuanLyKhamBenhAPI.Controllers
 
                 return Ok(new { message = "Thêm kiến thức thành công", knowledge });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { message = "Lỗi khi thêm kiến thức" });
             }
@@ -130,7 +110,7 @@ namespace QuanLyKhamBenhAPI.Controllers
 
                 return Ok(new { message = "Cập nhật thành công", knowledge });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { message = "Lỗi khi cập nhật" });
             }
@@ -152,7 +132,7 @@ namespace QuanLyKhamBenhAPI.Controllers
 
                 return Ok(new { message = "Xóa thành công" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { message = "Lỗi khi xóa" });
             }

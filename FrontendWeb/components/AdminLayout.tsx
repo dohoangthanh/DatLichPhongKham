@@ -144,7 +144,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               href="/admin/chatbot"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
-              <span className="font-medium">Quản lý Chatbot</span>
+              <span className="font-medium">Quản lý Chatbot AI</span>
+            </Link>
+            <Link
+              href="/admin/chat"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+            >
+              💬 <span className="font-medium">Chat với Bệnh nhân</span>
             </Link>
             <Link
               href="/admin/settings"

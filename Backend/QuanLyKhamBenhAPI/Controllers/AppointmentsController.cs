@@ -206,6 +206,23 @@ namespace QuanLyKhamBenhAPI.Controllers
                 return Forbid();
             }
 
+            // Check if appointment time has passed or too close (within 2 hours for Patient)
+            var appointmentDateTime = appointment.Date.ToDateTime(appointment.Time);
+            var hoursUntilAppointment = (appointmentDateTime - DateTime.Now).TotalHours;
+
+            // Admin/Doctor can cancel anytime, but Patient must cancel at least 2 hours before
+            if (user.Role == "Patient" && hoursUntilAppointment < 2)
+            {
+                if (hoursUntilAppointment < 0)
+                {
+                    return BadRequest(new { message = "Không thể hủy lịch đã qua giờ hẹn. Vui lòng liên hệ hotline: 1900-565656" });
+                }
+                else
+                {
+                    return BadRequest(new { message = $"Không thể hủy lịch trong vòng 2 giờ trước giờ khám (còn {hoursUntilAppointment:F1} giờ). Vui lòng liên hệ hotline: 1900-565656 để được hỗ trợ." });
+                }
+            }
+
             // Cancel the appointment - this frees up the time slot
             appointment.Status = "Cancelled";
 
@@ -283,6 +300,154 @@ namespace QuanLyKhamBenhAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpPut("{id}/reschedule")]
+        [Authorize(Roles = "Patient,Admin")]
+        public async Task<IActionResult> RescheduleAppointment(int id, [FromBody] RescheduleAppointmentDto dto)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            var appointment = await _context.Appointments
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.AppointmentId == id);
+
+            if (appointment == null) return NotFound(new { message = "Không tìm thấy lịch hẹn" });
+
+            // Check permissions - Patient can only reschedule their own appointments
+            if (user.Role == "Patient" && appointment.PatientId != user.PatientId)
+            {
+                return Forbid();
+            }
+
+            // Can only reschedule "Scheduled" appointments
+            if (appointment.Status != "Scheduled")
+            {
+                return BadRequest(new { message = $"Không thể đổi lịch hẹn có trạng thái '{appointment.Status}'. Chỉ có thể đổi lịch hẹn đang 'Scheduled'." });
+            }
+
+            // Check if appointment time has passed or too close (within 2 hours)
+            var appointmentDateTime = appointment.Date.ToDateTime(appointment.Time);
+            var hoursUntilAppointment = (appointmentDateTime - DateTime.Now).TotalHours;
+
+            // Admin can reschedule anytime, but Patient must reschedule at least 2 hours before
+            if (user.Role == "Patient" && hoursUntilAppointment < 2)
+            {
+                if (hoursUntilAppointment < 0)
+                {
+                    return BadRequest(new { message = "Không thể đổi lịch đã qua giờ hẹn. Vui lòng liên hệ hotline: 1900-565656" });
+                }
+                else
+                {
+                    return BadRequest(new { message = $"Không thể đổi lịch trong vòng 2 giờ trước giờ khám (còn {hoursUntilAppointment:F1} giờ). Vui lòng liên hệ hotline: 1900-565656 để được hỗ trợ." });
+                }
+            }
+
+            // Parse new date and time
+            if (!DateOnly.TryParse(dto.Date, out var newDate))
+            {
+                return BadRequest(new { message = "Ngày không hợp lệ. Định dạng: yyyy-MM-dd" });
+            }
+            if (!TimeOnly.TryParse(dto.Time, out var newTime))
+            {
+                return BadRequest(new { message = "Giờ không hợp lệ. Định dạng: HH:mm" });
+            }
+
+            // Check if new doctor exists
+            var newDoctor = await _context.Doctors.FindAsync(dto.DoctorId);
+            if (newDoctor == null)
+            {
+                return BadRequest(new { message = "Bác sĩ không tồn tại" });
+            }
+
+            // Check if the new slot is available (no existing appointment at same time)
+            var conflictingAppointment = await _context.Appointments
+                .AnyAsync(a => a.DoctorId == dto.DoctorId
+                    && a.Date == newDate
+                    && a.Time == newTime
+                    && a.AppointmentId != id
+                    && a.Status != "Cancelled");
+
+            if (conflictingAppointment)
+            {
+                return BadRequest(new { message = "Khung giờ này đã có người đặt. Vui lòng chọn giờ khác." });
+            }
+
+            // Save history before changing
+            var history = new AppointmentHistory
+            {
+                AppointmentId = appointment.AppointmentId,
+                OldDate = appointment.Date,
+                OldTime = appointment.Time,
+                OldDoctorId = appointment.DoctorId,
+                NewDate = newDate,
+                NewTime = newTime,
+                NewDoctorId = dto.DoctorId,
+                ChangedBy = user.Role,
+                ChangeReason = dto.Reason ?? "Bệnh nhân yêu cầu đổi lịch",
+                ChangedDate = DateTime.Now
+            };
+
+            _context.AppointmentHistories.Add(history);
+
+            // Update appointment
+            appointment.Date = newDate;
+            appointment.Time = newTime;
+            appointment.DoctorId = dto.DoctorId;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Đổi lịch thành công",
+                newDate = newDate.ToString("yyyy-MM-dd"),
+                newTime = newTime.ToString(@"hh\:mm"),
+                newDoctor = newDoctor.Name
+            });
+        }
+
+        [HttpGet("{id}/history")]
+        [Authorize(Roles = "Patient,Doctor,Admin")]
+        public async Task<ActionResult<IEnumerable<AppointmentHistoryDto>>> GetAppointmentHistory(int id)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null) return NotFound(new { message = "Không tìm thấy lịch hẹn" });
+
+            // Check permissions
+            if (user.Role == "Patient" && appointment.PatientId != user.PatientId)
+            {
+                return Forbid();
+            }
+            if (user.Role == "Doctor" && appointment.DoctorId != user.DoctorId)
+            {
+                return Forbid();
+            }
+
+            var histories = await _context.AppointmentHistories
+                .Include(h => h.OldDoctor)
+                .Include(h => h.NewDoctor)
+                .Where(h => h.AppointmentId == id)
+                .OrderByDescending(h => h.ChangedDate)
+                .Select(h => new AppointmentHistoryDto
+                {
+                    HistoryId = h.HistoryId,
+                    OldDate = h.OldDate.ToString("yyyy-MM-dd"),
+                    OldTime = h.OldTime.ToString(@"hh\:mm"),
+                    OldDoctorName = h.OldDoctor != null ? h.OldDoctor.Name : null,
+                    NewDate = h.NewDate.ToString("yyyy-MM-dd"),
+                    NewTime = h.NewTime.ToString(@"hh\:mm"),
+                    NewDoctorName = h.NewDoctor != null ? h.NewDoctor.Name : null,
+                    ChangedBy = h.ChangedBy,
+                    ChangeReason = h.ChangeReason,
+                    ChangedDate = h.ChangedDate
+                })
+                .ToListAsync();
+
+            return Ok(histories);
         }
 
         [HttpDelete("{id}")]

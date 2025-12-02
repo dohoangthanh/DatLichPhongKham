@@ -43,9 +43,30 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+
+    // Hỗ trợ SignalR với JWT token qua query string
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
+
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, QuanLyKhamBenhAPI.Hubs.CustomUserIdProvider>();
 
 // CORS Configuration
 builder.Services.AddCors(options =>
@@ -103,5 +124,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<QuanLyKhamBenhAPI.Hubs.ChatHub>("/chatHub");
 
 app.Run();

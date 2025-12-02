@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/AdminLayout'
+import AppointmentHistoryModal from '@/components/AppointmentHistoryModal'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -35,6 +36,7 @@ const AppointmentsPage: React.FC = () => {
   const [doctors, setDoctors] = useState<DoctorOption[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [viewHistoryId, setViewHistoryId] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -363,12 +365,24 @@ const AppointmentsPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleDelete(appointment.appointmentId)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Xóa
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setViewHistoryId(appointment.appointmentId)}
+                        className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                        title="Xem lịch sử thay đổi"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Lịch sử
+                      </button>
+                      <button
+                        onClick={() => handleDelete(appointment.appointmentId)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Xóa
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -504,6 +518,14 @@ const AppointmentsPage: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* History Modal */}
+      {viewHistoryId !== null && (
+        <AppointmentHistoryModal
+          appointmentId={viewHistoryId}
+          onClose={() => setViewHistoryId(null)}
+        />
       )}
     </AdminLayout>
   )

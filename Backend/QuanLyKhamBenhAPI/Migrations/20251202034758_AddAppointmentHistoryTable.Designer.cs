@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyKhamBenhAPI.Models;
 
@@ -11,9 +12,11 @@ using QuanLyKhamBenhAPI.Models;
 namespace QuanLyKhamBenhAPI.Migrations
 {
     [DbContext(typeof(QuanLyKhamBenhContext))]
-    partial class QuanLyKhamBenhContextModelSnapshot : ModelSnapshot
+    [Migration("20251202034758_AddAppointmentHistoryTable")]
+    partial class AddAppointmentHistoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,45 +217,6 @@ namespace QuanLyKhamBenhAPI.Migrations
                     b.HasKey("KnowledgeId");
 
                     b.ToTable("ChatKnowledges");
-                });
-
-            modelBuilder.Entity("QuanLyKhamBenhAPI.Models.ChatMessage", b =>
-                {
-                    b.Property<int>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"));
-
-                    b.Property<int?>("AdminId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SenderRole")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("MessageId");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("QuanLyKhamBenhAPI.Models.Doctor", b =>
@@ -813,23 +777,6 @@ namespace QuanLyKhamBenhAPI.Migrations
                     b.Navigation("Appointment");
 
                     b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("QuanLyKhamBenhAPI.Models.ChatMessage", b =>
-                {
-                    b.HasOne("QuanLyKhamBenhAPI.Models.UserAccount", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId");
-
-                    b.HasOne("QuanLyKhamBenhAPI.Models.UserAccount", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("QuanLyKhamBenhAPI.Models.Doctor", b =>

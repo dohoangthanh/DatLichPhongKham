@@ -41,4 +41,26 @@ namespace QuanLyKhamBenhAPI.Models.DTOs
     {
         public required string Status { get; set; }
     }
+
+    public class RescheduleAppointmentDto
+    {
+        public required string Date { get; set; } // yyyy-MM-dd
+        public required string Time { get; set; } // HH:mm
+        public int DoctorId { get; set; }
+        public string? Reason { get; set; }
+    }
+
+    public class AppointmentHistoryDto
+    {
+        public int HistoryId { get; set; }
+        public string OldDate { get; set; } = null!;
+        public string OldTime { get; set; } = null!;
+        public string? OldDoctorName { get; set; }
+        public string NewDate { get; set; } = null!;
+        public string NewTime { get; set; } = null!;
+        public string? NewDoctorName { get; set; }
+        public string ChangedBy { get; set; } = null!;
+        public string? ChangeReason { get; set; }
+        public DateTime ChangedDate { get; set; }
+    }
 }

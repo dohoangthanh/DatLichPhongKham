@@ -58,6 +58,12 @@ public class BookingController : ControllerBase
             .Select(a => a.Time)
             .ToListAsync();
 
+        // Calculate minimum allowed time (2 hours from now)
+        var now = DateTime.Now;
+        var minimumDateTime = now.AddHours(2);
+        var isToday = parsedDate == DateOnly.FromDateTime(now);
+        TimeOnly minimumTime = isToday ? TimeOnly.FromDateTime(minimumDateTime) : new TimeOnly(0, 0);
+
         // Generate available slots
         var availableSlots = new List<TimeOnly>();
         foreach (var shift in workShifts)
@@ -65,9 +71,13 @@ public class BookingController : ControllerBase
             var currentTime = shift.StartTime;
             while (currentTime < shift.EndTime)
             {
+                // Check if slot is not booked AND is at least 2 hours from now (if today)
                 if (!bookedAppointments.Contains(currentTime))
                 {
-                    availableSlots.Add(currentTime);
+                    if (!isToday || currentTime >= minimumTime)
+                    {
+                        availableSlots.Add(currentTime);
+                    }
                 }
                 currentTime = currentTime.AddMinutes(30); // Assuming 30-minute slots
             }

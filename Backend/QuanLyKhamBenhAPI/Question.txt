@@ -1,0 +1,307 @@
+
+
+
+
+
+Làm sao để đặt lịch khám?
+
+Tôi muốn đặt lịch khám thì làm thế nào?
+
+Đặt lịch khám online có mất phí không?
+
+Tôi cần đặt lịch trước bao lâu?
+
+Tôi có thể đặt lịch cho người thân không?
+
+Tôi đặt lịch rồi có thể đổi giờ không?
+
+Tôi muốn huỷ lịch khám thì phải làm gì?
+
+Tôi không vào được hệ thống đặt lịch?
+
+Đặt lịch khám ngoài giờ được không?
+
+Tôi cần chọn bác sĩ hay phòng khám tự sắp xếp?
+
+Tôi muốn đặt lịch khám ngay hôm nay có được không?
+
+Sau khi đặt lịch có được nhắn tin xác nhận không?
+
+Đặt lịch xong có cần gọi lại hotline không?
+
+Tôi đặt lịch nhưng chưa thấy xác nhận?
+
+Tôi muốn xem lại lịch khám của mình.
+
+Đặt lịch có cần thanh toán trước không?
+
+Đặt lịch khám có cần nhập mã bệnh nhân không?
+
+Tôi muốn đặt lịch khám chuyên khoa X.
+
+Tôi đang bị cấp cứu, đặt lịch có nhanh không?
+
+Đặt lịch khám tầm soát sức khỏe thế nào?
+
+Tôi quên mật khẩu tài khoản đặt lịch thì làm sao?
+
+Đặt lịch khám có được chọn bác sĩ nữ không?
+
+Hôm nay bác sĩ A có lịch làm việc không?
+
+Tôi đặt lịch mà bị trùng giờ thì sao?
+
+Trẻ em có cần đặt lịch riêng không?
+
+Tôi muốn đặt lịch tái khám.
+
+Có thể đặt lịch cho ba/mẹ già được không?
+
+Có thể đặt lịch theo ca (sáng/chiều) không?
+
+Lịch khám của bác sĩ có thay đổi không?
+
+Tôi muốn biết khung giờ còn trống để đặt.
+Phòng khám có bao nhiêu bác sĩ?
+
+Bác sĩ nào giỏi chuyên khoa X?
+
+Bác sĩ A làm việc vào ngày nào?
+
+Tôi muốn xem thông tin của bác sĩ.
+
+Bác sĩ có kinh nghiệm bao nhiêu năm?
+
+Có bác sĩ khám ngoài giờ không?
+
+Tôi muốn chọn bác sĩ cố định.
+
+Bác sĩ có giấy phép hành nghề không?
+
+Bác sĩ A có khám trẻ em không?
+
+Tôi muốn thay đổi bác sĩ.
+
+Lịch trực của bác sĩ hôm nay thế nào?
+
+Bác sĩ nữ khám chuyên khoa nào?
+
+Bác sĩ có thể tư vấn online không?
+
+Tôi muốn gặp bác sĩ gấp, có được ưu tiên không?
+
+Tôi muốn biết đánh giá về bác sĩ X.
+
+Có bác sĩ nào đang rảnh không?
+
+Tôi muốn đặt bác sĩ cho ca cấp cứu.
+
+Bác sĩ có nghỉ phép không?
+
+Có thể xem hồ sơ bác sĩ không?
+
+Tôi tin tưởng bác sĩ A, muốn đặt lịch.
+
+Phòng khám có những chuyên khoa nào?
+
+Tôi nên khám chuyên khoa nào?
+
+Chuyên khoa nội khám những bệnh gì?
+
+Chuyên khoa nhi làm việc giờ nào?
+
+Tai mũi họng có khám vào cuối tuần không?
+
+Tôi bị ho lâu ngày thì khám chuyên khoa nào?
+
+Chuyên khoa X có bác sĩ nữ không?
+
+Tôi muốn biết giá khám của chuyên khoa Y.
+
+Nội soi thuộc chuyên khoa nào?
+
+Sản phụ khoa có bác sĩ nữ không?
+
+Bệnh da liễu khám vào buổi tối không?
+
+Phòng khám có chuyên khoa cấp cứu không?
+
+Tôi bị đau bụng, nên khám khoa nào?
+
+Cơ xương khớp khám khi nào?
+
+Tim mạch có phải đặt lịch trước không?
+Phòng khám có những dịch vụ nào?
+
+Giá khám tổng quát bao nhiêu?
+
+Có dịch vụ xét nghiệm máu không?
+
+Siêu âm 4D giá bao nhiêu?
+
+Chụp X-quang có cần đặt lịch không?
+
+Có dịch vụ tiêm chủng không?
+
+Tôi muốn kiểm tra sức khỏe định kỳ.
+
+Có dịch vụ nội soi không?
+
+Xét nghiệm Covid có không?
+
+Xét nghiệm nước tiểu bao lâu có kết quả?
+
+Tôi muốn khám sức khỏe doanh nghiệp.
+
+Dịch vụ khám tại nhà có không?
+
+Phòng khám có cấp cứu không?
+
+Tôi muốn lấy kết quả xét nghiệm.
+
+Siêu âm có bác sĩ nữ không?
+
+Có gói khám thai trọn gói không?
+
+Dịch vụ tiêm phòng cho trẻ nhỏ phí bao nhiêu?
+
+Khám đau khớp giá bao nhiêu?
+
+Test nhanh có làm được tại nhà không?
+
+Khám tổng quát bao gồm những gì?
+
+Tôi muốn biết giá từng dịch vụ.
+
+Có hỗ trợ BHYT không?
+
+Làm việc ngoài giờ có tính phí thêm không?
+
+Dịch vụ có bảo hành/đổi trả không?
+
+Gói khám doanh nghiệp gồm những gì?
+Phòng khám mở cửa lúc mấy giờ?
+
+Có làm việc vào Chủ Nhật không?
+
+Có làm ngoài giờ không?
+
+Giờ làm việc của từng chuyên khoa thế nào?
+
+Bác sĩ có nghỉ trưa không?
+
+Ngày lễ có khám không?
+
+Khám tối có bác sĩ không?
+
+Giờ nhận bệnh cuối cùng là mấy giờ?
+
+Tôi đến trễ thì có được khám không?
+
+Ngày Tết có lịch làm không?
+
+Tôi không đăng nhập được.
+
+Quên mật khẩu thì làm sao?
+
+Có thể đăng ký tài khoản bằng số điện thoại không?
+
+Tôi muốn đổi số điện thoại.
+
+Đăng ký tài khoản có mất phí không?
+
+Tài khoản bị khóa thì sao?
+
+Tôi muốn sửa thông tin cá nhân.
+
+Tôi muốn xóa tài khoản.
+
+Tôi muốn xem lịch sử khám.
+
+Tôi muốn cập nhật hồ sơ bệnh án.
+Có thanh toán online không?
+
+Tôi muốn thanh toán bằng thẻ.
+
+Có hỗ trợ Momo, Zalopay không?
+
+Tôi muốn xuất hóa đơn đỏ.
+
+Thanh toán trước có được giảm giá không?
+
+Tôi muốn hóa đơn điện tử.
+
+Có hoàn tiền nếu hủy lịch không?
+
+Tôi muốn đổi phương thức thanh toán.
+
+Thanh toán online có an toàn không?
+
+Phí dịch vụ được tính như thế nào?
+Tôi muốn xem hồ sơ bệnh án.
+
+Tôi có thể xin bản sao kết quả xét nghiệm không?
+
+Hồ sơ bệnh án lưu bao lâu?
+
+Tôi muốn gửi hồ sơ xét nghiệm cho bác sĩ.
+
+Tôi muốn tải file chẩn đoán.
+
+Bác sĩ có thể xem hồ sơ của tôi không?
+
+Hồ sơ của tôi có bảo mật không?
+
+Tôi muốn thêm người thân vào hồ sơ.
+
+Tôi muốn ẩn thông tin bệnh án.
+
+Tôi muốn cập nhật tiền sử bệnh.
+Phòng khám nằm ở đâu?
+
+Có chỗ gửi xe không?
+
+Khám mất bao lâu?
+
+Tôi cần chuẩn bị gì trước khi khám?
+
+Có hỗ trợ người khuyết tật không?
+
+Trẻ em có cần mang giấy khai sinh không?
+
+Tôi đang sốt, có nên đến khám không?
+
+Tôi bị COVID có được khám không?
+
+Phòng khám có đông không?
+
+Tôi muốn tự tư vấn bệnh.
+
+Cho tôi xin số hotline.
+
+Có hỗ trợ tư vấn miễn phí không?
+
+Tôi muốn phản ánh dịch vụ.
+
+Có wifi miễn phí không?
+
+Phòng khám có điều hòa không?
+
+Tôi đi lần đầu, cần đăng ký gì?
+
+Tôi muốn được tư vấn nhanh.
+
+Tôi muốn đặt lịch cho cả gia đình.
+
+Tôi muốn hỏi về bảo mật thông tin.
+
+Tôi có thể mang thuốc cũ tới nhờ xem không?
+
+
+
+
+
+
+
+
+

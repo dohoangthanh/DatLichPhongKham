@@ -17,6 +17,8 @@ public partial class QuanLyKhamBenhContext : DbContext
 
     public virtual DbSet<Appointment> Appointments { get; set; }
 
+    public virtual DbSet<AppointmentHistory> AppointmentHistories { get; set; }
+
     public virtual DbSet<AppointmentService> AppointmentServices { get; set; }
 
     public virtual DbSet<AppSetting> AppSettings { get; set; }
@@ -50,6 +52,8 @@ public partial class QuanLyKhamBenhContext : DbContext
     public virtual DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
     public virtual DbSet<ChatKnowledge> ChatKnowledges { get; set; }
+
+    public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

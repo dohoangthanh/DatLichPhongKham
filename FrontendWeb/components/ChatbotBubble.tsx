@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import * as signalR from '@microsoft/signalr'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -10,11 +11,13 @@ interface Message {
   text: string
   isBot: boolean
   timestamp: Date
+  senderRole?: string
 }
 
 export default function ChatbotBubble() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const [chatMode, setChatMode] = useState<'ai' | 'admin'>('ai') // ai = chatbot AI, admin = chat với admin
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -25,7 +28,9 @@ export default function ChatbotBubble() {
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hubConnectionRef = useRef<signalR.HubConnection | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -34,6 +39,119 @@ export default function ChatbotBubble() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Kết nối SignalR khi chuyển sang chế độ Admin Chat
+  useEffect(() => {
+    if (chatMode === 'admin' && token && user?.role === 'Patient' && !hubConnectionRef.current) {
+      connectToHub()
+    }
+
+    return () => {
+      if (hubConnectionRef.current) {
+        hubConnectionRef.current.stop()
+        hubConnectionRef.current = null
+      }
+    }
+  }, [chatMode, token, user])
+
+  // Load tin nhắn cũ khi chuyển mode
+  useEffect(() => {
+    if (chatMode === 'admin' && token) {
+      loadAdminMessages()
+    } else if (chatMode === 'ai') {
+      setMessages([
+        {
+          id: 1,
+          text: 'Xin chào! Tôi là trợ lý ảo của phòng khám. Tôi có thể giúp gì cho bạn?',
+          isBot: true,
+          timestamp: new Date()
+        }
+      ])
+    }
+  }, [chatMode, token])
+
+  const connectToHub = async () => {
+    try {
+      console.log('🔌 Connecting to SignalR...')
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`http://localhost:5129/chatHub?access_token=${token}`, {
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets
+        })
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build()
+
+      connection.on('ReceiveMessageFromAdmin', (data) => {
+        console.log('📩 Received message from admin:', data)
+        const newMessage: Message = {
+          id: Date.now(),
+          text: data.message,
+          isBot: true,
+          timestamp: new Date(data.timestamp),
+          senderRole: 'Admin'
+        }
+        setMessages(prev => [...prev, newMessage])
+      })
+
+      connection.onclose((error) => {
+        console.log('❌ SignalR disconnected:', error)
+        setIsConnected(false)
+      })
+      connection.onreconnecting((error) => {
+        console.log('🔄 SignalR reconnecting...', error)
+        setIsConnected(false)
+      })
+      connection.onreconnected((connectionId) => {
+        console.log('✅ SignalR reconnected:', connectionId)
+        setIsConnected(true)
+      })
+
+      await connection.start()
+      console.log('✅ SignalR connected successfully')
+      setIsConnected(true)
+      hubConnectionRef.current = connection
+    } catch (error) {
+      console.error('❌ SignalR connection error:', error)
+    }
+  }
+
+  const loadAdminMessages = async () => {
+    try {
+      const response = await fetch(`${API_URL}/chat/messages`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const loadedMessages: Message[] = data.map((msg: any) => ({
+          id: msg.messageId,
+          text: msg.message,
+          isBot: msg.senderRole === 'Admin',
+          timestamp: new Date(msg.sentAt),
+          senderRole: msg.senderRole
+        }))
+
+        if (loadedMessages.length === 0) {
+          setMessages([
+            {
+              id: 1,
+              text: 'Xin chào! Bạn đang kết nối trực tiếp với đội ngũ hỗ trợ. Chúng tôi sẽ trả lời bạn trong thời gian sớm nhất.',
+              isBot: true,
+              timestamp: new Date(),
+              senderRole: 'System'
+            }
+          ])
+        } else {
+          setMessages(loadedMessages)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error)
+    }
+  }
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return
@@ -50,45 +168,94 @@ export default function ChatbotBubble() {
     setIsLoading(true)
 
     try {
-      // Sử dụng LocalChat API - không cần Gemini, đọc từ database
-      const response = await fetch(`${API_URL}/localchat/chat`, {
-        method: 'POST',
-        headers: {
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: userMessage.text
+      if (chatMode === 'ai') {
+        // Gửi đến AI Chatbot
+        const response = await fetch(`${API_URL}/localchat/chat`, {
+          method: 'POST',
+          headers: {
+            ...(token && { 'Authorization': `Bearer ${token}` }),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: userMessage.text
+          })
         })
-      })
 
-      if (response.ok) {
-        const data = await response.json()
-        const botMessage: Message = {
-          id: Date.now() + 1,
-          text: data.message || 'Xin lỗi, tôi không thể trả lời câu hỏi này.',
-          isBot: true,
-          timestamp: new Date()
+        if (response.ok) {
+          const data = await response.json()
+          const botMessage: Message = {
+            id: Date.now() + 1,
+            text: data.message || 'Xin lỗi, tôi không thể trả lời câu hỏi này.',
+            isBot: true,
+            timestamp: new Date()
+          }
+          setMessages(prev => [...prev, botMessage])
+        } else {
+          throw new Error('Failed to get response')
         }
-        setMessages(prev => [...prev, botMessage])
       } else {
-        const errorMessage: Message = {
-          id: Date.now() + 1,
-          text: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
-          isBot: true,
-          timestamp: new Date()
+        // Gửi đến Admin qua API + SignalR
+        console.log('📤 Sending message to admin:', userMessage.text)
+        
+        if (!token) {
+          throw new Error('Vui lòng đăng nhập để chat với admin')
         }
-        setMessages(prev => [...prev, errorMessage])
+
+        // 1. Lưu vào database qua REST API
+        const response = await fetch(`${API_URL}/chat/send`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: userMessage.text
+          })
+        })
+
+        console.log('📡 Response status:', response.status)
+        
+        if (!response.ok) {
+          const errorData = await response.text()
+          console.error('❌ Failed to send message:', response.status, errorData)
+          throw new Error(`Failed to send message: ${response.status}`)
+        }
+
+        const result = await response.json()
+        console.log('✅ Message saved to DB:', result)
+        
+        // 2. Gửi realtime qua SignalR nếu đã kết nối
+        if (hubConnectionRef.current && isConnected) {
+          try {
+            await hubConnectionRef.current.invoke('SendMessageToAdmin', userMessage.text)
+            console.log('✅ Message sent via SignalR to admins')
+          } catch (signalRError) {
+            console.error('⚠️ SignalR send failed (message already saved to DB):', signalRError)
+          }
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error)
+      
+      let errorText = chatMode === 'ai' 
+        ? 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.'
+        : 'Không thể gửi tin nhắn. Vui lòng thử lại.'
+      
+      // Hiển thị lỗi chi tiết nếu có
+      if (error.message) {
+        errorText = error.message
+      }
+      
       const errorMessage: Message = {
         id: Date.now() + 1,
-        text: 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.',
+        text: errorText,
         isBot: true,
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
+      
+      // Remove user message nếu gửi failed
+      setMessages(prev => prev.filter(m => m.id !== userMessage.id))
     } finally {
       setIsLoading(false)
     }
@@ -108,6 +275,10 @@ export default function ChatbotBubble() {
     })
   }
 
+  const switchMode = (mode: 'ai' | 'admin') => {
+    setChatMode(mode)
+  }
+
   return (
     <>
       {/* Chat Window */}
@@ -117,13 +288,23 @@ export default function ChatbotBubble() {
           <div className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white p-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md ring-2 ring-white/50">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
+                {chatMode === 'ai' ? (
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                )}
               </div>
               <div>
-                <h3 className="font-semibold">Hệ Thống Quản Lý Phòng Khám</h3>
-                <p className="text-xs text-blue-100">Trợ lý ảo hỗ trợ 24/7</p>
+                <h3 className="font-semibold">
+                  {chatMode === 'ai' ? 'Trợ lý ảo AI' : 'Chat với Admin'}
+                </h3>
+                <p className="text-xs text-blue-100">
+                  {chatMode === 'ai' ? 'Trả lời tự động 24/7' : isConnected ? '🟢 Đang kết nối' : '🔴 Chưa kết nối'}
+                </p>
               </div>
             </div>
             <button
@@ -135,6 +316,36 @@ export default function ChatbotBubble() {
               </svg>
             </button>
           </div>
+
+          {/* Mode Switch Tabs */}
+          {user?.role === 'Patient' ? (
+            <div className="flex border-b border-gray-200 bg-gray-50">
+              <button
+                onClick={() => switchMode('ai')}
+                className={`flex-1 py-3 text-sm font-medium transition-all ${
+                  chatMode === 'ai'
+                    ? 'bg-white text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                }`}
+              >
+                🤖 Trợ lý AI
+              </button>
+              <button
+                onClick={() => switchMode('admin')}
+                className={`flex-1 py-3 text-sm font-medium transition-all ${
+                  chatMode === 'admin'
+                    ? 'bg-white text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                }`}
+              >
+                👨‍💼 Chat Admin
+              </button>
+            </div>
+          ) : (
+            <div className="bg-gray-50 py-3 px-4 border-b border-gray-200">
+              <p className="text-sm text-gray-700 text-center">🤖 Trợ lý AI</p>
+            </div>
+          )}
 
           {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-blue-50/30 via-white to-cyan-50/30">
@@ -154,11 +365,19 @@ export default function ChatbotBubble() {
                     {message.isBot && (
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
+                          {message.senderRole === 'Admin' ? (
+                            <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          )}
                         </div>
-                        <span className="text-xs font-semibold text-gray-600">Trợ lý ảo</span>
+                        <span className="text-xs font-semibold text-gray-600">
+                          {message.senderRole === 'Admin' ? 'Admin' : 'Trợ lý ảo'}
+                        </span>
                       </div>
                     )}
                     <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
@@ -193,7 +412,7 @@ export default function ChatbotBubble() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                placeholder="Nhập câu hỏi của bạn..."
+                placeholder={chatMode === 'ai' ? 'Nhập câu hỏi của bạn...' : 'Nhập tin nhắn...'}
                 className="flex-1 px-5 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-300 focus:shadow-lg"
               />
               <button
@@ -207,7 +426,7 @@ export default function ChatbotBubble() {
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Nhấn Enter để gửi tin nhắn
+              {chatMode === 'ai' ? 'Trợ lý AI trả lời ngay lập tức' : 'Admin sẽ trả lời trong thời gian sớm nhất'}
             </p>
           </div>
         </div>

@@ -55,12 +55,20 @@ BEGIN TRY
     DELETE FROM WorkShift;
     PRINT 'Đã xóa ' + CAST(@@ROWCOUNT AS VARCHAR) + ' WorkShift';
 
-    -- 9. Xóa UserAccount của Patient (GIỮ LẠI Admin và Doctor)
+    -- 9. Xóa ChatMessages (tin nhắn chat giữa patient và admin)
+    IF OBJECT_ID('ChatMessages', 'U') IS NOT NULL
+    BEGIN
+        PRINT 'Xóa ChatMessages...';
+        DELETE FROM ChatMessages WHERE PatientId IN (SELECT UserId FROM UserAccount WHERE Role = 'Patient');
+        PRINT 'Đã xóa ' + CAST(@@ROWCOUNT AS VARCHAR) + ' ChatMessages';
+    END
+
+    -- 10. Xóa UserAccount của Patient (GIỮ LẠI Admin và Doctor)
     PRINT 'Xóa UserAccount của Patient...';
     DELETE FROM UserAccount WHERE role = 'Patient';
     PRINT 'Đã xóa ' + CAST(@@ROWCOUNT AS VARCHAR) + ' UserAccount Patient';
 
-    -- 10. Xóa LoyaltyPoints (điểm tích lũy)
+    -- 11. Xóa LoyaltyPoints (điểm tích lũy)
     IF OBJECT_ID('LoyaltyPoints', 'U') IS NOT NULL
     BEGIN
         PRINT 'Xóa LoyaltyPoints...';
@@ -68,7 +76,7 @@ BEGIN TRY
         PRINT 'Đã xóa ' + CAST(@@ROWCOUNT AS VARCHAR) + ' LoyaltyPoints';
     END
 
-    -- 11. Xóa Patient
+    -- 12. Xóa Patient
     PRINT 'Xóa Patient...';
     DELETE FROM Patient;
     PRINT 'Đã xóa ' + CAST(@@ROWCOUNT AS VARCHAR) + ' Patient';
@@ -102,6 +110,8 @@ SELECT 'Appointment' AS TableName, COUNT(*) AS Count FROM Appointment;
 SELECT 'Payment' AS TableName, COUNT(*) AS Count FROM Payment;
 SELECT 'Feedback' AS TableName, COUNT(*) AS Count FROM Feedback;
 SELECT 'WorkShift' AS TableName, COUNT(*) AS Count FROM WorkShift;
+IF OBJECT_ID('ChatMessages', 'U') IS NOT NULL
+    SELECT 'ChatMessages' AS TableName, COUNT(*) AS Count FROM ChatMessages;
 PRINT '';
 PRINT '=== DỮ LIỆU GIỮ LẠI ===';
 SELECT 'Doctor' AS TableName, COUNT(*) AS Count FROM Doctor;
