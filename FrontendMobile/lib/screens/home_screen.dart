@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E88E5),
+        backgroundColor: const Color(0xFF64B5F6),
         automaticallyImplyLeading: false,
         elevation: 0,
         title: Row(
@@ -40,7 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.local_hospital, color: Colors.white, size: 24),
+              child: const Icon(Icons.local_hospital,
+                  color: Colors.white, size: 24),
             ),
             const SizedBox(width: 12),
             const Text(
@@ -55,9 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _handleLogout,
-            tooltip: 'Logout',
+            icon: const Icon(Icons.person, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+            tooltip: 'Thông tin cá nhân',
           ),
         ],
       ),
@@ -69,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: Color(0xFF1E88E5),
+                color: Color(0xFF64B5F6),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
@@ -79,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome back,',
+                    'Xin chào,',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 16,
@@ -104,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Quick Actions',
+                    'Tiện Ích Nhanh',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -118,13 +121,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _buildActionCard(
                           context,
                           icon: Icons.calendar_month,
-                          title: 'Book',
+                          title: 'Đặt Lịch',
                           color: const Color(0xFF1E88E5),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SpecialtySelectionScreen(),
+                                builder: (context) =>
+                                    const SpecialtySelectionScreen(),
                               ),
                             );
                           },
@@ -135,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _buildActionCard(
                           context,
                           icon: Icons.description,
-                          title: 'History',
+                          title: 'Lịch Sử',
                           color: const Color(0xFF43A047),
                           onTap: () {
                             Navigator.push(
@@ -152,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _buildActionCard(
                           context,
                           icon: Icons.chat_bubble_outline,
-                          title: 'Chat',
+                          title: 'Trợ Lý',
                           color: const Color(0xFFFF6F00),
                           onTap: () {
                             Navigator.push(
@@ -168,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Medical Services',
+                    'Khám Phá Thêm',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -177,31 +181,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildServiceCard(
-                    icon: Icons.medical_services,
-                    title: 'General Checkup',
-                    subtitle: 'Complete health examination',
+                    icon: Icons.medical_information,
+                    title: 'Đội Ngũ Bác Sĩ',
+                    subtitle: 'Xem thông tin các bác sĩ và chuyên khoa',
                     color: Colors.blue,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/doctors');
+                    },
                   ),
                   const SizedBox(height: 12),
                   _buildServiceCard(
-                    icon: Icons.favorite,
-                    title: 'Cardiology',
-                    subtitle: 'Heart health specialists',
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildServiceCard(
-                    icon: Icons.psychology,
-                    title: 'Neurology',
-                    subtitle: 'Brain & nerve care',
-                    color: Colors.purple,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildServiceCard(
-                    icon: Icons.child_care,
-                    title: 'Pediatrics',
-                    subtitle: 'Children healthcare',
-                    color: Colors.orange,
+                    icon: Icons.medical_services,
+                    title: 'Dịch Vụ Khám Bệnh',
+                    subtitle: 'Danh sách dịch vụ và bảng giá',
+                    color: Colors.green,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/services');
+                    },
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -268,56 +264,61 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required String subtitle,
     required Color color,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 28),
             ),
-          ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+          ],
+        ),
       ),
     );
   }

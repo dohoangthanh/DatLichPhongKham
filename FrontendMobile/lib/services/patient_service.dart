@@ -5,7 +5,8 @@ import '../models/medical_record.dart';
 import '../models/appointment.dart';
 
 class PatientService {
-  Future<MedicalRecord> getMedicalRecord(String token, int appointmentId) async {
+  Future<MedicalRecord> getMedicalRecord(
+      String token, int appointmentId) async {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/patient/my-records/$appointmentId'),
@@ -49,7 +50,8 @@ class PatientService {
     }
   }
 
-  Future<int?> createPayment(String token, int appointmentId, String paymentMethod, double totalAmount) async {
+  Future<int?> createPayment(String token, int appointmentId,
+      String paymentMethod, double totalAmount) async {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/payment/create'),
@@ -130,7 +132,8 @@ class PatientService {
     }
   }
 
-  Future<bool> createFeedback(String token, int doctorId, int rating, String comment) async {
+  Future<bool> createFeedback(
+      String token, int doctorId, int rating, String comment) async {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/feedback'),
@@ -151,7 +154,8 @@ class PatientService {
     }
   }
 
-  Future<Map<String, dynamic>> getInvoice(String token, int appointmentId) async {
+  Future<Map<String, dynamic>> getInvoice(
+      String token, int appointmentId) async {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/payment/invoice/$appointmentId'),
@@ -171,7 +175,8 @@ class PatientService {
     }
   }
 
-  Future<Map<String, dynamic>> getPaymentInfo(String token, int appointmentId) async {
+  Future<Map<String, dynamic>> getPaymentInfo(
+      String token, int appointmentId) async {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/booking/appointments/$appointmentId'),
@@ -191,7 +196,8 @@ class PatientService {
     }
   }
 
-  Future<Map<String, dynamic>> validatePromoCode(String token, String promoCode) async {
+  Future<Map<String, dynamic>> validatePromoCode(
+      String token, String promoCode) async {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/promotions/validate/$promoCode'),
@@ -213,10 +219,11 @@ class PatientService {
     }
   }
 
-  Future<Map<String, dynamic>> getReview(String token, int appointmentId) async {
+  Future<Map<String, dynamic>> getReview(
+      String token, int appointmentId) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/feedback/appointment/$appointmentId'),
+        Uri.parse('${ApiConfig.baseUrl}/feedback/review/$appointmentId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -251,6 +258,126 @@ class PatientService {
       }
     } catch (e) {
       return 0;
+    }
+  }
+
+  Future<List<dynamic>> getDoctors(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/doctors'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception('Failed to load doctors: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error getting doctors: $e');
+    }
+  }
+
+  Future<List<dynamic>> getSpecialties(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/specialties'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception('Failed to load specialties: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error getting specialties: $e');
+    }
+  }
+
+  Future<List<dynamic>> getServices(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/services'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception('Failed to load services: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error getting services: $e');
+    }
+  }
+
+  // Profile APIs
+  Future<Map<String, dynamic>> getProfile(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/patient/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error getting profile: $e');
+    }
+  }
+
+  Future<bool> updateProfile(
+      String token, Map<String, dynamic> profileData) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/patient/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(profileData),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error updating profile: $e');
+    }
+  }
+
+  Future<bool> changePassword(
+      String token, String oldPassword, String newPassword) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/auth/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error changing password: $e');
     }
   }
 }

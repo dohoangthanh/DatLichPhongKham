@@ -15,12 +15,17 @@ import 'screens/medical_record_screen.dart';
 import 'screens/test_results_screen.dart';
 import 'screens/review_screen.dart';
 import 'screens/view_review_screen.dart';
+import 'screens/doctors_list_screen.dart';
+import 'screens/services_list_screen.dart';
+import 'screens/profile_screen_new.dart' as new_profile;
+import 'screens/chatbot_screen.dart';
+import 'screens/specialty_selection_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -56,12 +61,18 @@ class MyApp extends StatelessWidget {
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const HomeScreen(),
         '/appointments-history': (context) => const AppointmentsHistoryScreen(),
+        '/doctors': (context) => const DoctorsListScreen(),
+        '/services': (context) => const ServicesListScreen(),
+        '/profile': (context) => const new_profile.ProfileScreen(),
+        '/chatbot': (context) => const ChatbotScreen(),
+        '/specialty-selection': (context) => const SpecialtySelectionScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/appointment-detail') {
           final appointmentId = settings.arguments as int;
           return MaterialPageRoute(
-            builder: (context) => AppointmentDetailScreen(appointmentId: appointmentId),
+            builder: (context) =>
+                AppointmentDetailScreen(appointmentId: appointmentId),
           );
         }
         if (settings.name == '/payment') {
@@ -79,13 +90,15 @@ class MyApp extends StatelessWidget {
         if (settings.name == '/medical-record') {
           final appointmentId = settings.arguments as int;
           return MaterialPageRoute(
-            builder: (context) => MedicalRecordScreen(appointmentId: appointmentId),
+            builder: (context) =>
+                MedicalRecordScreen(appointmentId: appointmentId),
           );
         }
         if (settings.name == '/test-results') {
           final appointmentId = settings.arguments as int;
           return MaterialPageRoute(
-            builder: (context) => TestResultsScreen(appointmentId: appointmentId),
+            builder: (context) =>
+                TestResultsScreen(appointmentId: appointmentId),
           );
         }
         if (settings.name == '/review') {
@@ -97,7 +110,8 @@ class MyApp extends StatelessWidget {
         if (settings.name == '/view-review') {
           final appointmentId = settings.arguments as int;
           return MaterialPageRoute(
-            builder: (context) => ViewReviewScreen(appointmentId: appointmentId),
+            builder: (context) =>
+                ViewReviewScreen(appointmentId: appointmentId),
           );
         }
         return null;

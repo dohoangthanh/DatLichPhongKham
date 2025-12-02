@@ -126,6 +126,31 @@ namespace QuanLyKhamBenhAPI.Controllers
             return Ok(feedbacks);
         }
 
+        [HttpGet("check/{appointmentId}")]
+        public async Task<IActionResult> CheckReview(int appointmentId)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            // Get appointment to find doctor
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+            if (appointment == null) return NotFound(new { Message = "Appointment not found" });
+
+            // Check if appointment belongs to user
+            if (user.Role == "Patient" && appointment.PatientId != user.PatientId)
+                return Forbid();
+
+            // Check if feedback exists for this appointment (patient-doctor pair)
+            var hasReview = await _context.Feedbacks
+                .AnyAsync(f =>
+                    f.PatientId == appointment.PatientId &&
+                    f.DoctorId == appointment.DoctorId);
+
+            return Ok(new { hasReview });
+        }
+
         [HttpGet("review/{appointmentId}")]
         public async Task<IActionResult> GetReview(int appointmentId)
         {
@@ -145,8 +170,8 @@ namespace QuanLyKhamBenhAPI.Controllers
 
             // Get feedback for this appointment (patient-doctor pair)
             var feedback = await _context.Feedbacks
-                .FirstOrDefaultAsync(f => 
-                    f.PatientId == appointment.PatientId && 
+                .FirstOrDefaultAsync(f =>
+                    f.PatientId == appointment.PatientId &&
                     f.DoctorId == appointment.DoctorId);
 
             if (feedback == null) return NotFound("Review not found");

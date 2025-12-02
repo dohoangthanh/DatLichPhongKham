@@ -78,7 +78,8 @@ class _HistoryScreenState extends State<HistoryScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text('Are you sure you want to cancel this appointment?'),
+        content:
+            const Text('Are you sure you want to cancel this appointment?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -95,7 +96,8 @@ class _HistoryScreenState extends State<HistoryScreen>
 
     if (confirmed == true) {
       try {
-        await _bookingService.cancelAppointment(authService.token!, appointment.appointmentId);
+        await _bookingService.cancelAppointment(
+            authService.token!, appointment.appointmentId);
         await _loadAppointments(); // Reload to update the list
         messenger.showSnackBar(
           const SnackBar(content: Text('Appointment cancelled successfully')),
@@ -113,14 +115,14 @@ class _HistoryScreenState extends State<HistoryScreen>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E88E5),
+        backgroundColor: const Color(0xFF64B5F6),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Medical History',
+          'Lịch Sử Khám Bệnh',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -138,14 +140,14 @@ class _HistoryScreenState extends State<HistoryScreen>
             fontWeight: FontWeight.w600,
           ),
           tabs: const [
-            Tab(text: 'Upcoming'),
-            Tab(text: 'History'),
+            Tab(text: 'Sắp Tới'),
+            Tab(text: 'Lịch Sử'),
           ],
         ),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1E88E5)),
+              child: CircularProgressIndicator(color: Color(0xFF64B5F6)),
             )
           : _error != null
               ? Center(
@@ -157,14 +159,14 @@ class _HistoryScreenState extends State<HistoryScreen>
                         const Icon(Icons.error_outline,
                             size: 64, color: Colors.red),
                         const SizedBox(height: 16),
-                        Text('Error: $_error', textAlign: TextAlign.center),
+                        Text('Lỗi: $_error', textAlign: TextAlign.center),
                         const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: _loadAppointments,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E88E5),
+                            backgroundColor: const Color(0xFF64B5F6),
                           ),
-                          child: const Text('Retry'),
+                          child: const Text('Thử Lại'),
                         ),
                       ],
                     ),
@@ -180,7 +182,8 @@ class _HistoryScreenState extends State<HistoryScreen>
     );
   }
 
-  Widget _buildAppointmentsList(List<Appointment> appointments, bool isUpcoming) {
+  Widget _buildAppointmentsList(
+      List<Appointment> appointments, bool isUpcoming) {
     if (appointments.isEmpty) {
       return Center(
         child: Column(
@@ -193,7 +196,7 @@ class _HistoryScreenState extends State<HistoryScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              isUpcoming ? 'No Upcoming Appointments' : 'No Past Appointments',
+              isUpcoming ? 'Không Có Lịch Hẹn Sắp Tới' : 'Không Có Lịch Sử',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -241,12 +244,12 @@ class _HistoryScreenState extends State<HistoryScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E88E5).withValues(alpha: 0.1),
+                    color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.calendar_today,
-                    color: Color(0xFF1E88E5),
+                    color: Color(0xFF64B5F6),
                     size: 24,
                   ),
                 ),
@@ -281,10 +284,10 @@ class _HistoryScreenState extends State<HistoryScreen>
             Row(
               children: [
                 const Icon(Icons.medical_services,
-                    size: 20, color: Color(0xFF1E88E5)),
+                    size: 20, color: Color(0xFF64B5F6)),
                 const SizedBox(width: 8),
                 Text(
-                  appointment.specialty?.name ?? 'General',
+                  appointment.specialty?.name ?? 'Tổng Quát',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[700],
@@ -296,11 +299,11 @@ class _HistoryScreenState extends State<HistoryScreen>
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.person, size: 20, color: Color(0xFF1E88E5)),
+                const Icon(Icons.person, size: 20, color: Color(0xFF64B5F6)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Dr. ${appointment.doctor?.name ?? 'Unknown'}',
+                    'BS. ${appointment.doctor?.name ?? 'Chưa rõ'}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[700],
@@ -325,15 +328,15 @@ class _HistoryScreenState extends State<HistoryScreen>
       case 'confirmed':
       case 'scheduled':
         color = Colors.blue;
-        text = 'Scheduled';
+        text = 'Đã Xác Nhận';
         break;
       case 'cancelled':
         color = Colors.red;
-        text = 'Cancelled';
+        text = 'Đã Hủy';
         break;
       case 'completed':
         color = Colors.green;
-        text = 'Completed';
+        text = 'Hoàn Thành';
         break;
       default:
         color = Colors.grey;
@@ -400,16 +403,14 @@ class _HistoryScreenState extends State<HistoryScreen>
                 child: ElevatedButton(
                   onPressed: () async {
                     final result = await Navigator.pushNamed(
-                      context, 
-                      '/appointment-detail', 
-                      arguments: appointment.appointmentId
-                    );
+                        context, '/appointment-detail',
+                        arguments: appointment.appointmentId);
                     if (result == true) {
                       _loadAppointments();
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     elevation: 0,
@@ -418,7 +419,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                     ),
                   ),
                   child: const Text(
-                    'View Details',
+                    'Xem Chi Tiết',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -437,7 +438,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                     ),
                   ),
                   child: const Text(
-                    'Cancel',
+                    'Hủy Lịch',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -467,7 +468,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     elevation: 0,
@@ -476,7 +477,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                     ),
                   ),
                   child: const Text(
-                    'Record',
+                    'Hồ Sơ',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -485,14 +486,17 @@ class _HistoryScreenState extends State<HistoryScreen>
               Expanded(
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') {
-                      Navigator.pushNamed(context, '/invoice', arguments: appointment.appointmentId);
+                    if (appointment.payment != null &&
+                        appointment.payment!.status.toLowerCase() == 'paid') {
+                      Navigator.pushNamed(context, '/invoice',
+                          arguments: appointment.appointmentId);
                     } else {
                       try {
                         final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PaymentScreen(appointmentId: appointment.appointmentId),
+                            builder: (context) => PaymentScreen(
+                                appointmentId: appointment.appointmentId),
                           ),
                         );
                         if (result == true && mounted) {
@@ -501,14 +505,14 @@ class _HistoryScreenState extends State<HistoryScreen>
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
+                            SnackBar(content: Text('Lỗi: $e')),
                           );
                         }
                       }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     elevation: 0,
@@ -517,8 +521,12 @@ class _HistoryScreenState extends State<HistoryScreen>
                     ),
                   ),
                   child: Text(
-                    (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') ? 'Invoice' : 'Payment',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    (appointment.payment != null &&
+                            appointment.payment!.status.toLowerCase() == 'paid')
+                        ? 'Hóa Đơn'
+                        : 'Thanh Toán',
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -527,24 +535,27 @@ class _HistoryScreenState extends State<HistoryScreen>
                 child: ElevatedButton(
                   onPressed: () async {
                     if (appointment.hasFeedback ?? false) {
-                      Navigator.pushNamed(context, '/view-review', arguments: appointment.appointmentId);
+                      Navigator.pushNamed(context, '/view-review',
+                          arguments: appointment.appointmentId);
                     } else {
                       try {
-                        final result = await Navigator.pushNamed(context, '/review', arguments: appointment.appointmentId);
+                        final result = await Navigator.pushNamed(
+                            context, '/review',
+                            arguments: appointment.appointmentId);
                         if (result == true && mounted) {
                           _loadAppointments();
                         }
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
+                            SnackBar(content: Text('Lỗi: $e')),
                           );
                         }
                       }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     elevation: 0,
@@ -553,8 +564,11 @@ class _HistoryScreenState extends State<HistoryScreen>
                     ),
                   ),
                   child: Text(
-                    (appointment.hasFeedback ?? false) ? 'View Review' : 'Review',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    (appointment.hasFeedback ?? false)
+                        ? 'Xem Đánh Giá'
+                        : 'Đánh Giá',
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
