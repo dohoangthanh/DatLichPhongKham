@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import DoctorLayout from '@/components/DoctorLayout'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 interface WorkShift {
   shiftId: number
   doctorId: number
@@ -33,7 +35,7 @@ export default function DoctorWorkShiftsPage() {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/schedule/workshift/${user?.doctorId}`, {
+      const response = await fetch(`${API_URL}/schedule/workshift/${user?.doctorId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (response.ok) {
@@ -59,7 +61,7 @@ export default function DoctorWorkShiftsPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5129/api/schedule/workshift', {
+      const response = await fetch(`${API_URL}/schedule/workshift`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +95,7 @@ export default function DoctorWorkShiftsPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/schedule/workshift/${shiftId}`, {
+      const response = await fetch(`${API_URL}/schedule/workshift/${shiftId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })

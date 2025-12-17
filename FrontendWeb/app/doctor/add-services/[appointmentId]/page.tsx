@@ -1,8 +1,10 @@
-'use client'
+Thn'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import DoctorLayout from '@/components/DoctorLayout'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
 interface Service {
   serviceId: number
@@ -47,7 +49,7 @@ export default function AddServicesPage() {
       const token = localStorage.getItem('token')
 
       // Load appointment details
-      const aptResponse = await fetch(`http://localhost:5129/api/medical/appointments?period=all`, {
+      const aptResponse = await fetch(`${API_URL}/medical/appointments?period=all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const appointments = await aptResponse.json()
@@ -55,14 +57,14 @@ export default function AddServicesPage() {
       setAppointment(apt)
 
       // Load all services
-      const servicesResponse = await fetch('http://localhost:5129/api/services', {
+      const servicesResponse = await fetch(`${API_URL}/services`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const servicesData = await servicesResponse.json()
       setServices(servicesData)
 
       // Load already selected services
-      const selectedResponse = await fetch(`http://localhost:5129/api/medical/appointments/${appointmentId}/services`, {
+      const selectedResponse = await fetch(`${API_URL}/medical/appointments/${appointmentId}/services`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const selectedData = await selectedResponse.json()
@@ -95,7 +97,7 @@ export default function AddServicesPage() {
       setSubmitting(true)
       const token = localStorage.getItem('token')
 
-      const response = await fetch(`http://localhost:5129/api/medical/appointments/${appointmentId}/services`, {
+      const response = await fetch(`${API_URL}/medical/appointments/${appointmentId}/services`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

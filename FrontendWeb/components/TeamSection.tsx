@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Doctor {
   doctorId: number
   name: string
@@ -137,7 +139,7 @@ const TeamSection: React.FC = () => {
               <div className="relative h-80 bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
                 {doctor.imageUrl ? (
                   <Image
-                    src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                    src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `${BASE_URL}${doctor.imageUrl}`}
                     alt={doctor.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"

@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { userManagementApi, specialtyApi } from '@/services/adminApi'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Specialty {
   specialtyId: number
   name: string
@@ -157,7 +159,7 @@ const DoctorsPage: React.FC = () => {
     if (doctor.imageUrl) {
       const fullImageUrl = doctor.imageUrl.startsWith('http') 
         ? doctor.imageUrl 
-        : `http://localhost:5129${doctor.imageUrl}`
+        : `${BASE_URL}${doctor.imageUrl}`
       setImagePreview(fullImageUrl)
     } else {
       setImagePreview('')
@@ -335,7 +337,7 @@ const DoctorsPage: React.FC = () => {
                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200">
                       {doctor.imageUrl ? (
                         <img 
-                          src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                          src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `${BASE_URL}${doctor.imageUrl}`}
                           alt={doctor.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {

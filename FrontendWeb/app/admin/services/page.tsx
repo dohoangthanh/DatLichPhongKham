@@ -5,6 +5,7 @@ import AdminLayout from '@/components/AdminLayout'
 import { serviceApi } from '@/services/adminApi'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
 
 interface Service {
   serviceId: number
@@ -250,7 +251,7 @@ const ServicesPage: React.FC = () => {
                     <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
                       {service.imageUrl ? (
                         <img 
-                          src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                          src={service.imageUrl.startsWith('http') ? service.imageUrl : `${BASE_URL}${service.imageUrl}`}
                           alt={service.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -387,7 +388,7 @@ const ServicesPage: React.FC = () => {
                   {imagePreview && (
                     <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-blue-200">
                       <img 
-                        src={imagePreview.startsWith('http') || imagePreview.startsWith('data:') ? imagePreview : `http://localhost:5129${imagePreview}`}
+                        src={imagePreview.startsWith('http') || imagePreview.startsWith('data:') ? imagePreview : `${BASE_URL}${imagePreview}`}
                         alt="Preview" 
                         className="w-full h-full object-cover"
                       />

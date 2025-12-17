@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 interface Feedback {
   feedbackId: number
   rating: number
@@ -39,7 +41,7 @@ export default function PatientFeedbackPage() {
     try {
       setLoadingData(true)
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5129/api/feedback/my-feedback', {
+      const response = await fetch(`${API_URL}/feedback/my-feedback`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

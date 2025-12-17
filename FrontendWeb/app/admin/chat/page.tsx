@@ -7,6 +7,7 @@ import AdminLayout from '@/components/AdminLayout'
 import * as signalR from '@microsoft/signalr'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
 
 interface ChatMessage {
   messageId: number
@@ -87,7 +88,7 @@ export default function AdminChatPage() {
   const connectToHub = async () => {
     try {
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`http://localhost:5129/chatHub?access_token=${token}`, {
+        .withUrl(`${BASE_URL}/chatHub?access_token=${token}`, {
           accessTokenFactory: () => token || ''
         })
         .withAutomaticReconnect()

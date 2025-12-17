@@ -5,6 +5,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { patientApi } from '@/services/patientApi'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Doctor {
   doctorId: number
   name: string
@@ -111,7 +113,7 @@ export default function DoctorsPage() {
                       <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300 flex items-center justify-center">
                           {doctor.imageUrl ? (
                             <img 
-                              src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                              src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `${BASE_URL}${doctor.imageUrl}`}
                               alt={doctor.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {

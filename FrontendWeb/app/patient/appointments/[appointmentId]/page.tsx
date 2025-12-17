@@ -6,6 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface AppointmentDetail {
   appointmentId: number
   date: string
@@ -47,7 +50,7 @@ export default function AppointmentDetailPage() {
     try {
       setLoadingData(true)
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/appointments/${appointmentId}`, {
+      const response = await fetch(`${API_URL}/appointments/${appointmentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -73,7 +76,7 @@ export default function AppointmentDetailPage() {
     
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/appointments/${appointmentId}/cancel`, {
+      const response = await fetch(`${API_URL}/appointments/${appointmentId}/cancel`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

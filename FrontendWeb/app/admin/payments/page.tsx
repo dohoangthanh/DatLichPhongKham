@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 interface Payment {
   paymentId: number
   appointmentId: number
@@ -39,7 +41,7 @@ export default function AdminPaymentsPage() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/admin/payments?status=${filter}`, {
+      const response = await fetch(`${API_URL}/admin/payments?status=${filter}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -62,7 +64,7 @@ export default function AdminPaymentsPage() {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(
-        `http://localhost:5129/api/payment/confirm/${confirmModal.payment.paymentId}`,
+        `${API_URL}/payment/confirm/${confirmModal.payment.paymentId}`,
         {
           method: 'PUT',
           headers: {

@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 interface Doctor {
   doctorId: number
   name: string
@@ -91,7 +93,7 @@ export default function ReschedulePage() {
   const fetchAppointmentDetail = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/appointments/${appointmentId}`, {
+      const response = await fetch(`${API_URL}/appointments/${appointmentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (response.ok) {
@@ -112,7 +114,7 @@ export default function ReschedulePage() {
 
   const fetchSpecialties = async () => {
     try {
-      const response = await fetch('http://localhost:5129/api/specialties')
+      const response = await fetch(`${API_URL}/specialties`)
       if (response.ok) {
         const data = await response.json()
         setSpecialties(data)
@@ -124,7 +126,7 @@ export default function ReschedulePage() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch('http://localhost:5129/api/doctors')
+      const response = await fetch(`${API_URL}/doctors`)
       if (response.ok) {
         const data = await response.json()
         console.log('📋 Fetched doctors:', data)
@@ -142,7 +144,7 @@ export default function ReschedulePage() {
     
     setLoadingSlots(true)
     try {
-      const response = await fetch(`http://localhost:5129/api/booking/slots/${selectedDoctor}/${selectedDate}`)
+      const response = await fetch(`${API_URL}/booking/slots/${selectedDoctor}/${selectedDate}`)
       if (response.ok) {
         const data = await response.json()
         setAvailableSlots(data)
@@ -166,7 +168,7 @@ export default function ReschedulePage() {
     setIsSubmitting(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/appointments/${appointmentId}/reschedule`, {
+      const response = await fetch(`${API_URL}/appointments/${appointmentId}/reschedule`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

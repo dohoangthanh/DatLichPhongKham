@@ -10,8 +10,7 @@ import PaymentModal from '@/components/PaymentModal'
 import ChatbotBubble from '@/components/ChatbotBubble'
 import { patientMedicalApi, paymentApi } from '@/services/patientApi'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
 interface Appointment {
   appointmentId: number
   date?: string
@@ -309,7 +308,7 @@ export default function HistoryPage() {
                         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center overflow-hidden border-4 border-gradient-to-r from-cyan-200 to-blue-300">
                           {appointment.doctor?.imageUrl ? (
                             <img 
-                              src={appointment.doctor.imageUrl.startsWith('http') ? appointment.doctor.imageUrl : `http://localhost:5129${appointment.doctor.imageUrl}`}
+                              src={appointment.doctor.imageUrl.startsWith('http') ? appointment.doctor.imageUrl : `${BASE_URL}${appointment.doctor.imageUrl}`}
                               alt={appointment.doctor.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -531,7 +530,7 @@ export default function HistoryPage() {
                       <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-gradient-to-r from-cyan-400 to-blue-600 shadow-lg">
                         {medicalRecordModal.record.appointment.doctor.imageUrl ? (
                           <img 
-                            src={medicalRecordModal.record.appointment.doctor.imageUrl.startsWith('http') ? medicalRecordModal.record.appointment.doctor.imageUrl : `http://localhost:5129${medicalRecordModal.record.appointment.doctor.imageUrl}`}
+                            src={medicalRecordModal.record.appointment.doctor.imageUrl.startsWith('http') ? medicalRecordModal.record.appointment.doctor.imageUrl : `${BASE_URL}${medicalRecordModal.record.appointment.doctor.imageUrl}`}
                             alt={medicalRecordModal.record.appointment.doctor.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {

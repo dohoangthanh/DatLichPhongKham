@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import ChatbotBubble from '@/components/ChatbotBubble'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
 
 interface Specialty {
   specialtyId: number
@@ -347,7 +348,7 @@ export default function BookingPage() {
                           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center overflow-hidden mr-4 border-4 border-cyan-200">
                             {doctor.imageUrl ? (
                               <img 
-                                src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `http://localhost:5129${doctor.imageUrl}`}
+                                src={doctor.imageUrl.startsWith('http') ? doctor.imageUrl : `${BASE_URL}${doctor.imageUrl}`}
                                 alt={doctor.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

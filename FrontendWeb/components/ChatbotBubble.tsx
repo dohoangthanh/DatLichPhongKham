@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import * as signalR from '@microsoft/signalr'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
 
 interface Message {
   id: number
@@ -74,7 +75,7 @@ export default function ChatbotBubble() {
     try {
       console.log('🔌 Connecting to SignalR...')
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`http://localhost:5129/chatHub?access_token=${token}`, {
+        .withUrl(`${BASE_URL}/chatHub?access_token=${token}`, {
           skipNegotiation: true,
           transport: signalR.HttpTransportType.WebSockets
         })

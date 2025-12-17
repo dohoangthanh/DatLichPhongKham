@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Service {
   serviceId: number
   name: string
@@ -114,7 +116,7 @@ const ServicesSection: React.FC = () => {
               <div className="relative h-56 bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
                 {service.imageUrl ? (
                   <Image
-                    src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                    src={service.imageUrl.startsWith('http') ? service.imageUrl : `${BASE_URL}${service.imageUrl}`}
                     alt={service.name}
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-300"

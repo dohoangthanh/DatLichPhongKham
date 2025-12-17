@@ -45,8 +45,8 @@ const Header: React.FC = () => {
       
       // Fetch all doctors and services
       const [doctorsRes, servicesRes] = await Promise.all([
-        fetch('http://localhost:5129/api/doctors'),
-        fetch('http://localhost:5129/api/services')
+        fetch(`${API_URL}/doctors`),
+        fetch(`${API_URL}/services`)
       ])
 
       const allDoctors = doctorsRes.ok ? await doctorsRes.json() : []

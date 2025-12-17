@@ -5,6 +5,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { patientApi } from '@/services/patientApi'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Service {
   serviceId: number
   name: string
@@ -125,7 +127,7 @@ export default function ServicesPage() {
                     {service.imageUrl ? (
                       <>
                         <img 
-                          src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                          src={service.imageUrl.startsWith('http') ? service.imageUrl : `${BASE_URL}${service.imageUrl}`}
                           alt={service.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {

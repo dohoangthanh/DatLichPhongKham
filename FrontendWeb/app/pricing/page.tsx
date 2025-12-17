@@ -5,6 +5,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { patientApi } from '@/services/patientApi'
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Service {
   serviceId: number
   name: string
@@ -186,7 +188,7 @@ export default function PricingPage() {
                             <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center mr-3">
                               {service.imageUrl ? (
                                 <img 
-                                  src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                                  src={service.imageUrl.startsWith('http') ? service.imageUrl : `${BASE_URL}${service.imageUrl}`}
                                   alt={service.name}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -238,7 +240,7 @@ export default function PricingPage() {
                       <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center flex-shrink-0">
                         {service.imageUrl ? (
                           <img 
-                            src={service.imageUrl.startsWith('http') ? service.imageUrl : `http://localhost:5129${service.imageUrl}`}
+                            src={service.imageUrl.startsWith('http') ? service.imageUrl : `${BASE_URL}${service.imageUrl}`}
                             alt={service.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 interface AppointmentHistory {
   historyId: number
   oldDate: string
@@ -31,7 +33,7 @@ export default function AppointmentHistoryModal({ appointmentId, onClose }: Prop
   const fetchHistory = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5129/api/appointments/${appointmentId}/history`, {
+      const response = await fetch(`${API_URL}/appointments/${appointmentId}/history`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (response.ok) {

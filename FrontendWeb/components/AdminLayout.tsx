@@ -120,7 +120,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               href="/admin/payments"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
-              💰 <span className="font-medium">Thanh toán</span>
+              <span className="font-medium">Thanh toán</span>
             </Link>
             <Link
               href="/admin/feedback"
@@ -150,7 +150,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               href="/admin/chat"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
-              💬 <span className="font-medium">Chat với Bệnh nhân</span>
+              <span className="font-medium">Chat với Bệnh nhân</span>
             </Link>
             <Link
               href="/admin/settings"

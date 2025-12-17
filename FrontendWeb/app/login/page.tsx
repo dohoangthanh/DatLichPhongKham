@@ -38,29 +38,21 @@ export default function LoginPage() {
       
       // Check user role from localStorage after login
       const storedUser = localStorage.getItem('user')
-      console.log('After login - Stored user:', storedUser)
       
       if (storedUser) {
         const user = JSON.parse(storedUser)
-        console.log('After login - Parsed user:', user)
-        console.log('User role:', user.role)
         
         if (user.role === 'Admin') {
-          console.log('Redirecting to admin dashboard')
-          window.location.href = '/admin/dashboard'
+          router.push('/admin')
         } else if (user.role === 'Doctor') {
-          console.log('Redirecting to doctor schedule')
-          window.location.href = '/doctor/schedule'
+          router.push('/doctor/schedule')
         } else if (user.role === 'Patient') {
-          console.log('Redirecting to patient dashboard')
-          window.location.href = '/patient'
+          router.push('/patient')
         } else {
-          console.log('Redirecting to home')
-          window.location.href = '/'
+          router.push('/')
         }
       } else {
-        console.log('No stored user, redirecting to home')
-        window.location.href = '/'
+        router.push('/')
       }
     } catch (err: any) {
       setError(err.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
