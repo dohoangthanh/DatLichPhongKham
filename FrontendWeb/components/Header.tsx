@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+
 const Header: React.FC = () => {
   const { user, logout } = useAuth()
   const router = useRouter()

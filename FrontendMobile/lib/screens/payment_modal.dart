@@ -324,29 +324,7 @@ class _PaymentModalState extends State<PaymentModal> {
                   color: Colors.green.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.check_circle,
-                            color: Colors.green.shade700, size: 16),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'QR Code tự động điền đầy đủ thông tin',
-                          style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Quét bằng: MB Bank, Sacombank, MoMo, VietQR...',
-                      style:
-                          TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
+                child: Column(),
               ),
               const SizedBox(height: 24),
             ],

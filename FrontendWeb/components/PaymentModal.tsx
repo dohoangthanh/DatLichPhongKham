@@ -174,12 +174,6 @@ export default function PaymentModal({
                         className="mx-auto border-4 border-gray-200 rounded-lg shadow-lg max-w-sm"
                         crossOrigin="anonymous"
                       />
-                      <p className="text-sm text-green-600 mt-3 font-semibold">
-                        ✅ QR Code tự động điền đầy đủ thông tin
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Quét bằng: MB Bank, Sacombank, MoMo, VietQR, hoặc bất kỳ app ngân hàng nào
-                      </p>
                     </div>
                   )}
 

@@ -73,19 +73,29 @@ namespace QuanLyKhamBenhAPI.Services
 
         /// <summary>
         /// Tìm payment ID từ nội dung chuyển khoản
-        /// Format: "THANHTOAN 123" hoặc "THANHTOAN123"
+        /// Format: "PK000007" hoặc "PK 7" hoặc "THANHTOAN 7" (backward compatible)
         /// </summary>
         public int? ExtractPaymentIdFromDescription(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
                 return null;
 
-            // Pattern: THANHTOAN + optional whitespace + số
+            // Pattern 1: PK + số (có thể có số 0 đằng trước)
             var match = System.Text.RegularExpressions.Regex.Match(
                 description,
-                @"THANHTOAN[\s]*(\d+)",
+                @"PK[\s]*(\d+)",
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase
             );
+
+            // Pattern 2: Fallback - THANHTOAN + số (để tương thích ngược)
+            if (!match.Success)
+            {
+                match = System.Text.RegularExpressions.Regex.Match(
+                    description,
+                    @"THANHTOAN[\s]*(\d+)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+            }
 
             if (match.Success && int.TryParse(match.Groups[1].Value, out int paymentId))
             {

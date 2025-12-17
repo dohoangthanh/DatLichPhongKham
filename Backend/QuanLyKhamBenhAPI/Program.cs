@@ -28,7 +28,8 @@ builder.Services.AddScoped<LocalChatbotService>();
 // Payment Services
 builder.Services.AddScoped<VietQRService>();
 builder.Services.AddScoped<CassoService>();
-builder.Services.AddScoped<PayOSService>();
+// PayOSService không sử dụng - chỉ dùng Casso webhook
+// builder.Services.AddScoped<PayOSService>();
 builder.Services.AddHttpClient();
 
 // JWT Configuration

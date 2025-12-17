@@ -10,7 +10,9 @@ import PaymentModal from '@/components/PaymentModal'
 import ChatbotBubble from '@/components/ChatbotBubble'
 import { patientMedicalApi, paymentApi } from '@/services/patientApi'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5129'
+
 interface Appointment {
   appointmentId: number
   date?: string
@@ -116,16 +118,16 @@ export default function HistoryPage() {
   const fetchAppointments = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`${API_URL}/booking/my-appointments`, {
+      const response = await fetch(`${API_URL}/booking/my-appointments?t=${Date.now()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
         }
       })
       
       if (response.ok) {
         const data = await response.json()
-        console.log('Appointments data:', data)
-        console.log('First appointment:', data[0])
+        console.log('Appointments data refreshed:', data)
         setAppointments(data)
       }
     } catch (error) {
@@ -416,27 +418,31 @@ export default function HistoryPage() {
                     </div>
                   )}
 
-                  {appointment.status === 'Completed' && (
+                  {/* Buttons section - hiện khi có payment */}
+                  {appointment.payment && (
                     <div className="mt-6 pt-6 bg-gradient-to-t from-gray-50/50 via-transparent to-transparent">
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {/* Button Xem kết quả - chỉ hiện khi đã thanh toán */}
+                        {appointment.payment.status === 'Paid' && appointment.status === 'Completed' && (
+                          <button
+                            className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+                            onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
+                          >
+                            Xem Kết Quả
+                          </button>
+                        )}
+                        
+                        {/* Button Thanh toán / Xem hóa đơn - LUÔN HIỆN Ở GIỮA */}
                         <button
-                          className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
-                          onClick={() => handleViewMedicalRecord(appointment.appointmentId)}
-                        >
-                          Xem Kết Quả Khám
-                        </button>
-                        <button
-                          className={`px-4 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
-                            appointment.payment?.status === 'Paid'
+                          className={`px-6 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
+                            appointment.payment.status === 'Paid'
                               ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
                               : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
                           }`}
                           onClick={async () => {
                             if (appointment.payment?.status === 'Paid') {
-                              // Xem hóa đơn
                               router.push(`/patient/invoice/${appointment.appointmentId}`)
                             } else {
-                              // Mở modal thanh toán
                               setPaymentModal({
                                 isOpen: true,
                                 appointmentId: appointment.appointmentId,
@@ -445,31 +451,35 @@ export default function HistoryPage() {
                             }
                           }}
                         >
-                          {appointment.payment?.status === 'Paid' ? 'Xem lại Hóa đơn' : 'Thanh Toán'}
+                          {appointment.payment.status === 'Paid' ? '📄 Hóa Đơn' : '💳 Thanh Toán'}
                         </button>
-                        <button
-                          className={`px-4 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
-                            appointment.hasFeedback
-                              ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
-                              : 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'
-                          }`}
-                          onClick={() => {
-                            if (appointment.doctor) {
-                              if (appointment.hasFeedback) {
-                                router.push('/patient/feedback');
-                              } else {
-                                setFeedbackModal({
-                                  isOpen: true,
-                                  appointmentId: appointment.appointmentId,
-                                  doctorId: appointment.doctor.doctorId,
-                                  doctorName: appointment.doctor.name
-                                });
+                        
+                        {/* Button Gửi đánh giá - chỉ hiện khi đã thanh toán */}
+                        {appointment.payment.status === 'Paid' && appointment.status === 'Completed' && (
+                          <button
+                            className={`px-6 py-2 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
+                              appointment.hasFeedback
+                                ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
+                                : 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'
+                            }`}
+                            onClick={() => {
+                              if (appointment.doctor) {
+                                if (appointment.hasFeedback) {
+                                  router.push('/patient/feedback');
+                                } else {
+                                  setFeedbackModal({
+                                    isOpen: true,
+                                    appointmentId: appointment.appointmentId,
+                                    doctorId: appointment.doctor.doctorId,
+                                    doctorName: appointment.doctor.name
+                                  });
+                                }
                               }
-                            }
-                          }}
-                        >
-                          {appointment.hasFeedback ? 'Xem Đánh giá' : 'Đánh Giá'}
-                        </button>
+                            }}
+                          >
+                            {appointment.hasFeedback ? 'Xem Đánh Giá' : '⭐ Đánh Giá'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

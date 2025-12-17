@@ -23,15 +23,6 @@ export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('pending')
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean
-    payment: Payment | null
-    transactionId: string
-  }>({
-    isOpen: false,
-    payment: null,
-    transactionId: ''
-  })
 
   useEffect(() => {
     fetchPayments()
@@ -55,38 +46,6 @@ export default function AdminPaymentsPage() {
       console.error('Error fetching payments:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleConfirmPayment = async () => {
-    if (!confirmModal.payment) return
-
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(
-        `${API_URL}/payment/confirm/${confirmModal.payment.paymentId}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            transactionId: confirmModal.transactionId || undefined
-          })
-        }
-      )
-
-      if (response.ok) {
-        alert('Xác nhận thanh toán thành công!')
-        setConfirmModal({ isOpen: false, payment: null, transactionId: '' })
-        fetchPayments()
-      } else {
-        alert('Lỗi xác nhận thanh toán')
-      }
-    } catch (error) {
-      console.error('Error confirming payment:', error)
-      alert('Lỗi xác nhận thanh toán')
     }
   }
 
@@ -200,22 +159,13 @@ export default function AdminPaymentsPage() {
                         : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {payment.status === 'Pending' ? (
-                        <button
-                          onClick={() =>
-                            setConfirmModal({
-                              isOpen: true,
-                              payment,
-                              transactionId: ''
-                            })
-                          }
-                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                        >
-                          Xác nhận
-                        </button>
+                      {payment.status === 'Paid' ? (
+                        <span className="text-green-600 font-medium">
+                          ✓ {payment.transactionId || 'Đã thanh toán'}
+                        </span>
                       ) : (
-                        <span className="text-gray-400">
-                          {payment.transactionId || 'Đã xác nhận'}
+                        <span className="text-yellow-600 font-medium">
+                          ⏳ Đợi webhook từ Casso
                         </span>
                       )}
                     </td>
@@ -232,72 +182,23 @@ export default function AdminPaymentsPage() {
           </div>
         )}
 
-        {/* Confirm Modal */}
-        {confirmModal.isOpen && confirmModal.payment && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4">Xác nhận thanh toán</h3>
-              
-              <div className="mb-4 space-y-2 bg-gray-50 p-4 rounded">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment ID:</span>
-                  <span className="font-semibold">#{confirmModal.payment.paymentId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Số tiền:</span>
-                  <span className="font-semibold text-green-600">
-                    {confirmModal.payment.totalAmount.toLocaleString('vi-VN')} ₫
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Nội dung CK:</span>
-                  <span className="font-mono text-blue-600">
-                    {confirmModal.payment.transferContent}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mã giao dịch MB Bank (tùy chọn)
-                </label>
-                <input
-                  type="text"
-                  value={confirmModal.transactionId}
-                  onChange={(e) =>
-                    setConfirmModal({ ...confirmModal, transactionId: e.target.value })
-                  }
-                  placeholder="FT25350123456"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Nhập mã giao dịch từ app MB Bank để đối soát sau này
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() =>
-                    setConfirmModal({ isOpen: false, payment: null, transactionId: '' })
-                  }
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={handleConfirmPayment}
-                  className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                >
-                  Xác nhận thanh toán
-                </button>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 rounded text-sm text-blue-800">
-                <strong>Lưu ý:</strong> Hãy kiểm tra kỹ trong app MB Bank trước khi xác nhận!
-              </div>
+        {/* Thông báo tự động xác nhận */}
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <svg className="w-6 h-6 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h4 className="font-semibold text-blue-900 mb-1">
+                Thanh toán tự động qua Casso Webhook
+              </h4>
+              <p className="text-sm text-blue-800">
+                Khi khách hàng chuyển khoản với nội dung đúng, hệ thống sẽ <strong>tự động xác nhận thanh toán</strong> trong vài giây. 
+                Admin chỉ cần theo dõi, không cần xác nhận thủ công.
+              </p>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </AdminLayout>
   )

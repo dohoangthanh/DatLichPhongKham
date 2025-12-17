@@ -137,7 +137,7 @@ namespace QuanLyKhamBenhAPI.Controllers
 
             if (dto.PaymentMethod?.ToLower() == "bank_transfer" || dto.PaymentMethod?.ToLower() == "banktransfer")
             {
-                transferContent = $"THANHTOAN {payment.PaymentId}";
+                transferContent = $"PK{payment.PaymentId:D6}"; // Format: PK000007
 
                 var vietQRData = _vietQRService.GenerateVietQR(totalAmount, transferContent);
 
@@ -194,58 +194,56 @@ namespace QuanLyKhamBenhAPI.Controllers
                 using var reader = new StreamReader(Request.Body);
                 var requestBody = await reader.ReadToEndAsync();
 
-                _logger.LogInformation("Received Casso webhook: {Body}", requestBody);
+                _logger.LogInformation("🔔 Received Casso webhook: {Body}", requestBody);
+                _logger.LogInformation("📨 Headers: {Headers}", string.Join(", ", Request.Headers.Select(h => $"{h.Key}={h.Value}")));
 
-                // 2. Verify checksum từ header hoặc parse từ body
-                // Casso gửi checksum trong header X-Secure-Token hoặc trong body
-                var receivedChecksum = Request.Headers["X-Secure-Token"].FirstOrDefault()
-                    ?? Request.Headers["x-secure-token"].FirstOrDefault()
+                // 2. Lấy signature từ header (Casso gửi trong secure-token)
+                var receivedSignature = Request.Headers["secure-token"].FirstOrDefault()
+                    ?? Request.Headers["Secure-Token"].FirstOrDefault()
+                    ?? Request.Headers["X-Secure-Token"].FirstOrDefault()
                     ?? "";
 
-                // ⚠️ DEVELOPMENT: Cho phép webhook không có checksum (để test)
-                // TODO: Bật lại verify checksum khi deploy production
-                if (!string.IsNullOrEmpty(receivedChecksum))
+                _logger.LogInformation("🔐 Received Signature: {Signature}", receivedSignature);
+
+                // 3. Verify HMAC signature
+                if (string.IsNullOrEmpty(receivedSignature))
                 {
-                    // 3. Verify webhook signature nếu có checksum
-                    if (!_cassoService.VerifyWebhook(requestBody, receivedChecksum))
-                    {
-                        _logger.LogWarning("Casso webhook verification failed");
-                        return Unauthorized(new { error = -1, message = "Invalid checksum" });
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("⚠️ DEV MODE: Webhook without checksum - NOT SAFE FOR PRODUCTION!");
+                    _logger.LogWarning("❌ Missing signature in webhook");
+                    return Unauthorized(new { error = 1, message = "Missing signature" });
                 }
 
-                // Bỏ block verify để tiếp tục xử lý
-                if (false && !_cassoService.VerifyWebhook(requestBody, receivedChecksum))
+                var isValid = _cassoService.VerifyWebhook(requestBody, receivedSignature);
+                if (!isValid)
                 {
-                    _logger.LogWarning("Casso webhook verification failed");
-                    return Unauthorized(new { error = -1, message = "Invalid checksum" });
+                    _logger.LogWarning("❌ Invalid webhook signature");
+                    return Unauthorized(new { error = 1, message = "Invalid signature" });
                 }
+
+                _logger.LogInformation("✅ Webhook signature verified");
 
                 // 4. Parse webhook data
                 var webhookData = _cassoService.ParseWebhookData(requestBody);
                 if (webhookData == null || webhookData.Data == null || !webhookData.Data.Any())
                 {
-                    _logger.LogWarning("Casso webhook has no transaction data");
+                    _logger.LogWarning("⚠️ Casso webhook has no transaction data");
                     return Ok(new { error = 0, message = "No data" });
                 }
 
                 // 5. Xử lý từng transaction
                 foreach (var transaction in webhookData.Data)
                 {
-                    _logger.LogInformation("Processing transaction: TID={Tid}, Amount={Amount}, Description={Description}",
+                    _logger.LogInformation("💰 Processing transaction: TID={Tid}, Amount={Amount}, Description={Description}",
                         transaction.Tid, transaction.Amount, transaction.Description);
 
-                    // 6. Tìm payment ID từ description
+                    // 6. Tìm payment ID từ description  
                     var paymentId = _cassoService.ExtractPaymentIdFromDescription(transaction.Description);
                     if (!paymentId.HasValue)
                     {
-                        _logger.LogWarning("Could not extract payment ID from: {Description}", transaction.Description);
+                        _logger.LogWarning("❌ Could not extract payment ID from: {Description}", transaction.Description);
                         continue;
                     }
+
+                    _logger.LogInformation("✅ Extracted Payment ID: {PaymentId}", paymentId.Value);
 
                     // 7. Tìm payment trong database
                     var payment = await _context.Payments
@@ -254,24 +252,29 @@ namespace QuanLyKhamBenhAPI.Controllers
 
                     if (payment == null)
                     {
-                        _logger.LogWarning("Payment not found: {PaymentId}", paymentId.Value);
+                        _logger.LogWarning("❌ Payment not found in DB: {PaymentId}", paymentId.Value);
                         continue;
                     }
+
+                    _logger.LogInformation("✅ Found payment in DB: PaymentId={PaymentId}, Status={Status}, Amount={Amount}",
+                        payment.PaymentId, payment.Status, payment.TotalAmount);
 
                     // 8. Kiểm tra đã thanh toán chưa (tránh duplicate)
                     if (payment.Status == "Paid")
                     {
-                        _logger.LogInformation("Payment {PaymentId} already paid, skipping", paymentId.Value);
+                        _logger.LogInformation("⚠️ Payment {PaymentId} already paid, skipping", paymentId.Value);
                         continue;
                     }
 
                     // 9. Kiểm tra số tiền khớp (cho phép sai lệch < 1 đồng do làm tròn)
                     if (Math.Abs(payment.TotalAmount - transaction.Amount) >= 1)
                     {
-                        _logger.LogWarning("Amount mismatch: Expected={Expected}, Received={Received}",
+                        _logger.LogWarning("❌ Amount mismatch: Expected={Expected}, Received={Received}",
                             payment.TotalAmount, transaction.Amount);
                         continue;
                     }
+
+                    _logger.LogInformation("✅ Amount matched! Updating payment status...");
 
                     // 10. Cập nhật payment status
                     payment.Status = "Paid";
@@ -281,7 +284,7 @@ namespace QuanLyKhamBenhAPI.Controllers
 
                     await _context.SaveChangesAsync();
 
-                    _logger.LogInformation("Payment {PaymentId} marked as Paid. Transaction ID: {Tid}",
+                    _logger.LogInformation("🎉 Payment {PaymentId} marked as PAID! Transaction ID: {Tid}",
                         paymentId.Value, transaction.Tid);
 
                     // 11. (Optional) Gửi notification cho khách hàng
