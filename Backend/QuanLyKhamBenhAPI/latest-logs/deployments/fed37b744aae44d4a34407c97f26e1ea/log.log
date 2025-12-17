@@ -1,0 +1,20 @@
+2025-12-17T06:22:40.3120317Z,Updating submodules.,9edfd691-7ec1-4f57-b471-44e62e6596a7,0
+2025-12-17T06:22:40.4214020Z,Preparing deployment for commit id 'fed37b744a'.,8a41fffe-7c12-4fd5-9920-3c28a6f71a04,0
+2025-12-17T06:22:40.6245236Z,Running build. Project type: OneDeploy,8374f64b-6b18-4f12-bcb0-27afc0328afb,0
+2025-12-17T06:22:40.6902644Z,Copying the manifest,2e76531f-7962-4e28-9905-52b863a250c7,0
+2025-12-17T06:22:40.7984627Z,Clean deploying to C:\home\site\wwwroot,2c708d23-b685-4c61-9009-98909ffa0269,0
+2025-12-17T06:22:40.8445202Z,Generating deployment script.,78d33bd6-e660-4b3c-8f8f-f6cbecdb1e71,0
+	2025-12-17T06:22:41.0655422Z,Using cached version of deployment script (command: 'azure -y --no-dot-deployment -r "C:\local\Temp\zipdeploy\extracted" -o "C:\home\site\deployments\tools" --basic --sitePath "C:\local\Temp\zipdeploy\extracted"').,,0
+2025-12-17T06:22:41.2182643Z,Running deployment command...,14278d46-d6cb-438a-8cb1-a8a3f550ee2c,0
+	2025-12-17T06:22:41.2339657Z,Command: "C:\home\site\deployments\tools\deploy.cmd",,0
+	2025-12-17T06:22:43.7052758Z,Handling Basic Web Site deployment.,,0
+	2025-12-17T06:22:43.7355112Z,Creating app_offline.htm,,0
+	2025-12-17T06:22:43.7494659Z,KuduSync.NET from: 'C:\local\Temp\zipdeploy\extracted' to: 'C:\home\site\wwwroot',,0
+	2025-12-17T06:22:43.7650922Z,Deleting app_offline.htm,,0
+	2025-12-17T06:22:43.7963486Z,Finished successfully.,,0
+2025-12-17T06:22:43.8761123Z,Build completed succesfully.,67debc0d-3a9a-4d9f-93ed-922db9496de8,0
+2025-12-17T06:22:43.9369615Z,Running post deployment command(s)...,f4faf14f-6b2d-4868-83a1-18d5c4744094,0
+2025-12-17T06:22:44.0307088Z,Requesting site restart,f4aad61c-52a2-4461-a88b-8d8001aab5f7,0
+2025-12-17T06:22:44.6713290Z,Requesting site restart. Attempt #1,e70ca4e3-842f-448b-a654-b5cadcd0ea90,0
+2025-12-17T06:22:46.2049023Z,Successfully requested a restart. Attempt #1,70d5d2de-c56b-4b0d-8bbc-57eef616b483,0
+2025-12-17T06:22:46.3184791Z,Deployment successful.,0ca42af2-65a2-4107-a165-603b1fc0677c,0

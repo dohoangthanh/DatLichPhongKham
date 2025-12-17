@@ -278,25 +278,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      {/* CTA */}
-      <section className="py-16 bg-blue-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Sẵn Sàng Chăm Sóc Sức Khỏe Của Bạn
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Đặt lịch khám ngay hôm nay để được tư vấn và khám bệnh bởi đội ngũ bác sĩ chuyên nghiệp
-          </p>
-          <a 
-            href="/patient/booking" 
-            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-          >
-            Đặt Lịch Khám Ngay
-          </a>
-        </div>
-      </section>
-
       <Footer />
     </main>
   )

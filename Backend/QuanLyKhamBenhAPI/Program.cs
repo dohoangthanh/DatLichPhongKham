@@ -25,6 +25,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ChatbotService>();
 builder.Services.AddScoped<LocalChatbotService>();
 
+// Payment Services
+builder.Services.AddScoped<VietQRService>();
+builder.Services.AddScoped<CassoService>();
+builder.Services.AddScoped<PayOSService>();
+builder.Services.AddHttpClient();
+
 // JWT Configuration
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "YourSecretKeyHere";
 var key = Encoding.ASCII.GetBytes(jwtSecret);
@@ -73,9 +79,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5265", "http://localhost:3000")
-              .AllowAnyMethod()
+        policy.WithOrigins(
+                "http://localhost:5265",
+                "http://localhost:3000",
+                "https://quanlyphongkham.vercel.app",
+                "https://quanlyphongkham-c6vxtrfoa-djo-hoang-thanhs-projects.vercel.app"
+              )
               .AllowAnyHeader()
+              .AllowAnyMethod()
               .AllowCredentials();
     });
 });
@@ -93,26 +104,30 @@ builder.Services.AddSwaggerGen(c =>
         Title = "QuanLyKhamBenh API",
         Version = "v1"
     });
+    c.CustomSchemaIds(type => type.FullName);
 });
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable Swagger for all environments
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "QuanLyKhamBenh API v1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "QuanLyKhamBenh API v1");
+    c.RoutePrefix = "swagger";
+});
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+//Add a test endpoint
+app.MapGet("/", () => "QuanLyKhamBenh API is running!");
+app.MapGet("/health", () => "OK");
+
+// HTTPS Redirection disabled for Somee.com compatibility
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseHttpsRedirection();
+// }
 
 // Enable CORS
 app.UseCors("AllowFrontend");

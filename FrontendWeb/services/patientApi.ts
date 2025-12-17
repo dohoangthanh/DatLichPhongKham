@@ -174,6 +174,43 @@ export const labResultsApi = {
   }
 }
 
+// Payment API
+export const paymentApi = {
+  create: async (data: {
+    appointmentId: number
+    totalAmount: number
+    paymentMethod: string
+    promoCode?: string
+  }) => {
+    const response = await fetch(`${API_URL}/payment/create`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to create payment')
+    }
+    return response.json()
+  },
+  
+  getStatus: async (paymentId: number) => {
+    const response = await fetch(`${API_URL}/payment/${paymentId}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch payment status')
+    return response.json()
+  },
+  
+  getInvoice: async (appointmentId: number) => {
+    const response = await fetch(`${API_URL}/payment/invoice/${appointmentId}`, {
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to fetch invoice')
+    return response.json()
+  }
+}
+
 export const patientApi = {
   specialties: specialtiesApi,
   doctors: doctorsApi,
@@ -182,7 +219,8 @@ export const patientApi = {
   medicalRecords: medicalRecordsApi,
   labResults: labResultsApi,
   promotions: promotionApi,
-  loyaltyPoints: loyaltyPointsApi
+  loyaltyPoints: loyaltyPointsApi,
+  payment: paymentApi
 }
 
 export default {

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/patient_service.dart';
 import '../services/auth_service.dart';
+import '../services/payment_service.dart';
+import 'payment_modal.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int appointmentId;
@@ -30,11 +33,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
   double _discountPercent = 0.0;
   String _promoMessage = '';
   int _loyaltyPoints = 0;
+  int? _createdPaymentId;
 
   final List<Map<String, dynamic>> _paymentMethods = [
     {'value': 'Cash', 'label': 'Tiền mặt', 'icon': Icons.money},
     {'value': 'Card', 'label': 'Thẻ tín dụng', 'icon': Icons.credit_card},
-    {'value': 'Transfer', 'label': 'Chuyển khoản', 'icon': Icons.account_balance},
+    {
+      'value': 'Transfer',
+      'label': 'Chuyển khoản',
+      'icon': Icons.account_balance
+    },
     {'value': 'MoMo', 'label': 'Ví MoMo', 'icon': Icons.wallet},
   ];
 
@@ -60,7 +68,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       );
 
       // Load loyalty points
-      final loyaltyPoints = await _patientService.getLoyaltyPoints(authService.token!);
+      final loyaltyPoints =
+          await _patientService.getLoyaltyPoints(authService.token!);
 
       setState(() {
         _paymentInfo = paymentInfo;
@@ -99,7 +108,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       setState(() {
         _discountPercent = result['discountPercent'] ?? 0.0;
-        _promoMessage = '✓ Áp dụng thành công! Giảm ${_discountPercent.toInt()}%';
+        _promoMessage =
+            '✓ Áp dụng thành công! Giảm ${_discountPercent.toInt()}%';
+        // Reset payment để tạo lại với số tiền mới
+        _createdPaymentId = null;
       });
     } catch (e) {
       setState(() {
@@ -113,68 +125,59 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   double _getFinalAmount() {
     if (_paymentInfo == null) return 0.0;
-    final originalAmount = (_paymentInfo!['payment']['totalAmount'] as num).toDouble();
+    final originalAmount =
+        (_paymentInfo!['payment']['totalAmount'] as num).toDouble();
     final discount = originalAmount * (_discountPercent / 100);
     return originalAmount - discount;
   }
 
-  Future<void> _processPayment() async {
+  Future<void> _showPaymentModal() async {
     if (_paymentInfo == null) return;
 
     setState(() => _isProcessing = true);
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
+      final prefs = await SharedPreferences.getInstance();
+      final paymentService = PaymentService(prefs);
       final finalAmount = _getFinalAmount();
 
-      // Create payment with final amount
-      final paymentId = await _patientService.createPayment(
-        authService.token!,
-        widget.appointmentId,
-        _selectedMethod,
-        finalAmount, // Send final amount instead of hardcoded
+      // Tạo payment mới với số tiền đúng (sau giảm giá)
+      final paymentData = await paymentService.createPayment(
+        appointmentId: widget.appointmentId,
+        totalAmount: finalAmount,
+        paymentMethod: 'bank_transfer',
+        promoCode: _promoCode.trim().isNotEmpty ? _promoCode.trim() : null,
       );
 
-      if (paymentId != null) {
-        // Confirm payment
-        final confirmSuccess = await _patientService.confirmPayment(
-          authService.token!,
-          paymentId,
+      setState(() {
+        _createdPaymentId = paymentData['paymentId'];
+        _isProcessing = false;
+      });
+
+      // Hiển thị PaymentModal với QR code
+      if (mounted) {
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => PaymentModal(
+            appointmentId: widget.appointmentId,
+            totalAmount: finalAmount,
+            paymentService: paymentService,
+          ),
         );
 
-        if (mounted) {
-          setState(() => _isProcessing = false);
-
-          if (confirmSuccess) {
-            final pointsEarned = (finalAmount / 10000).floor();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Thanh toán thành công! Bạn đã nhận được $pointsEarned điểm tích lũy.'),
-                backgroundColor: Colors.green,
-              ),
-            );
-            await Future.delayed(const Duration(milliseconds: 500));
-            if (mounted) {
-              Navigator.pop(context, true);
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Xác nhận thanh toán thất bại. Vui lòng thử lại.'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      } else {
-        if (mounted) {
-          setState(() => _isProcessing = false);
+        // Nếu thanh toán thành công, quay lại
+        if (result == true && mounted) {
+          final pointsEarned = (finalAmount / 10000).floor();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tạo thanh toán thất bại. Vui lòng thử lại.'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text(
+                  'Thanh toán thành công! Bạn đã nhận được $pointsEarned điểm tích lũy.'),
+              backgroundColor: Colors.green,
             ),
           );
+          Navigator.pop(context, true);
         }
       }
     } catch (e) {
@@ -211,13 +214,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1E88E5)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1E88E5)))
           : _error != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(Icons.error_outline,
+                          size: 64, color: Colors.red),
                       const SizedBox(height: 16),
                       Text(_error!, textAlign: TextAlign.center),
                       const SizedBox(height: 24),
@@ -284,13 +289,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInfoRow(Icons.event, 'Ngày', _formatDate(_paymentInfo!['date'])),
+          _buildInfoRow(
+              Icons.event, 'Ngày', _formatDate(_paymentInfo!['date'])),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.access_time, 'Giờ', _formatTime(_paymentInfo!['time'])),
+          _buildInfoRow(
+              Icons.access_time, 'Giờ', _formatTime(_paymentInfo!['time'])),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.person, 'Bác sĩ', _paymentInfo!['doctor']['name'] ?? 'N/A'),
+          _buildInfoRow(
+              Icons.person, 'Bác sĩ', _paymentInfo!['doctor']['name'] ?? 'N/A'),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.local_hospital, 'Chuyên khoa', _paymentInfo!['specialty']['name'] ?? 'N/A'),
+          _buildInfoRow(Icons.local_hospital, 'Chuyên khoa',
+              _paymentInfo!['specialty']['name'] ?? 'N/A'),
         ],
       ),
     );
@@ -423,23 +432,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Expanded(
                 child: TextField(
                   controller: TextEditingController(text: _promoCode),
-                  onChanged: (value) => setState(() => _promoCode = value.toUpperCase()),
+                  onChanged: (value) =>
+                      setState(() => _promoCode = value.toUpperCase()),
                   decoration: InputDecoration(
                     hintText: 'Nhập mã khuyến mãi',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               ElevatedButton(
-                onPressed: _isValidatingPromo || _promoCode.trim().isEmpty ? null : _validatePromoCode,
+                onPressed: _isValidatingPromo || _promoCode.trim().isEmpty
+                    ? null
+                    : _validatePromoCode,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E88E5),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -450,7 +464,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : const Text('Áp dụng'),
@@ -463,7 +478,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               _promoMessage,
               style: TextStyle(
                 fontSize: 14,
-                color: _promoMessage.startsWith('✓') ? Colors.green : Colors.red,
+                color:
+                    _promoMessage.startsWith('✓') ? Colors.green : Colors.red,
               ),
             ),
           ],
@@ -513,7 +529,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E88E5).withValues(alpha: 0.1) : Colors.grey[50],
+          color: isSelected
+              ? const Color(0xFF1E88E5).withValues(alpha: 0.1)
+              : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? const Color(0xFF1E88E5) : Colors.grey[300]!,
@@ -538,7 +556,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const Spacer(),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF1E88E5), size: 24),
+              const Icon(Icons.check_circle,
+                  color: Color(0xFF1E88E5), size: 24),
           ],
         ),
       ),
@@ -548,7 +567,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget _buildTotalAmount() {
     if (_paymentInfo == null) return const SizedBox();
 
-    final originalAmount = (_paymentInfo!['payment']['totalAmount'] as num).toDouble();
+    final originalAmount =
+        (_paymentInfo!['payment']['totalAmount'] as num).toDouble();
     final discountAmount = originalAmount * (_discountPercent / 100);
     final finalAmount = _getFinalAmount();
 
@@ -572,7 +592,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           _buildAmountRow('Phí khám ban đầu', originalAmount, false),
           if (_discountPercent > 0) ...[
             const SizedBox(height: 8),
-            _buildAmountRow('Giảm giá (${_discountPercent.toInt()}%)', -discountAmount, false),
+            _buildAmountRow('Giảm giá (${_discountPercent.toInt()}%)',
+                -discountAmount, false),
             const SizedBox(height: 12),
             Container(
               height: 1,
@@ -625,7 +646,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _isProcessing ? null : _processPayment,
+        onPressed: _isProcessing ? null : _showPaymentModal,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF1E88E5),
           foregroundColor: Colors.white,
@@ -645,7 +666,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               )
             : const Text(
-                'Xác nhận thanh toán',
+                'Thanh toán bằng Chuyển khoản',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

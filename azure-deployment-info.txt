@@ -1,0 +1,18 @@
+﻿========================================
+AZURE DEPLOYMENT INFO
+========================================
+Resource Group    : PhongKhamRG
+Location          : Southeast Asia
+
+SQL Server        : phongkham-sql-1065.database.windows.net
+SQL Database      : QuanLyKhamBenh
+SQL Admin User    : sqladmin
+SQL Admin Password: P@ssw0rd2025!
+
+Backend Web App   : phongkham-api-3446
+Backend URL       : https://phongkham-api-3446.azurewebsites.net
+
+Connection String:
+Server=tcp:phongkham-sql-1065.database.windows.net,1433;Initial Catalog=QuanLyKhamBenh;Persist Security Info=False;User ID=sqladmin;Password=P@ssw0rd2025!;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;
+
+========================================

@@ -541,6 +541,9 @@ namespace QuanLyKhamBenhAPI.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("paymentMethod");
 
+                    b.Property<string>("QrCodeUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -550,6 +553,18 @@ namespace QuanLyKhamBenhAPI.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10, 2)")
                         .HasColumnName("totalAmount");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransferContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ZaloPayTransId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ZaloPayTransToken")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentId")
                         .HasName("PK__Payment__A0D9EFC6E22338D3");

@@ -152,11 +152,11 @@ const SchedulesPage: React.FC = () => {
         await fetchAllWorkShifts()
         alert('Xóa ca làm việc thành công!')
       } else {
-        alert('Có lỗi xảy ra!')
+        alert('Ca làm việc quá hạn hoặc có lịch hẹn!')
       }
     } catch (error) {
       console.error('Error deleting work shift:', error)
-      alert('Có lỗi xảy ra!')
+      alert('Ca làm việc quá hạn hoặc có lịch hẹn!')
     }
   }
 

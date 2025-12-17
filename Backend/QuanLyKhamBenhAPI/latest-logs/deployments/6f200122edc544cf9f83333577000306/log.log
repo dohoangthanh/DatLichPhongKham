@@ -1,0 +1,21 @@
+2025-12-17T06:41:23.6452162Z,Updating submodules.,d2cfc180-501e-4422-b52e-c2d1b6f750bb,0
+2025-12-17T06:41:23.7389685Z,Preparing deployment for commit id '6f200122ed'.,a1459356-1995-4b78-b22f-5ac9bad61e61,0
+2025-12-17T06:41:23.9264708Z,Running build. Project type: OneDeploy,c16ed2a3-a913-4be0-be23-fb46a95bf3b8,0
+2025-12-17T06:41:24.0045948Z,Copying the manifest,37f58090-b156-4880-adf6-72027fd35193,0
+2025-12-17T06:41:24.1160103Z,Clean deploying to C:\home\site\wwwroot,468d98ca-e9e4-4c2a-88c6-df1e9552e2ae,0
+2025-12-17T06:41:24.2077221Z,Generating deployment script.,3ce3874a-88fa-4d37-9704-717785560cdf,0
+	2025-12-17T06:41:24.2758890Z,Using cached version of deployment script (command: 'azure -y --no-dot-deployment -r "C:\local\Temp\zipdeploy\extracted" -o "C:\home\site\deployments\tools" --basic --sitePath "C:\local\Temp\zipdeploy\extracted"').,,0
+2025-12-17T06:41:24.3639752Z,Running deployment command...,64545989-cc8e-4283-ab36-77f9cf9efc28,0
+	2025-12-17T06:41:24.3795987Z,Command: "C:\home\site\deployments\tools\deploy.cmd",,0
+	2025-12-17T06:41:26.2702485Z,Handling Basic Web Site deployment.,,0
+	2025-12-17T06:41:27.0388358Z,Creating app_offline.htm,,0
+	2025-12-17T06:41:27.7546437Z,KuduSync.NET from: 'C:\local\Temp\zipdeploy\extracted' to: 'C:\home\site\wwwroot',,0
+	2025-12-17T06:41:28.2233975Z,Copying file: 'web.config',,0
+	2025-12-17T06:41:28.2859004Z,Deleting app_offline.htm,,0
+	2025-12-17T06:41:28.3020273Z,Finished successfully.,,0
+2025-12-17T06:41:28.3821133Z,Build completed succesfully.,01d6319d-a4fb-4ba4-b2b7-ff981362ee64,0
+2025-12-17T06:41:28.6619015Z,Running post deployment command(s)...,58488918-70e7-4897-9b7b-5b18caaf6b35,0
+2025-12-17T06:41:29.2594249Z,Requesting site restart,d8acf8f3-ec03-4a8a-b900-f7c343aabab3,0
+2025-12-17T06:41:30.0827947Z,Requesting site restart. Attempt #1,868bcb31-6e63-4af0-99d2-1b09b1a28fc6,0
+2025-12-17T06:41:32.4421977Z,Successfully requested a restart. Attempt #1,6aba12ec-ae07-4045-8b26-57438a91c9ac,0
+2025-12-17T06:41:33.1453291Z,Deployment successful.,254117c8-add0-4a94-9a1f-cf66b636c22f,0

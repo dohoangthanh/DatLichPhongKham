@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/booking.dart';
 import '../services/booking_service.dart';
 import '../services/auth_service.dart';
-import 'payment_screen.dart';
+import '../services/payment_service.dart';
+import 'payment_modal.dart';
 
 class AppointmentsHistoryScreen extends StatefulWidget {
   const AppointmentsHistoryScreen({super.key});
 
   @override
-  State<AppointmentsHistoryScreen> createState() => _AppointmentsHistoryScreenState();
+  State<AppointmentsHistoryScreen> createState() =>
+      _AppointmentsHistoryScreenState();
 }
 
-class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> 
+class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final BookingService _bookingService = BookingService();
-  
+
   List<Appointment> _upcomingAppointments = [];
   List<Appointment> _pastAppointments = [];
   bool _isLoading = true;
@@ -43,8 +46,9 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final appointments = await _bookingService.getMyAppointments(authService.token!);
-      
+      final appointments =
+          await _bookingService.getMyAppointments(authService.token!);
+
       if (mounted) {
         setState(() {
           // Scheduled: Only Scheduled or Confirmed appointments
@@ -52,13 +56,13 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
             final status = apt.status.toLowerCase().trim();
             return status == 'scheduled' || status == 'confirmed';
           }).toList();
-          
+
           // History: Completed and Cancelled appointments
           _pastAppointments = appointments.where((apt) {
             final status = apt.status.toLowerCase().trim();
             return status == 'completed' || status == 'cancelled';
           }).toList();
-          
+
           _isLoading = false;
         });
       }
@@ -80,7 +84,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text('Are you sure you want to cancel this appointment?'),
+        content:
+            const Text('Are you sure you want to cancel this appointment?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -96,7 +101,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
 
     if (confirmed == true) {
       try {
-        await _bookingService.cancelAppointment(authService.token!, appointment.appointmentId);
+        await _bookingService.cancelAppointment(
+            authService.token!, appointment.appointmentId);
         await _loadAppointments(); // Reload to update the list
         messenger.showSnackBar(
           const SnackBar(content: Text('Appointment cancelled successfully')),
@@ -121,7 +127,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/appointment-detail', arguments: appointment.appointmentId);
+                    Navigator.pushNamed(context, '/appointment-detail',
+                        arguments: appointment.appointmentId);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1E88E5),
@@ -175,7 +182,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/test-results', arguments: appointment.appointmentId);
+                      Navigator.pushNamed(context, '/test-results',
+                          arguments: appointment.appointmentId);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1E88E5),
@@ -188,7 +196,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                     ),
                     child: const Text(
                       'Record',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -196,16 +205,28 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      if (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') {
-                        Navigator.pushNamed(context, '/invoice', arguments: appointment.appointmentId);
+                      if (appointment.payment != null &&
+                          appointment.payment!.status.toLowerCase() == 'paid') {
+                        Navigator.pushNamed(context, '/invoice',
+                            arguments: appointment.appointmentId);
                       } else {
                         try {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PaymentScreen(appointmentId: appointment.appointmentId),
+                          // Mở PaymentModal thay vì navigate PaymentScreen
+                          final prefs = await SharedPreferences.getInstance();
+                          final paymentService = PaymentService(prefs);
+                          final totalAmount =
+                              appointment.payment?.totalAmount ?? 270000.0;
+
+                          final result = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => PaymentModal(
+                              appointmentId: appointment.appointmentId,
+                              totalAmount: totalAmount,
+                              paymentService: paymentService,
                             ),
                           );
+
                           if (result == true && mounted) {
                             _loadAppointments();
                           }
@@ -228,8 +249,13 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                       ),
                     ),
                     child: Text(
-                      (appointment.payment != null && appointment.payment!.status.toLowerCase() == 'paid') ? 'Invoice' : 'Payment',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      (appointment.payment != null &&
+                              appointment.payment!.status.toLowerCase() ==
+                                  'paid')
+                          ? 'Invoice'
+                          : 'Payment',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -238,10 +264,13 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                   child: ElevatedButton(
                     onPressed: () async {
                       if (appointment.hasFeedback ?? false) {
-                        Navigator.pushNamed(context, '/view-review', arguments: appointment.appointmentId);
+                        Navigator.pushNamed(context, '/view-review',
+                            arguments: appointment.appointmentId);
                       } else {
                         try {
-                          final result = await Navigator.pushNamed(context, '/review', arguments: appointment.appointmentId);
+                          final result = await Navigator.pushNamed(
+                              context, '/review',
+                              arguments: appointment.appointmentId);
                           if (result == true && mounted) {
                             _loadAppointments();
                           }
@@ -264,8 +293,11 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                       ),
                     ),
                     child: Text(
-                      (appointment.hasFeedback ?? false) ? 'View Review' : 'Review',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      (appointment.hasFeedback ?? false)
+                          ? 'View Review'
+                          : 'Review',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -305,8 +337,20 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
       return '${months[date.month - 1]} ${date.day}, ${date.year}';
     } catch (e) {
       return dateStr;
@@ -367,7 +411,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        const Icon(Icons.error_outline,
+                            size: 64, color: Colors.red),
                         const SizedBox(height: 16),
                         Text('Error: $_error', textAlign: TextAlign.center),
                         const SizedBox(height: 24),
@@ -392,7 +437,8 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
     );
   }
 
-  Widget _buildAppointmentsList(List<Appointment> appointments, bool isUpcoming) {
+  Widget _buildAppointmentsList(
+      List<Appointment> appointments, bool isUpcoming) {
     if (appointments.isEmpty) {
       return Center(
         child: Column(
@@ -457,74 +503,76 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            appointment.doctor != null 
-                                ? 'Dr. ${appointment.doctor!.name}'
-                                : 'Doctor',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              appointment.doctor != null
+                                  ? 'Dr. ${appointment.doctor!.name}'
+                                  : 'Doctor',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            appointment.specialty?.name ?? 'Specialty',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[600],
+                            const SizedBox(height: 4),
+                            Text(
+                              appointment.specialty?.name ?? 'Specialty',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(appointment.status).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _getDisplayStatus(appointment.status),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: _getStatusColor(appointment.status),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Divider(height: 1, color: Colors.grey[200]),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${_formatDate(appointment.date)} at ${_formatTime(appointment.time)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(appointment.status)
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _getDisplayStatus(appointment.status),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: _getStatusColor(appointment.status),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildActionButtons(isUpcoming, appointment),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Divider(height: 1, color: Colors.grey[200]),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today,
+                          size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${_formatDate(appointment.date)} at ${_formatTime(appointment.time)}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActionButtons(isUpcoming, appointment),
+                ],
+              ),
             ),
-          ),
           ),
         );
       },

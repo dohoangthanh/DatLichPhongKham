@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import FeedbackModal from '@/components/FeedbackModal'
+import PaymentModal from '@/components/PaymentModal'
 import ChatbotBubble from '@/components/ChatbotBubble'
-import { patientMedicalApi } from '@/services/patientApi'
+import { patientMedicalApi, paymentApi } from '@/services/patientApi'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5129/api'
 
@@ -90,6 +91,15 @@ export default function HistoryPage() {
     record: null,
     loading: false,
     error: null
+  })
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean
+    appointmentId: number
+    totalAmount: number
+  }>({
+    isOpen: false,
+    appointmentId: 0,
+    totalAmount: 0
   })
 
   useEffect(() => {
@@ -422,7 +432,19 @@ export default function HistoryPage() {
                               ? 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
                               : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
                           }`}
-                          onClick={() => router.push(`/patient/payment/${appointment.appointmentId}`)}
+                          onClick={async () => {
+                            if (appointment.payment?.status === 'Paid') {
+                              // Xem hóa đơn
+                              router.push(`/patient/invoice/${appointment.appointmentId}`)
+                            } else {
+                              // Mở modal thanh toán
+                              setPaymentModal({
+                                isOpen: true,
+                                appointmentId: appointment.appointmentId,
+                                totalAmount: appointment.payment?.totalAmount || 270000
+                              })
+                            }
+                          }}
                         >
                           {appointment.payment?.status === 'Paid' ? 'Xem lại Hóa đơn' : 'Thanh Toán'}
                         </button>
@@ -651,6 +673,17 @@ export default function HistoryPage() {
           </div>
         </div>
       )}
+      
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={paymentModal.isOpen}
+        onClose={() => {
+          setPaymentModal({ isOpen: false, appointmentId: 0, totalAmount: 0 })
+          fetchAppointments() // Refresh để cập nhật trạng thái thanh toán
+        }}
+        appointmentId={paymentModal.appointmentId}
+        totalAmount={paymentModal.totalAmount}
+      />
       
       {/* Chatbot Bubble */}
       <ChatbotBubble />

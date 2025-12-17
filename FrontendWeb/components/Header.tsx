@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
@@ -8,6 +8,85 @@ import { useRouter } from 'next/navigation'
 const Header: React.FC = () => {
   const { user, logout } = useAuth()
   const router = useRouter()
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearch(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Search function with debounce
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim().length >= 2) {
+        performSearch(searchQuery)
+      } else {
+        setSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery])
+
+  const performSearch = async (query: string) => {
+    setIsSearching(true)
+    try {
+      const lowerQuery = query.toLowerCase().trim()
+      
+      // Fetch all doctors and services
+      const [doctorsRes, servicesRes] = await Promise.all([
+        fetch('http://localhost:5129/api/doctors'),
+        fetch('http://localhost:5129/api/services')
+      ])
+
+      const allDoctors = doctorsRes.ok ? await doctorsRes.json() : []
+      const allServices = servicesRes.ok ? await servicesRes.json() : []
+
+      // Filter doctors by name or specialty
+      const doctors = allDoctors.filter((d: any) => 
+        d.name?.toLowerCase().includes(lowerQuery) ||
+        d.specialty?.name?.toLowerCase().includes(lowerQuery)
+      )
+
+      // Filter services by name or description
+      const services = allServices.filter((s: any) => 
+        s.name?.toLowerCase().includes(lowerQuery) ||
+        s.description?.toLowerCase().includes(lowerQuery)
+      )
+
+      const results = [
+        ...doctors.slice(0, 5).map((d: any) => ({ type: 'doctor', data: d })),
+        ...services.slice(0, 5).map((s: any) => ({ type: 'service', data: s }))
+      ]
+
+      setSearchResults(results)
+    } catch (error) {
+      console.error('Search error:', error)
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSearchClick = (result: any) => {
+    if (result.type === 'doctor') {
+      router.push(`/doctors`)
+    } else if (result.type === 'service') {
+      router.push(`/services`)
+    }
+    setShowSearch(false)
+    setSearchQuery('')
+  }
 
   const handleLogout = () => {
     if (confirm('Bạn có chắc muốn đăng xuất?')) {
@@ -78,11 +157,95 @@ const Header: React.FC = () => {
             </div>
 
             {/* Search Icon */}
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+            <div className="relative" ref={searchRef}>
+              <button 
+                onClick={() => setShowSearch(!showSearch)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              {/* Search Dropdown */}
+              {showSearch && (
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="p-4">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Tìm kiếm bác sĩ, dịch vụ..."
+                        className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoFocus
+                      />
+                      <svg className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+
+                    {/* Search Results */}
+                    <div className="mt-3 max-h-96 overflow-y-auto">
+                      {isSearching ? (
+                        <div className="text-center py-4 text-gray-500">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                          <p className="mt-2">Đang tìm kiếm...</p>
+                        </div>
+                      ) : searchQuery.trim().length < 2 ? (
+                        <div className="text-center py-4 text-gray-500">
+                          <p>Nhập ít nhất 2 ký tự để tìm kiếm</p>
+                        </div>
+                      ) : searchResults.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">
+                          <p>Không tìm thấy kết quả nào</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {searchResults.map((result, index) => (
+                            <div
+                              key={index}
+                              onClick={() => handleSearchClick(result)}
+                              className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors border border-gray-100"
+                            >
+                              {result.type === 'doctor' ? (
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                    </svg>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-gray-900">BS. {result.data.name}</p>
+                                    <p className="text-sm text-gray-600">{result.data.specialty?.name || 'Bác sĩ'}</p>
+                                  </div>
+                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Bác sĩ</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-gray-900">{result.data.name}</p>
+                                    <p className="text-sm text-blue-600 font-semibold">
+                                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(result.data.price || 0)}
+                                    </p>
+                                  </div>
+                                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Dịch vụ</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* User Section */}
             {user ? (

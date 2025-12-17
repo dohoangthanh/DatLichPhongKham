@@ -169,6 +169,9 @@ namespace QuanLyKhamBenhAPI.Controllers
                     CreateNoWindow = true
                 };
 
+                string output = "";
+                string error = "";
+
                 using (var process = Process.Start(processInfo))
                 {
                     if (process == null)
@@ -176,9 +179,10 @@ namespace QuanLyKhamBenhAPI.Controllers
                         return StatusCode(500, new { message = "Không thể khởi tạo process restore" });
                     }
 
+                    // ĐỌC OUTPUT/ERROR TRƯỚC KHI WAIT - Quan trọng để tránh deadlock
+                    output = await process.StandardOutput.ReadToEndAsync();
+                    error = await process.StandardError.ReadToEndAsync();
                     await process.WaitForExitAsync();
-                    var output = await process.StandardOutput.ReadToEndAsync();
-                    var error = await process.StandardError.ReadToEndAsync();
 
                     if (process.ExitCode != 0)
                     {
@@ -187,7 +191,13 @@ namespace QuanLyKhamBenhAPI.Controllers
                         {
                             System.IO.File.Delete(tempFilePath);
                         }
-                        return StatusCode(500, new { message = $"Restore thất bại: {error}" });
+                        return StatusCode(500, new
+                        {
+                            message = $"Restore thất bại",
+                            error = error,
+                            output = output,
+                            exitCode = process.ExitCode
+                        });
                     }
                 }
 

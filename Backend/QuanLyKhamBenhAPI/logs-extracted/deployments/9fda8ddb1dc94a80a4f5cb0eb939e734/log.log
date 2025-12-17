@@ -1,0 +1,69 @@
+2025-12-17T06:17:18.6947732Z,Updating submodules.,02616572-cfaa-4049-a068-499f01fdfe6c,0
+2025-12-17T06:17:18.7572701Z,Preparing deployment for commit id '9fda8ddb1d'.,a405befd-5981-41ff-abbc-95641bd19f34,0
+2025-12-17T06:17:18.8978959Z,Running build. Project type: OneDeploy,60d764cb-fc8b-4f2b-a7fa-8fa607986049,0
+2025-12-17T06:17:18.9447748Z,Copying the manifest,7e185011-b7cf-4d3e-839d-f3c7ba743d54,0
+2025-12-17T06:17:18.9930432Z,Clean deploying to C:\home\site\wwwroot,d5bcf354-7fdb-4bf4-a753-ab7a479b22f7,0
+2025-12-17T06:17:19.0602846Z,Generating deployment script.,b691b077-aa98-4410-ac7b-942ad3784df9,0
+	2025-12-17T06:17:19.2477758Z,Using the following command to generate deployment script: 'azure site deploymentscript -y --no-dot-deployment -r "C:\local\Temp\zipdeploy\extracted" -o "C:\home\site\deployments\tools" --basic --sitePath "C:\local\Temp\zipdeploy\extracted"'.,,0
+	2025-12-17T06:17:20.1089481Z,Generating deployment script for Web Site,,0
+2025-12-17T06:17:20.2996905Z,Running deployment command...,8ab214a0-8929-457e-b24f-0b6ebe63d614,0
+	2025-12-17T06:17:20.3102505Z,Command: "C:\home\site\deployments\tools\deploy.cmd",,0
+	2025-12-17T06:17:35.3712277Z,Handling Basic Web Site deployment.,,0
+	2025-12-17T06:17:36.1932672Z,Creating app_offline.htm,,0
+	2025-12-17T06:17:36.2088995Z,KuduSync.NET from: 'C:\local\Temp\zipdeploy\extracted' to: 'C:\home\site\wwwroot',,0
+	2025-12-17T06:17:36.2245138Z,Deleting file: 'hostingstart.html',,0
+	2025-12-17T06:17:36.2401587Z,Copying file: 'appsettings.Development.json',,0
+	2025-12-17T06:17:36.2566635Z,Copying file: 'appsettings.json',,0
+	2025-12-17T06:17:36.2870188Z,Copying file: 'appsettings.Production.json',,0
+	2025-12-17T06:17:36.3044713Z,Copying file: 'appsettings.template.json',,0
+	2025-12-17T06:17:36.3205478Z,Copying file: 'Azure.AI.OpenAI.dll',,0
+	2025-12-17T06:17:36.3357337Z,Copying file: 'Azure.Core.dll',,0
+	2025-12-17T06:17:36.3513564Z,Copying file: 'Azure.Identity.dll',,0
+	2025-12-17T06:17:36.4015012Z,Copying file: 'BCrypt.Net-Next.dll',,0
+	2025-12-17T06:17:36.4139055Z,Copying file: 'Google.Apis.Aiplatform.v1.dll',,0
+	2025-12-17T06:17:36.4610537Z,Copying file: 'Google.Apis.Auth.dll',,0
+	2025-12-17T06:17:36.4919898Z,Copying file: 'Google.Apis.Core.dll',,0
+	2025-12-17T06:17:36.5076155Z,Copying file: 'Google.Apis.dll',,0
+	2025-12-17T06:17:36.5232528Z,Copying file: 'Microsoft.AspNetCore.Authentication.JwtBearer.dll',,0
+	2025-12-17T06:17:36.5232528Z,Copying file: 'Microsoft.AspNetCore.OpenApi.dll',,0
+	2025-12-17T06:17:36.5544910Z,Copying file: 'Microsoft.Bcl.AsyncInterfaces.dll',,0
+	2025-12-17T06:17:36.5857429Z,Copying file: 'Microsoft.Bcl.HashCode.dll',,0
+	2025-12-17T06:17:36.6013841Z,Copying file: 'Microsoft.Data.SqlClient.dll',,0
+	2025-12-17T06:17:36.6169959Z,Copying file: 'Microsoft.EntityFrameworkCore.Abstractions.dll',,0
+	2025-12-17T06:17:36.6510797Z,Copying file: 'Microsoft.EntityFrameworkCore.dll',,0
+	2025-12-17T06:17:36.6638724Z,Copying file: 'Microsoft.EntityFrameworkCore.Relational.dll',,0
+	2025-12-17T06:17:36.6812249Z,Copying file: 'Microsoft.EntityFrameworkCore.SqlServer.dll',,0
+	2025-12-17T06:17:36.6951235Z,Copying file: 'Microsoft.Extensions.AI.Abstractions.dll',,0
+	2025-12-17T06:17:36.7107464Z,Copying file: 'Microsoft.Extensions.Caching.Abstractions.dll',,0
+	2025-12-17T06:17:36.7263745Z,Copying file: 'Microsoft.Extensions.Caching.Memory.dll',,0
+	2025-12-17T06:17:36.7419999Z,Copying file: 'Microsoft.Extensions.Configuration.Abstractions.dll',,0
+	2025-12-17T06:17:36.7576256Z,Copying file: 'Microsoft.Extensions.DependencyInjection.Abstractions.dll',,0
+	2025-12-17T06:17:36.7732514Z,Copying file: 'Microsoft.Extensions.DependencyInjection.dll',,0
+	2025-12-17T06:17:36.7921937Z,Copying file: 'Microsoft.Extensions.Logging.Abstractions.dll',,0
+	2025-12-17T06:17:36.8045042Z,Copying file: 'Microsoft.Extensions.Logging.dll',,0
+	2025-12-17T06:17:36.8223735Z,Copying file: 'Microsoft.Extensions.Options.dll',,0
+	2025-12-17T06:17:36.8514560Z,Copying file: 'Microsoft.Extensions.Primitives.dll',,0
+	2025-12-17T06:17:36.8670083Z,Copying file: 'Microsoft.Extensions.VectorData.Abstractions.dll',,0
+	2025-12-17T06:17:36.8982548Z,Copying file: 'Microsoft.Identity.Client.dll',,0
+	2025-12-17T06:17:36.8982548Z,Copying file: 'Microsoft.Identity.Client.Extensions.Msal.dll',,0
+	2025-12-17T06:17:36.9138812Z,Copying file: 'Microsoft.IdentityModel.Abstractions.dll',,0
+	2025-12-17T06:17:36.9295048Z,Copying file: 'Microsoft.IdentityModel.JsonWebTokens.dll',,0
+	2025-12-17T06:17:36.9295048Z,Copying file: 'Microsoft.IdentityModel.Logging.dll',,0
+	2025-12-17T06:17:36.9972045Z,Copying file: 'Microsoft.IdentityModel.Protocols.dll',,0
+	2025-12-17T06:17:37.0076356Z,Copying file: 'Microsoft.IdentityModel.Protocols.OpenIdConnect.dll',,0
+	2025-12-17T06:17:37.0232622Z,Copying file: 'Microsoft.IdentityModel.Tokens.dll',,0
+	2025-12-17T06:17:37.0388842Z,Copying file: 'Microsoft.OpenApi.dll',,0
+	2025-12-17T06:17:37.0545088Z,Copying file: 'Microsoft.SemanticKernel.Abstractions.dll',,0
+	2025-12-17T06:17:37.1014441Z,Copying file: 'Microsoft.SemanticKernel.Connectors.AzureOpenAI.dll',,0
+	2025-12-17T06:17:37.2437663Z,Copying file: 'Microsoft.SemanticKernel.Connectors.Google.dll',,0
+	2025-12-17T06:17:37.2576463Z,Copying file: 'Microsoft.SemanticKernel.Connectors.OpenAI.dll',,0
+	2025-12-17T06:17:37.2732697Z,Copying file: 'Microsoft.SemanticKernel.Core.dll',,0
+	2025-12-17T06:17:37.2888983Z,Copying file: 'Microsoft.SemanticKernel.dll',,0
+	2025-12-17T06:17:37.3045211Z,Omitting next output lines...,,0
+	2025-12-17T06:17:38.2889365Z,Finished successfully.,,0
+2025-12-17T06:17:38.3983141Z,Build completed succesfully.,8cbaf986-fd47-437c-bb3a-043f04691b03,0
+2025-12-17T06:17:38.4764406Z,Running post deployment command(s)...,fd3ddbf4-8cd6-4f47-8603-7a299f61a407,0
+2025-12-17T06:17:38.7326048Z,Requesting site restart,424052b5-e4d2-4901-b698-816d439c09db,0
+2025-12-17T06:17:38.7951117Z,Requesting site restart. Attempt #1,3bed3fa6-3257-46ff-aa40-12af95370a47,0
+2025-12-17T06:17:40.3905483Z,Successfully requested a restart. Attempt #1,6a25f989-51dc-47b3-b53f-99f4b5661793,0
+2025-12-17T06:17:40.4826660Z,Deployment successful.,49694c0d-2ed5-4dbd-be21-5a51fcd83e28,0

@@ -75,12 +75,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <aside className="w-64 bg-white border-r min-h-[calc(100vh-73px)] p-4">
           <nav className="space-y-2">
             <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-            >
-              <span className="font-medium">Tổng quan</span>
-            </Link>
-            <Link
               href="/admin/appointments"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
@@ -121,6 +115,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
             >
               <span className="font-medium">Khuyến mại</span>
+            </Link>
+            <Link
+              href="/admin/payments"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+            >
+              💰 <span className="font-medium">Thanh toán</span>
             </Link>
             <Link
               href="/admin/feedback"

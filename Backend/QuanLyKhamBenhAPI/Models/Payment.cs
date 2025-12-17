@@ -17,6 +17,15 @@ public partial class Payment
 
     public int? AppointmentId { get; set; }
 
+    // ZaloPay fields
+    public string? ZaloPayTransId { get; set; }
+    public string? ZaloPayTransToken { get; set; }
+    public string? QrCodeUrl { get; set; }
+
+    // Bank Transfer / Casso fields
+    public string? TransferContent { get; set; }  // Nội dung chuyển khoản (VD: "THANHTOAN 123")
+    public string? TransactionId { get; set; }     // Mã giao dịch ngân hàng (tid từ Casso)
+
     public virtual Appointment? Appointment { get; set; }
 
     public virtual ICollection<PaymentPromotion> PaymentPromotions { get; set; } = new List<PaymentPromotion>();

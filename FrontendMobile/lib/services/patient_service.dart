@@ -380,4 +380,52 @@ class PatientService {
       throw Exception('Error changing password: $e');
     }
   }
+
+  Future<Map<String, dynamic>> createZaloPayPayment(String token,
+      int appointmentId, double totalAmount, String? promoCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/payment/create'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'appointmentId': appointmentId,
+          'paymentMethod': 'ZaloPay',
+          'totalAmount': totalAmount,
+          'promoCode': promoCode,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to create ZaloPay payment');
+      }
+    } catch (e) {
+      throw Exception('Error creating ZaloPay payment: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> checkZaloPayStatus(int paymentId) async {
+    try {
+      final token = ''; // Get from auth service
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/payment/zalopay-status/$paymentId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to check payment status');
+      }
+    } catch (e) {
+      throw Exception('Error checking payment status: $e');
+    }
+  }
 }

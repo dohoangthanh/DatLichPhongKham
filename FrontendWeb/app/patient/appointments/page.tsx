@@ -81,7 +81,7 @@ export default function AppointmentsPage() {
       
       if (response.ok) {
         alert('Hủy lịch khám thành công!')
-        fetchAppointments()
+        router.push('/patient/history')
       } else {
         const error = await response.json()
         alert(error.message || 'Không thể hủy lịch khám')

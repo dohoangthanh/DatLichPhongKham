@@ -4,6 +4,17 @@ import React, { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { statsApi } from '@/services/adminApi'
 
+interface DashboardStats {
+  totalPatients: number
+  totalDoctors: number
+  totalAppointments: number
+  completedAppointments: number
+  pendingAppointments: number
+  cancelledAppointments: number
+  totalRevenue: number
+  monthlyRevenue: number
+}
+
 interface RevenueStats {
   totalRevenue: number
   totalPayments: number
@@ -29,6 +40,12 @@ interface TopPatient {
   lastVisit: string
 }
 
+interface AppointmentByStatus {
+  status: string
+  count: number
+  percentage: number
+}
+
 interface AppointmentBySpecialty {
   specialtyName: string
   appointmentCount: number
@@ -36,50 +53,59 @@ interface AppointmentBySpecialty {
 }
 
 const ReportsPage: React.FC = () => {
-  const [loading, setLoading] = useState(true)
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   const [revenueStats, setRevenueStats] = useState<RevenueStats | null>(null)
   const [topPatients, setTopPatients] = useState<TopPatient[]>([])
+  const [appointmentsByStatus, setAppointmentsByStatus] = useState<AppointmentByStatus[]>([])
   const [appointmentsBySpecialty, setAppointmentsBySpecialty] = useState<AppointmentBySpecialty[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'daily' | 'monthly'>('monthly')
   const [dateRange, setDateRange] = useState({
-    from: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
+    from: new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0],
     to: new Date().toISOString().split('T')[0]
   })
-  const [reportType, setReportType] = useState<'revenue' | 'patients' | 'appointments' | 'performance'>('revenue')
 
   useEffect(() => {
-    loadReports()
+    loadAllStats()
   }, [dateRange])
 
-  const loadReports = async () => {
+  const loadAllStats = async () => {
     try {
       setLoading(true)
+      setError(null)
       
-      try {
-        const revenue = await statsApi.getRevenue(dateRange.from, dateRange.to)
-        console.log('Revenue data:', revenue)
-        setRevenueStats(revenue)
-      } catch (err) {
-        console.error('Error loading revenue:', err)
-      }
-
-      try {
-        const patients = await statsApi.getTopPatients(20, dateRange.from, dateRange.to)
-        console.log('Top patients:', patients)
-        setTopPatients(patients)
-      } catch (err) {
-        console.error('Error loading top patients:', err)
-      }
-
-      try {
-        const bySpecialty = await statsApi.getAppointmentsBySpecialty(dateRange.from, dateRange.to)
-        console.log('By specialty:', bySpecialty)
-        setAppointmentsBySpecialty(bySpecialty)
-      } catch (err) {
-        console.error('Error loading by specialty:', err)
-      }
+      const [dashboard, revenue, patients, byStatus, bySpecialty] = await Promise.all([
+        statsApi.getDashboard().catch(err => {
+          console.error('Dashboard error:', err)
+          return null
+        }),
+        statsApi.getRevenue(dateRange.from, dateRange.to).catch(err => {
+          console.error('Revenue error:', err)
+          return null
+        }),
+        statsApi.getTopPatients(10, dateRange.from, dateRange.to).catch(err => {
+          console.error('Top patients error:', err)
+          return []
+        }),
+        statsApi.getAppointmentsByStatus(dateRange.from, dateRange.to).catch(err => {
+          console.error('By status error:', err)
+          return []
+        }),
+        statsApi.getAppointmentsBySpecialty(dateRange.from, dateRange.to).catch(err => {
+          console.error('By specialty error:', err)
+          return []
+        })
+      ])
+      
+      setDashboardStats(dashboard)
+      setRevenueStats(revenue)
+      setTopPatients(patients || [])
+      setAppointmentsByStatus(byStatus || [])
+      setAppointmentsBySpecialty(bySpecialty || [])
     } catch (error) {
-      console.error('Error loading reports:', error)
-      alert('Lỗi khi tải báo cáo: ' + (error as Error).message)
+      console.error('Error loading stats:', error)
+      setError('Có lỗi khi tải thống kê')
     } finally {
       setLoading(false)
     }
@@ -93,15 +119,36 @@ const ReportsPage: React.FC = () => {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN')
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit'
+    })
   }
 
-  const exportToCSV = () => {
-    alert('Chức năng xuất báo cáo đang được phát triển')
+  const formatMonth = (year: number, month: number) => {
+    return `T${month}/${year}`
   }
 
-  const printReport = () => {
-    window.print()
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      'Completed': 'bg-green-500',
+      'Pending': 'bg-yellow-500',
+      'Scheduled': 'bg-blue-500',
+      'Cancelled': 'bg-red-500',
+      'Confirmed': 'bg-cyan-500'
+    }
+    return colors[status] || 'bg-gray-500'
+  }
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      'Completed': 'Hoàn thành',
+      'Pending': 'Chờ xác nhận',
+      'Scheduled': 'Đã đặt lịch',
+      'Cancelled': 'Đã hủy',
+      'Confirmed': 'Đã xác nhận'
+    }
+    return labels[status] || status
   }
 
   if (loading) {
@@ -110,299 +157,334 @@ const ReportsPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Đang tải báo cáo...</p>
+            <p className="mt-4 text-gray-600">Đang tải thống kê...</p>
           </div>
         </div>
       </AdminLayout>
     )
   }
 
+  const revenueData = viewMode === 'monthly' 
+    ? revenueStats?.monthlyRevenue || []
+    : revenueStats?.dailyRevenue || []
+
+  const maxRevenue = viewMode === 'monthly'
+    ? Math.max(...(revenueStats?.monthlyRevenue.map(m => m.revenue) || [1]))
+    : Math.max(...(revenueStats?.dailyRevenue.map(d => d.revenue) || [1]))
+
+  const maxSpecialtyCount = Math.max(...(appointmentsBySpecialty.map(s => s.appointmentCount) || [1]))
+  const maxPatientCount = Math.max(...(topPatients.map(p => p.appointmentCount) || [1]))
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Báo cáo & Thống kê</h1>
-            <p className="text-gray-600 mt-1">Xem các báo cáo và thống kê chi tiết</p>
-          </div>
-          
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={printReport}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              In báo cáo
-            </button>
-            <button
-              onClick={exportToCSV}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Xuất Excel
-            </button>
-          </div>
+        {/* Header with Title */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Thống kê & Báo cáo</h1>
+          <p className="text-sm text-gray-500 mt-1">Tổng quan hoạt động phòng khám</p>
         </div>
 
-        {/* Date Range Filter */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex gap-4 items-center">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Từ ngày</label>
+        {/* Unified Filter Bar */}
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-700">Lọc dữ liệu:</span>
+              
+              {/* View Mode Toggle */}
+              <div className="flex gap-1 bg-gray-100 p-0.5 rounded">
+                <button
+                  onClick={() => setViewMode('daily')}
+                  className={`px-4 py-1.5 rounded text-sm font-medium transition ${
+                    viewMode === 'daily' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Ngày
+                </button>
+                <button
+                  onClick={() => setViewMode('monthly')}
+                  className={`px-4 py-1.5 rounded text-sm font-medium transition ${
+                    viewMode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Tháng
+                </button>
+              </div>
+            </div>
+
+            {/* Date Range Picker */}
+            <div className="flex gap-2 items-center">
               <input
                 type="date"
                 value={dateRange.from}
                 onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Đến ngày</label>
+              <span className="text-gray-400">→</span>
               <input
                 type="date"
                 value={dateRange.to}
                 onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Loại báo cáo</label>
-              <select
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value as any)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              <button
+                onClick={loadAllStats}
+                className="px-4 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium shadow-sm"
               >
-                <option value="revenue">Báo cáo doanh thu</option>
-                <option value="patients">Báo cáo bệnh nhân</option>
-                <option value="appointments">Báo cáo lịch khám</option>
-                <option value="performance">Báo cáo hiệu suất</option>
-              </select>
+                Tải lại
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Revenue Report */}
-        {reportType === 'revenue' && revenueStats && (
-          <div className="space-y-6">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Tổng doanh thu</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenueStats.totalRevenue)}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Tổng giao dịch</p>
-                    <p className="text-2xl font-bold text-gray-900">{revenueStats.totalPayments}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Trung bình/giao dịch</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {revenueStats.totalPayments > 0 ? formatCurrency(revenueStats.totalRevenue / revenueStats.totalPayments) : '0₫'}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Monthly Revenue Table */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
-                <h2 className="text-lg font-semibold text-gray-900">Doanh thu theo tháng</h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tháng</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doanh thu</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số giao dịch</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trung bình</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {revenueStats.monthlyRevenue.map((month, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          Tháng {month.month}/{month.year}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                          {formatCurrency(month.revenue)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.paymentCount}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.paymentCount > 0 ? formatCurrency(month.revenue / month.paymentCount) : '0₫'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 text-sm">
+            {error}
           </div>
         )}
 
-        {/* Patients Report */}
-        {reportType === 'patients' && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Bệnh nhân có lượt khám nhiều nhất</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">STT</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Họ tên</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số lượt khám</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng chi tiêu</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lần khám cuối</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {topPatients.map((patient, index) => (
-                    <tr key={patient.patientId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {patient.patientName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {patient.phone}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
-                        {patient.appointmentCount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
-                        {formatCurrency(patient.totalSpent)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {formatDate(patient.lastVisit)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {/* Overview Stats Cards - Compact */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-white border-l-4 border-blue-500 rounded-lg shadow-sm p-4">
+            <p className="text-xs text-gray-600 uppercase">Bệnh nhân</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{dashboardStats?.totalPatients || 0}</p>
           </div>
-        )}
 
-        {/* Appointments Report */}
-        {reportType === 'appointments' && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Thống kê lịch khám theo chuyên khoa</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chuyên khoa</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số lượt khám</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doanh thu</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trung bình/lượt</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {appointmentsBySpecialty.map((specialty, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {specialty.specialtyName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
-                        {specialty.appointmentCount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
-                        {formatCurrency(specialty.revenue)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {specialty.appointmentCount > 0 ? formatCurrency(specialty.revenue / specialty.appointmentCount) : '0₫'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="bg-white border-l-4 border-green-500 rounded-lg shadow-sm p-4">
+            <p className="text-xs text-gray-600 uppercase">Bác sĩ</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{dashboardStats?.totalDoctors || 0}</p>
           </div>
-        )}
 
-        {/* Performance Report */}
-        {reportType === 'performance' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Hiệu suất chung</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-gray-600">Tổng số bệnh nhân</span>
-                  <span className="font-semibold text-gray-900">{topPatients.length}</span>
+          <div className="bg-white border-l-4 border-purple-500 rounded-lg shadow-sm p-4">
+            <p className="text-xs text-gray-600 uppercase">Lịch hẹn</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{dashboardStats?.totalAppointments || 0}</p>
+            <p className="text-xs text-gray-500 mt-1">{dashboardStats?.completedAppointments || 0} hoàn thành</p>
+          </div>
+
+          <div className="bg-white border-l-4 border-orange-500 rounded-lg shadow-sm p-4">
+            <p className="text-xs text-gray-600 uppercase">Doanh thu tháng</p>
+            <p className="text-xl font-bold text-gray-900 mt-1">{formatCurrency(dashboardStats?.monthlyRevenue || 0)}</p>
+          </div>
+        </div>
+
+        {/* Main Charts Row */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Revenue Chart - Enhanced */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-5">📊 Doanh thu</h2>
+
+            {revenueData.length > 0 ? (
+              <div className="relative">
+                {/* Chart with professional styling */}
+                <div className="relative h-72 bg-gradient-to-b from-gray-50 to-white rounded-lg p-4">
+                  <div className="h-full flex items-end justify-around gap-3 border-b-2 border-l-2 border-gray-400">
+                    {viewMode === 'monthly' 
+                      ? revenueStats?.monthlyRevenue.slice(-8).map((item, index) => {
+                          const height = (item.revenue / maxRevenue) * 100
+                          return (
+                            <div key={index} className="flex-1 flex flex-col items-center group relative" style={{ maxWidth: '80px' }}>
+                              {/* Value label on top */}
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap font-semibold">
+                                  {formatCurrency(item.revenue)}
+                                </div>
+                              </div>
+                              
+                              <div className="w-full flex items-end justify-center h-full relative">
+                                <div
+                                  className="w-full bg-gradient-to-t from-blue-600 via-blue-500 to-blue-400 hover:from-blue-700 hover:via-blue-600 hover:to-blue-500 rounded-t-lg shadow-lg transition-all duration-300 cursor-pointer relative"
+                                  style={{ height: `${Math.max(height, 5)}%` }}
+                                >
+                                  {/* Value on bar */}
+                                  {height > 15 && (
+                                    <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-sm font-bold text-gray-800 whitespace-nowrap">
+                                      {new Intl.NumberFormat('vi-VN', { notation: 'compact', compactDisplay: 'short' }).format(item.revenue)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-700 mt-3 font-semibold">{item.month}/{item.year}</p>
+                            </div>
+                          )
+                        })
+                      : revenueStats?.dailyRevenue.slice(-10).map((item, index) => {
+                          const height = (item.revenue / maxRevenue) * 100
+                          const date = new Date(item.date)
+                          return (
+                            <div key={index} className="flex-1 flex flex-col items-center group relative" style={{ maxWidth: '65px' }}>
+                              {/* Tooltip */}
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <div className="bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap font-semibold">
+                                  {formatCurrency(item.revenue)}
+                                </div>
+                              </div>
+                              
+                              <div className="w-full flex items-end justify-center h-full">
+                                <div
+                                  className="w-full bg-gradient-to-t from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-500 rounded-t-lg shadow-lg transition-all duration-300 cursor-pointer"
+                                  style={{ height: `${Math.max(height, 5)}%` }}
+                                >
+                                  {/* Value on bar */}
+                                  {height > 15 && (
+                                    <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-sm font-bold text-gray-800 whitespace-nowrap">
+                                      {new Intl.NumberFormat('vi-VN', { notation: 'compact', compactDisplay: 'short' }).format(item.revenue)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-700 mt-3 font-semibold">{date.getDate()}/{date.getMonth() + 1}</p>
+                            </div>
+                          )
+                        })
+                    }
+                  </div>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-gray-600">Tổng số lịch khám</span>
-                  <span className="font-semibold text-gray-900">
-                    {topPatients.reduce((sum, p) => sum + p.appointmentCount, 0)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-3">
-                  <span className="text-gray-600">Tổng doanh thu</span>
-                  <span className="font-semibold text-green-600">
-                    {formatCurrency(revenueStats?.totalRevenue || 0)}
-                  </span>
+                
+                {/* Total Summary */}
+                <div className="mt-4 text-center bg-gradient-to-r from-blue-50 via-emerald-50 to-blue-50 rounded-lg py-3 border border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Tổng doanh thu: <span className="font-bold text-xl text-gray-900 ml-1">{formatCurrency(revenueStats?.totalRevenue || 0)}</span>
+                  </p>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="h-72 flex flex-col items-center justify-center text-gray-400">
+                <svg className="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="font-medium">Không có dữ liệu</p>
+              </div>
+            )}
+          </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Thống kê theo chuyên khoa</h2>
-              <div className="space-y-3">
-                {appointmentsBySpecialty.map((specialty, index) => (
-                  <div key={index} className="flex items-center justify-between py-2">
-                    <span className="text-gray-600">{specialty.specialtyName}</span>
-                    <div className="flex items-center gap-4">
-                      <span className="text-blue-600 font-semibold">{specialty.appointmentCount} lượt</span>
-                      <span className="text-green-600 font-semibold">{formatCurrency(specialty.revenue)}</span>
+          {/* Specialty Chart - Enhanced */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-5">🏥 Chuyên khoa</h2>
+            
+            {appointmentsBySpecialty.length > 0 ? (
+              <div className="relative">
+                {/* Chart with professional styling */}
+                <div className="relative h-72 bg-gradient-to-b from-gray-50 to-white rounded-lg p-4">
+                  <div className="h-full flex items-end justify-around gap-3 border-b-2 border-l-2 border-gray-400">
+                    {appointmentsBySpecialty.slice(0, 6).map((item, index) => {
+                      const height = (item.appointmentCount / maxSpecialtyCount) * 100
+                      const gradients = [
+                        'from-purple-600 via-purple-500 to-purple-400',
+                        'from-pink-600 via-pink-500 to-pink-400',
+                        'from-orange-600 via-orange-500 to-orange-400',
+                        'from-cyan-600 via-cyan-500 to-cyan-400',
+                        'from-indigo-600 via-indigo-500 to-indigo-400',
+                        'from-teal-600 via-teal-500 to-teal-400'
+                      ]
+                      const hoverGradients = [
+                        'hover:from-purple-700 hover:via-purple-600 hover:to-purple-500',
+                        'hover:from-pink-700 hover:via-pink-600 hover:to-pink-500',
+                        'hover:from-orange-700 hover:via-orange-600 hover:to-orange-500',
+                        'hover:from-cyan-700 hover:via-cyan-600 hover:to-cyan-500',
+                        'hover:from-indigo-700 hover:via-indigo-600 hover:to-indigo-500',
+                        'hover:from-teal-700 hover:via-teal-600 hover:to-teal-500'
+                      ]
+                      
+                      return (
+                        <div key={index} className="flex-1 flex flex-col items-center group relative" style={{ maxWidth: '90px' }}>
+                          {/* Tooltip on hover */}
+                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <div className="bg-gray-900 text-white px-3 py-2 rounded-lg text-xs whitespace-nowrap">
+                              <div className="font-bold">{item.specialtyName}</div>
+                              <div className="text-blue-300">{item.appointmentCount} lịch hẹn</div>
+                              <div className="text-green-300">{formatCurrency(item.revenue)}</div>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex items-end justify-center h-full">
+                            <div
+                              className={`w-full bg-gradient-to-t ${gradients[index]} ${hoverGradients[index]} rounded-t-lg shadow-lg transition-all duration-300 cursor-pointer relative`}
+                              style={{ height: `${Math.max(height, 5)}%` }}
+                            >
+                              {/* Count on top of bar */}
+                              <div className="absolute -top-9 left-1/2 transform -translate-x-1/2 text-base font-bold text-gray-900 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md border-2 border-gray-300">
+                                {item.appointmentCount}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-700 mt-3 font-semibold text-center w-full leading-tight" title={item.specialtyName}>
+                            {item.specialtyName.length > 12 ? item.specialtyName.substring(0, 12) + '...' : item.specialtyName}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                {/* Total Summary */}
+                <div className="mt-4 text-center bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 rounded-lg py-3 border border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Tổng lịch hẹn: <span className="font-bold text-xl text-gray-900 ml-1">{appointmentsBySpecialty.reduce((sum, s) => sum + s.appointmentCount, 0)}</span>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-72 flex flex-col items-center justify-center text-gray-400">
+                <svg className="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="font-medium">Không có dữ liệu</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Row */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Status Distribution - Compact */}
+          <div className="bg-white rounded-lg shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Trạng thái lịch hẹn</h2>
+            <div className="space-y-3">
+              {appointmentsByStatus.map((item, index) => {
+                const maxCount = Math.max(...appointmentsByStatus.map(s => s.count))
+                const width = (item.count / maxCount) * 100
+                
+                return (
+                  <div key={index}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-700">{getStatusLabel(item.status)}</span>
+                      <span className="font-semibold text-gray-900">{item.count}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${getStatusColor(item.status)} rounded-full transition-all duration-500`}
+                        style={{ width: `${width}%` }}
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
           </div>
-        )}
+
+          {/* Top Patients - Compact */}
+          <div className="bg-white rounded-lg shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Top bệnh nhân</h2>
+            <div className="space-y-2">
+              {topPatients.slice(0, 5).map((patient, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${
+                    index === 0 ? 'bg-yellow-400 text-white' :
+                    index === 1 ? 'bg-gray-300 text-white' :
+                    index === 2 ? 'bg-orange-400 text-white' :
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{patient.patientName}</p>
+                    <p className="text-xs text-gray-500">{patient.appointmentCount} lượt khám</p>
+                  </div>
+                  <p className="text-xs font-semibold text-gray-700">{formatCurrency(patient.totalSpent)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </AdminLayout>
   )
