@@ -22,6 +22,7 @@ export default function PaymentModal({
   const [qrImageUrl, setQrImageUrl] = useState<string>('')
   const [paymentStatus, setPaymentStatus] = useState<string>('Pending')
   const [promoCode, setPromoCode] = useState('')
+  const [markingAsTransferred, setMarkingAsTransferred] = useState(false)
 
   useEffect(() => {
     if (paymentData?.qrCodeUrl) {
@@ -31,51 +32,38 @@ export default function PaymentModal({
     }
   }, [paymentData])
 
-  useEffect(() => {
+  const handleMarkAsTransferred = async () => {
     if (!paymentData?.paymentId) return
-
-    console.log('🔄 Starting payment polling for Payment ID:', paymentData.paymentId)
-
-    // Poll payment status every 3 seconds
-    const interval = setInterval(async () => {
-      try {
-        console.log('📡 Polling payment status...')
-        const status = await paymentApi.getStatus(paymentData.paymentId)
-        console.log('✅ Payment status received:', status)
-        setPaymentStatus(status.status)
-        
-        if (status.status === 'Paid') {
-          console.log('🎉 Payment confirmed as PAID!')
-          clearInterval(interval)
-          setTimeout(() => {
-            onClose()
-            window.location.reload()
-          }, 2000)
-        }
-      } catch (error) {
-        console.error('❌ Error checking payment status:', error)
-      }
-    }, 3000)
-
-    return () => {
-      console.log('⏹️ Stopping payment polling')
-      clearInterval(interval)
+    
+    setMarkingAsTransferred(true)
+    try {
+      await paymentApi.markAsTransferred(paymentData.paymentId)
+      setPaymentStatus('AwaitingConfirmation')
+      alert('✅ Đã xác nhận chuyển khoản! Vui lòng đợi admin xác nhận.')
+    } catch (error: any) {
+      console.error('❌ Error marking as transferred:', error)
+      alert(`Lỗi: ${error.message || 'Không thể xác nhận chuyển khoản'}`)
+    } finally {
+      setMarkingAsTransferred(false)
     }
-  }, [paymentData, onClose])
+  }
 
   const handleCreatePayment = async () => {
     setLoading(true)
     try {
+      console.log('Creating payment for appointment:', appointmentId, 'Amount:', totalAmount)
       const result = await paymentApi.create({
         appointmentId,
         totalAmount,
         paymentMethod: 'bank_transfer',
         promoCode: promoCode || undefined
       })
-      
+      console.log('Payment created successfully:', result)
       setPaymentData(result)
     } catch (error: any) {
-      alert(error.message || 'Không thể tạo thanh toán')
+      console.error('Payment creation error:', error)
+      const errorMessage = error.message || 'Không thể tạo thanh toán'
+      alert(`Lỗi: ${errorMessage}\n\nVui lòng thử lại hoặc liên hệ hỗ trợ.`)
     } finally {
       setLoading(false)
     }
@@ -159,8 +147,17 @@ export default function PaymentModal({
                       </div>
                       <div className="ml-3">
                         <p className="text-sm text-yellow-700">
-                          Quét mã QR hoặc chuyển khoản theo thông tin bên dưới. <br/>
-                          Thanh toán sẽ tự động xác nhận sau khi chuyển khoản thành công.
+                          {paymentStatus === 'AwaitingConfirmation' ? (
+                            <>
+                              ⏳ <strong>Đang chờ admin xác nhận thanh toán...</strong><br/>
+                              Bạn đã xác nhận đã chuyển khoản. Vui lòng đợi quản trị viên kiểm tra và xác nhận.
+                            </>
+                          ) : (
+                            <>
+                              Quét mã QR hoặc chuyển khoản theo thông tin bên dưới. <br/>
+                              Sau khi chuyển xong, nhấn nút "Đã chuyển khoản" bên dưới.
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -261,10 +258,43 @@ export default function PaymentModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    <span>Đang chờ thanh toán...</span>
-                  </div>
+                  {paymentStatus === 'AwaitingConfirmation' ? (
+                    <div className="text-center py-6">
+                      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-bold text-blue-600 mb-2">Chờ xác nhận từ admin</h3>
+                      <p className="text-gray-600">Thanh toán của bạn đang được xử lý</p>
+                      <button
+                        onClick={onClose}
+                        className="mt-6 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                      >
+                        Đóng
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleMarkAsTransferred}
+                      disabled={markingAsTransferred}
+                      className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-medium flex items-center justify-center gap-2"
+                    >
+                      {markingAsTransferred ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Đang xác nhận...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Tôi đã chuyển khoản</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

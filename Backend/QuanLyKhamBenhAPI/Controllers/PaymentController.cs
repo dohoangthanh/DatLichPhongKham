@@ -70,113 +70,183 @@ namespace QuanLyKhamBenhAPI.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDto dto)
         {
-            var user = await GetCurrentUser();
-            if (user == null) return Unauthorized();
-
-            // Check if appointment exists and belongs to user
-            var appointment = await _context.Appointments
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d!.Specialty)
-                .Include(a => a.AppointmentServices!)
-                    .ThenInclude(ads => ads.Service)
-                .FirstOrDefaultAsync(a => a.AppointmentId == dto.AppointmentId);
-            if (appointment == null) return NotFound("Appointment not found");
-
-            if (user.Role == "Patient" && appointment.PatientId != user.PatientId) return Forbid();
-
-            decimal totalAmount = dto.TotalAmount;
-            Promotion? appliedPromotion = null;
-
-            // Apply promo code if provided
-            if (!string.IsNullOrEmpty(dto.PromoCode))
+            try
             {
-                var today = DateOnly.FromDateTime(DateTime.Now);
-                appliedPromotion = await _context.Promotions
-                    .FirstOrDefaultAsync(p =>
-                        p.Description!.Contains(dto.PromoCode) &&
-                        p.StartDate <= today &&
-                        p.EndDate >= today);
+                _logger.LogInformation("Creating payment for appointment {AppointmentId}, amount {Amount}",
+                    dto.AppointmentId, dto.TotalAmount);
 
-                if (appliedPromotion != null && appliedPromotion.DiscountPercent.HasValue)
+                var user = await GetCurrentUser();
+                if (user == null) return Unauthorized();
+
+                // Check if appointment exists and belongs to user
+                var appointment = await _context.Appointments
+                    .Include(a => a.Doctor)
+                        .ThenInclude(d => d!.Specialty)
+                    .Include(a => a.AppointmentServices!)
+                        .ThenInclude(ads => ads.Service)
+                    .FirstOrDefaultAsync(a => a.AppointmentId == dto.AppointmentId);
+                if (appointment == null) return NotFound("Appointment not found");
+
+                if (user.Role == "Patient" && appointment.PatientId != user.PatientId) return Forbid();
+
+                // ✅ KIỂM TRA PAYMENT HIỆN CÓ - 1 Appointment chỉ có 1 Payment Pending/AwaitingConfirmation
+                var existingPayment = await _context.Payments
+                    .Include(p => p.PaymentPromotions!)
+                        .ThenInclude(pp => pp.Promo)
+                    .FirstOrDefaultAsync(p => p.AppointmentId == dto.AppointmentId &&
+                        (p.Status == "Pending" || p.Status == "AwaitingConfirmation"));
+
+                Payment payment;
+                decimal totalAmount = dto.TotalAmount;
+                Promotion? appliedPromotion = null;
+
+                if (existingPayment != null)
                 {
-                    decimal discount = totalAmount * (appliedPromotion.DiscountPercent.Value / 100);
-                    totalAmount -= discount;
+                    // ✅ SỬ DỤNG LẠI PAYMENT CŨ
+                    _logger.LogInformation("Reusing existing pending payment {PaymentId} for appointment {AppointmentId}",
+                        existingPayment.PaymentId, dto.AppointmentId);
+
+                    payment = existingPayment;
+                    totalAmount = payment.TotalAmount;
+
+                    // Lấy promotion đã áp dụng (nếu có)
+                    appliedPromotion = payment.PaymentPromotions?.FirstOrDefault()?.Promo;
                 }
-            }
+                else
+                {
+                    // ✅ TẠO PAYMENT MỚI
+                    _logger.LogInformation("Creating NEW payment for appointment {AppointmentId}", dto.AppointmentId);
 
-            var payment = new Payment
-            {
-                TotalAmount = totalAmount,
-                PaymentMethod = dto.PaymentMethod ?? "Pending",
-                Status = "Pending",
-                PaymentDate = DateTime.Now,
-                AppointmentId = dto.AppointmentId
-            };
+                    // Apply promo code if provided
+                    if (!string.IsNullOrEmpty(dto.PromoCode))
+                    {
+                        var today = DateOnly.FromDateTime(DateTime.Now);
+                        appliedPromotion = await _context.Promotions
+                            .FirstOrDefaultAsync(p =>
+                                p.Description!.Contains(dto.PromoCode) &&
+                                p.StartDate <= today &&
+                                p.EndDate >= today);
 
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
+                        if (appliedPromotion != null && appliedPromotion.DiscountPercent.HasValue)
+                        {
+                            decimal discount = totalAmount * (appliedPromotion.DiscountPercent.Value / 100);
+                            totalAmount -= discount;
+                        }
+                    }
 
-            // Link promotion to payment if applied
-            if (appliedPromotion != null)
-            {
-                var paymentPromotion = new PaymentPromotion
+                    payment = new Payment
+                    {
+                        TotalAmount = totalAmount,
+                        PaymentMethod = dto.PaymentMethod ?? "Pending",
+                        Status = "Pending",
+                        PaymentDate = DateTime.Now,
+                        AppointmentId = dto.AppointmentId
+                    };
+
+                    _context.Payments.Add(payment);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Link promotion to payment if applied
+                if (appliedPromotion != null && existingPayment == null) // Chỉ link khi payment mới
+                {
+                    var paymentPromotion = new PaymentPromotion
+                    {
+                        PaymentId = payment.PaymentId,
+                        PromoId = appliedPromotion.PromoId
+                    };
+                    _context.PaymentPromotions.Add(paymentPromotion);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Tạo VietQR cho bank transfer
+                string? qrCodeUrl = payment.QrCodeUrl; // Sử dụng QR cũ nếu có
+                string? transferContent = payment.TransferContent; // Sử dụng content cũ nếu có
+                string? bankName = null;
+                string? accountNumber = null;
+                string? accountName = null;
+
+                if (dto.PaymentMethod?.ToLower() == "bank_transfer" || dto.PaymentMethod?.ToLower() == "banktransfer")
+                {
+                    // ✅ Nếu payment đã có QR, dùng lại QR cũ
+                    if (!string.IsNullOrEmpty(qrCodeUrl) && !string.IsNullOrEmpty(transferContent))
+                    {
+                        _logger.LogInformation("Reusing existing QR code for payment {PaymentId}, content {Content}",
+                            payment.PaymentId, transferContent);
+
+                        // Lấy thông tin bank từ service
+                        var vietQRData = _vietQRService.GenerateVietQR(totalAmount, transferContent);
+                        bankName = vietQRData.BankName;
+                        accountNumber = vietQRData.AccountNumber;
+                        accountName = vietQRData.AccountName;
+                    }
+                    else
+                    {
+                        // ✅ Tạo QR mới cho payment mới
+                        try
+                        {
+                            transferContent = $"PK{payment.PaymentId:D6}"; // Format: PK000007
+                            _logger.LogInformation("Generating NEW VietQR for payment {PaymentId}, amount {Amount}, content {Content}",
+                                payment.PaymentId, totalAmount, transferContent);
+
+                            var vietQRData = _vietQRService.GenerateVietQR(totalAmount, transferContent);
+
+                            qrCodeUrl = vietQRData.QrContent;
+                            bankName = vietQRData.BankName;
+                            accountNumber = vietQRData.AccountNumber;
+                            accountName = vietQRData.AccountName;
+
+                            payment.QrCodeUrl = qrCodeUrl;
+                            payment.TransferContent = transferContent;
+                            await _context.SaveChangesAsync();
+
+                            _logger.LogInformation("VietQR generated successfully");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to generate VietQR, continuing without QR code");
+                            // Continue without QR code if VietQR fails
+                        }
+                    }
+                }
+
+                return Ok(new
                 {
                     PaymentId = payment.PaymentId,
-                    PromoId = appliedPromotion.PromoId
-                };
-                _context.PaymentPromotions.Add(paymentPromotion);
-                await _context.SaveChangesAsync();
-            }
-
-            // Tạo VietQR cho bank transfer
-            string? qrCodeUrl = null;
-            string? transferContent = null;
-            string? bankName = null;
-            string? accountNumber = null;
-            string? accountName = null;
-
-            if (dto.PaymentMethod?.ToLower() == "bank_transfer" || dto.PaymentMethod?.ToLower() == "banktransfer")
-            {
-                transferContent = $"PK{payment.PaymentId:D6}"; // Format: PK000007
-
-                var vietQRData = _vietQRService.GenerateVietQR(totalAmount, transferContent);
-
-                qrCodeUrl = vietQRData.QrContent;
-                bankName = vietQRData.BankName;
-                accountNumber = vietQRData.AccountNumber;
-                accountName = vietQRData.AccountName;
-
-                payment.QrCodeUrl = qrCodeUrl;
-                payment.TransferContent = transferContent;
-                await _context.SaveChangesAsync();
-            }
-
-            return Ok(new
-            {
-                PaymentId = payment.PaymentId,
-                TotalAmount = totalAmount,
-                OriginalAmount = dto.TotalAmount,
-                DiscountApplied = appliedPromotion != null ? appliedPromotion.DiscountPercent : 0,
-                QrCodeUrl = qrCodeUrl,
-                TransferContent = transferContent,
-                BankName = bankName,
-                AccountNumber = accountNumber,
-                AccountName = accountName,
-                // Thông tin appointment để hiển thị trong modal
-                AppointmentInfo = appointment != null ? new
-                {
-                    DoctorName = appointment.Doctor?.Name ?? "Unknown",
-                    SpecialtyName = appointment.Doctor?.Specialty?.Name ?? "Unknown",
-                    AppointmentDate = appointment.Date.ToString("dd/MM/yyyy"),
-                    AppointmentTime = appointment.Time.ToString(@"hh\:mm"),
-                    Services = appointment.AppointmentServices?.Select(ads => new
+                    TotalAmount = totalAmount,
+                    OriginalAmount = dto.TotalAmount,
+                    DiscountApplied = appliedPromotion != null ? appliedPromotion.DiscountPercent : 0,
+                    QrCodeUrl = qrCodeUrl,
+                    TransferContent = transferContent,
+                    BankName = bankName,
+                    AccountNumber = accountNumber,
+                    AccountName = accountName,
+                    // Thông tin appointment để hiển thị trong modal
+                    AppointmentInfo = appointment != null ? new
                     {
-                        ServiceName = ads.Service?.Name ?? "Unknown",
-                        Price = ads.Service?.Price ?? 0
-                    }).ToList()
-                } : null,
-                Message = "Payment created successfully"
-            });
+                        DoctorName = appointment.Doctor?.Name ?? "Unknown",
+                        SpecialtyName = appointment.Doctor?.Specialty?.Name ?? "Unknown",
+                        AppointmentDate = appointment.Date.ToString("dd/MM/yyyy"),
+                        AppointmentTime = appointment.Time.ToString(@"hh\:mm"),
+                        Services = appointment.AppointmentServices?.Select(ads => new
+                        {
+                            ServiceName = ads.Service?.Name ?? "Unknown",
+                            Price = ads.Service?.Price ?? 0
+                        }).ToList()
+                    } : null,
+                    Message = "Payment created successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating payment for appointment {AppointmentId}", dto.AppointmentId);
+                return StatusCode(500, new
+                {
+                    Message = "Error creating payment",
+                    Error = ex.Message,
+                    Details = ex.InnerException?.Message
+                });
+            }
         }
 
         // ==================== CASSO WEBHOOK ====================
@@ -195,38 +265,49 @@ namespace QuanLyKhamBenhAPI.Controllers
                 var requestBody = await reader.ReadToEndAsync();
 
                 _logger.LogInformation("🔔 Received Casso webhook: {Body}", requestBody);
-                _logger.LogInformation("📨 Headers: {Headers}", string.Join(", ", Request.Headers.Select(h => $"{h.Key}={h.Value}")));
+                _logger.LogInformation("📨 All Headers: {Headers}", string.Join(", ", Request.Headers.Select(h => $"{h.Key}={h.Value}")));
 
                 // 2. Lấy signature từ header (Casso gửi trong secure-token)
                 var receivedSignature = Request.Headers["secure-token"].FirstOrDefault()
                     ?? Request.Headers["Secure-Token"].FirstOrDefault()
                     ?? Request.Headers["X-Secure-Token"].FirstOrDefault()
+                    ?? Request.Headers["x-secure-token"].FirstOrDefault()
                     ?? "";
 
-                _logger.LogInformation("🔐 Received Signature: {Signature}", receivedSignature);
+                _logger.LogInformation("🔐 Received Signature: '{Signature}'", receivedSignature);
 
-                // 3. Verify HMAC signature
-                if (string.IsNullOrEmpty(receivedSignature))
+                // 3. Verify HMAC signature (Skip for Casso test requests)
+                var webhookData = _cassoService.ParseWebhookData(requestBody);
+
+                // Cho phép test request từ Casso (không có data hoặc data rỗng)
+                var isTestRequest = webhookData == null || webhookData.Data == null || !webhookData.Data.Any();
+
+                if (!isTestRequest && string.IsNullOrEmpty(receivedSignature))
                 {
-                    _logger.LogWarning("❌ Missing signature in webhook");
+                    _logger.LogWarning("❌ Missing signature in production webhook");
                     return Unauthorized(new { error = 1, message = "Missing signature" });
                 }
 
-                var isValid = _cassoService.VerifyWebhook(requestBody, receivedSignature);
-                if (!isValid)
+                if (!isTestRequest && !string.IsNullOrEmpty(receivedSignature))
                 {
-                    _logger.LogWarning("❌ Invalid webhook signature");
-                    return Unauthorized(new { error = 1, message = "Invalid signature" });
+                    var isValid = _cassoService.VerifyWebhook(requestBody, receivedSignature);
+                    if (!isValid)
+                    {
+                        _logger.LogWarning("❌ Invalid webhook signature");
+                        return Unauthorized(new { error = 1, message = "Invalid signature" });
+                    }
+                    _logger.LogInformation("✅ Webhook signature verified");
+                }
+                else if (isTestRequest)
+                {
+                    _logger.LogInformation("🧪 Test webhook from Casso - signature verification skipped");
                 }
 
-                _logger.LogInformation("✅ Webhook signature verified");
-
-                // 4. Parse webhook data
-                var webhookData = _cassoService.ParseWebhookData(requestBody);
+                // 4. Kiểm tra có transaction data không
                 if (webhookData == null || webhookData.Data == null || !webhookData.Data.Any())
                 {
-                    _logger.LogWarning("⚠️ Casso webhook has no transaction data");
-                    return Ok(new { error = 0, message = "No data" });
+                    _logger.LogInformation("⚠️ Casso test webhook - no transaction data");
+                    return Ok(new { error = 0, message = "Test webhook received successfully" });
                 }
 
                 // 5. Xử lý từng transaction
@@ -412,6 +493,47 @@ namespace QuanLyKhamBenhAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// User đánh dấu đã chuyển khoản - chuyển status sang AwaitingConfirmation
+        /// </summary>
+        [HttpPost("mark-transferred/{paymentId}")]
+        public async Task<IActionResult> MarkAsTransferred(int paymentId)
+        {
+            var user = await GetCurrentUser();
+            if (user == null) return Unauthorized();
+
+            var payment = await _context.Payments
+                .Include(p => p.Appointment)
+                .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+
+            if (payment == null) return NotFound("Payment not found");
+
+            // Check authorization
+            if (user.Role == "Patient" && payment.Appointment?.PatientId != user.PatientId)
+                return Forbid();
+
+            // Chỉ cho phép đánh dấu nếu đang Pending
+            if (payment.Status != "Pending")
+            {
+                return BadRequest(new { Message = $"Không thể đánh dấu. Trạng thái hiện tại: {payment.Status}" });
+            }
+
+            // Chuyển sang AwaitingConfirmation
+            payment.Status = "AwaitingConfirmation";
+            payment.PaymentDate = DateTime.Now; // Ghi lại thời gian user confirm
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                Message = "Đã ghi nhận. Vui lòng đợi admin xác nhận thanh toán.",
+                Status = payment.Status
+            });
+        }
+
+        /// <summary>
+        /// Admin xác nhận payment (từ AwaitingConfirmation → Paid)
+        /// </summary>
         [HttpPut("confirm/{paymentId}")]
         public async Task<IActionResult> ConfirmPayment(int paymentId, [FromBody] ConfirmPaymentDto? dto)
         {
@@ -435,6 +557,12 @@ namespace QuanLyKhamBenhAPI.Controllers
             if (payment.Status == "Paid")
             {
                 return BadRequest(new { Message = "Payment already confirmed" });
+            }
+
+            // Chỉ cho phép confirm từ Pending hoặc AwaitingConfirmation
+            if (payment.Status != "Pending" && payment.Status != "AwaitingConfirmation")
+            {
+                return BadRequest(new { Message = $"Không thể xác nhận. Trạng thái hiện tại: {payment.Status}" });
             }
 
             // Update payment status
@@ -502,6 +630,9 @@ namespace QuanLyKhamBenhAPI.Controllers
                 .Include(p => p.Appointment)
                     .ThenInclude(a => a!.Doctor)
                         .ThenInclude(d => d!.Specialty)
+                .Include(p => p.Appointment)
+                    .ThenInclude(a => a!.AppointmentServices!)
+                        .ThenInclude(ads => ads.Service)
                 .FirstOrDefaultAsync(p => p.AppointmentId == appointmentId);
 
             if (payment == null) return NotFound("Payment not found");
@@ -522,6 +653,32 @@ namespace QuanLyKhamBenhAPI.Controllers
                 currentPoints = currentLoyaltyPoints?.Points ?? 0;
             }
 
+            // ✅ LẤY DỊCH VỤ THỰC TẾ TỪ APPOINTMENT  
+            var servicesQuery = payment.Appointment?.AppointmentServices?.Select(ads => new
+            {
+                Name = ads.Service?.Name ?? "Dịch vụ",
+                Quantity = 1,
+                Price = ads.Service?.Price ?? 0
+            });
+
+            object[] services;
+            decimal subtotal;
+
+            if (servicesQuery != null && servicesQuery.Any())
+            {
+                var servicesList = servicesQuery.ToList();
+                services = servicesList.Cast<object>().ToArray();
+                subtotal = servicesList.Sum(s => s.Price);
+            }
+            else
+            {
+                services = new object[]
+                {
+                    new { Name = "Khám bệnh", Quantity = 1, Price = payment.TotalAmount }
+                };
+                subtotal = payment.TotalAmount;
+            }
+
             // Create invoice data
             var invoice = new
             {
@@ -535,14 +692,9 @@ namespace QuanLyKhamBenhAPI.Controllers
                 AppointmentDate = payment.Appointment != null ? payment.Appointment.Date.ToString("yyyy-MM-dd") : "Unknown",
                 AppointmentTime = payment.Appointment != null ? payment.Appointment.Time.ToString(@"hh\:mm\:ss") : "Unknown",
                 AppointmentDayOfWeek = payment.Appointment != null ? payment.Appointment.Date.ToString("dddd", new System.Globalization.CultureInfo("vi-VN")) : "Unknown",
-                Items = new[]
-                {
-                    new { Name = "Phí khám ban đầu", Quantity = 1, Price = 270000 },
-                    new { Name = "Xét nghiệm máu tổng quát", Quantity = 1, Price = 0 },
-                    new { Name = "Phí dịch vụ", Quantity = 1, Price = 0 }
-                },
-                Subtotal = 270000,
-                Tax = 0, // No tax in sample
+                Items = services,
+                Subtotal = subtotal,
+                Tax = 0,
                 Total = payment.TotalAmount,
                 PaymentMethod = payment.PaymentMethod ?? "Unknown",
                 PaymentDate = payment.PaymentDate?.ToString("yyyy-MM-dd HH:mm:ss"),

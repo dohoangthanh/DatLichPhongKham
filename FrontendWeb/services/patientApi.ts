@@ -182,16 +182,37 @@ export const paymentApi = {
     paymentMethod: string
     promoCode?: string
   }) => {
-    const response = await fetch(`${API_URL}/payment/create`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || 'Failed to create payment')
+    try {
+      console.log('Calling payment API:', `${API_URL}/payment/create`, data)
+      const response = await fetch(`${API_URL}/payment/create`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      })
+      
+      console.log('Payment API response status:', response.status)
+      
+      if (!response.ok) {
+        let errorMessage = 'Failed to create payment'
+        try {
+          const error = await response.json()
+          errorMessage = error.message || error.Message || errorMessage
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        }
+        throw new Error(errorMessage)
+      }
+      
+      const result = await response.json()
+      console.log('Payment API success:', result)
+      return result
+    } catch (error: any) {
+      console.error('Payment API error:', error)
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.')
+      }
+      throw error
     }
-    return response.json()
   },
   
   getStatus: async (paymentId: number) => {
@@ -207,6 +228,18 @@ export const paymentApi = {
       headers: getAuthHeaders()
     })
     if (!response.ok) throw new Error('Failed to fetch invoice')
+    return response.json()
+  },
+
+  markAsTransferred: async (paymentId: number) => {
+    const response = await fetch(`${API_URL}/payment/mark-transferred/${paymentId}`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to mark payment as transferred')
+    }
     return response.json()
   }
 }
